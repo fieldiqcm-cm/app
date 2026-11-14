@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FieldIQ Gestão</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#E8E0D3">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="FieldIQ">
+<style>
+@font-face{font-family:'Playfair Display';font-style:normal;font-weight:700;font-display:swap;src:url(assets/fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-style:italic;font-weight:600;font-display:swap;src:url(assets/fonts/playfair-display-latin-600-italic.woff2) format('woff2')}
+@font-face{font-family:Mulish;font-style:normal;font-weight:400;font-display:swap;src:url(assets/fonts/mulish-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Mulish;font-style:normal;font-weight:600;font-display:swap;src:url(assets/fonts/mulish-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:Mulish;font-style:normal;font-weight:800;font-display:swap;src:url(assets/fonts/mulish-latin-800-normal.woff2) format('woff2')}
+</style>
+<style>
+/* Layout: app de gestão do analista, um telemóvel ao centro; tema claro (beje + cobre) para nunca se confundir com a app do cliente; vistas trocadas por #hash. */
+:root{
+  --bg:#D9D0C1; --app:#E8E0D3; --card:#F6F2E9; --line:#D3C8B6; --line2:#C2B6A2;
+  --fg:#1B1815; --muted:#4F473E; --dim:#6E6457;
+  --cobre:#8A4F24; --cobre2:#B5703E; --ink:#1B1815; --gold:#C9A453; --gold2:#E2C27A;
+  --ok:#2F6B45; --warn:#9A5B12; --bad:#A33A2C;
+  --display:'Playfair Display', Georgia, serif; --body:Mulish, system-ui, sans-serif;
+  color-scheme:light;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;margin:0}
+*{box-sizing:border-box}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+a{color:var(--cobre)}
+:focus-visible{outline:2px solid var(--cobre);outline-offset:2px}
+[hidden]{display:none!important}
+.stage{min-height:100%;display:flex;justify-content:center;align-items:flex-start}
+.phone{width:100%;max-width:430px;min-height:100%;height:100%;background:var(--app);display:flex;flex-direction:column;position:relative;overflow:hidden;padding-top:env(safe-area-inset-top,0px)}
+@media (min-width:600px){
+  .stage{padding-block:32px}
+  .phone{min-height:860px;height:860px;border-radius:40px;border:1px solid var(--line2);box-shadow:0 30px 80px rgba(60,40,20,.35),0 0 0 8px #2A2723}
+}
+#vista{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding-block:20px 24px;padding-left:max(18px, env(safe-area-inset-left,0px));padding-right:max(18px, env(safe-area-inset-right,0px));animation:entra .3s ease-out}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.marca{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:18px}
+.marca .em{width:34px;height:34px;border-radius:17px;background:var(--ink);color:#F2EEE2;display:flex;align-items:center;justify-content:center;font-size:13px}
+.marca .em span,.marca b{color:var(--cobre2)}
+.tag{font-family:var(--body);font-size:10px;font-weight:800;letter-spacing:1.6px;background:var(--ink);color:var(--gold2);border-radius:99px;padding:4px 8px;text-transform:uppercase}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:1.8px;color:var(--cobre);text-transform:uppercase}
+h1{margin:4px 0 0;font-family:var(--display);font-weight:700;font-size:28px;line-height:1.15;text-wrap:balance}
+h1 em{font-style:italic;font-weight:600;color:var(--cobre)}
+h2{margin:0;font-size:12px;font-weight:800;letter-spacing:1.6px;color:var(--dim);text-transform:uppercase}
+.sub{font-size:13px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;display:block;color:var(--fg);text-decoration:none}
+.dark{background:var(--ink);color:#F2EEE2;border-radius:16px;padding:16px;display:block;text-decoration:none}
+.row{display:flex;align-items:center;gap:12px}
+.between{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kpi b{display:block;font-family:var(--display);font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;font-weight:700;color:var(--muted)}
+.dark.kpi span{color:#CFC4B3}
+.pill{font-size:11px;font-weight:800;border-radius:99px;padding:4px 10px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.p-ok{background:#DCEADF;color:var(--ok)}
+.p-warn{background:#F3E2C6;color:var(--warn)}
+.p-bad{background:#F3D6D0;color:var(--bad)}
+.p-ink{background:var(--ink);color:var(--gold2)}
+.p-soft{background:#E3DACB;color:var(--muted)}
+.btn{min-height:48px;border-radius:12px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer;border:none;width:100%;padding:0 16px}
+.btn.ink{background:var(--ink);color:var(--gold2)}
+.btn.cobre{background:var(--cobre);color:#fff}
+.btn.ghost{background:transparent;border:1.5px solid var(--ink);color:var(--ink)}
+.btn.small{min-height:40px;width:auto;font-size:13px}
+.iconbtn{width:44px;height:44px;border-radius:22px;border:1px solid var(--line2);background:var(--card);display:flex;align-items:center;justify-content:center;color:var(--fg);text-decoration:none;cursor:pointer;position:relative;flex-shrink:0}
+.badge{position:absolute;top:4px;right:4px;min-width:18px;height:18px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.input{min-height:48px;border-radius:12px;border:1px solid var(--line2);background:#fff;padding:0 14px;width:100%}
+textarea.input{padding:12px 14px;resize:none;line-height:1.4}
+label.l{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.6px}
+.campo{display:flex;flex-direction:column;gap:6px}
+.lista{display:flex;flex-direction:column;gap:8px}
+.cli{display:flex;align-items:center;gap:12px;padding:12px 14px}
+.av{width:42px;height:42px;border-radius:21px;background:var(--ink);color:var(--gold2);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+.cli .nm{font-weight:800}
+.cli .ds{font-size:12px;color:var(--muted);margin-top:2px}
+.dot{width:9px;height:9px;border-radius:5px;background:var(--bad);flex-shrink:0}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:#E3DACB;border-radius:12px;padding:4px}
+.seg button{min-height:40px;border:none;border-radius:9px;background:transparent;font-weight:800;font-size:13px;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--gold2)}
+.step{display:flex;align-items:center;gap:10px}
+.step button{width:44px;height:44px;border-radius:12px;border:1px solid var(--line2);background:#fff;font-size:20px;font-weight:800;cursor:pointer}
+.step b{font-family:var(--display);font-size:26px;min-width:40px;text-align:center;font-variant-numeric:tabular-nums}
+.an{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:14px;background:#fff;border:1px solid var(--line)}
+.up{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:10px;border:1.5px dashed var(--line2);cursor:pointer;font-size:13px;font-weight:700;background:var(--card)}
+.up.feito{border-style:solid;border-color:var(--ok);color:var(--ok)}
+.up input{position:absolute;width:1px;height:1px;opacity:0}
+.it{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 6px 0 12px;border-radius:10px;background:#fff;border:1px solid var(--line);font-size:14px}
+.it span{flex:1}
+.it button{width:36px;height:36px;border:none;background:none;cursor:pointer;color:var(--dim);font-size:18px}
+.msg{max-width:86%;border-radius:16px;padding:10px 14px;font-size:14px;line-height:1.45}
+.msg small{display:block;font-size:11px;margin-top:6px;opacity:.7}
+.msg .sb{display:block;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px;opacity:.75}
+.msg.cli2{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.eu{align-self:flex-end;background:var(--ink);color:#F2EEE2;border-bottom-right-radius:4px}
+.lock{font-size:13px;color:var(--dim);border:1px dashed var(--line2);border-radius:12px;padding:12px}
+nav.tabs{flex-shrink:0;border-top:1px solid var(--line2);background:#EFE8DC;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding-bottom:max(8px, env(safe-area-inset-bottom,0px))}
+nav.tabs a{height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none;color:var(--dim);font-size:11px;font-weight:800;position:relative}
+nav.tabs a[aria-current="page"]{color:var(--cobre)}
+nav.tabs .badge{top:6px;right:calc(50% - 22px)}
+.push{position:absolute;left:12px;right:12px;top:calc(12px + env(safe-area-inset-top,0px));background:rgba(27,24,21,.96);color:#F2EEE2;border-radius:18px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 14px 40px rgba(0,0,0,.35);z-index:9;cursor:pointer;animation:desce .4s cubic-bezier(.2,1.3,.4,1);border:none;text-align:left;width:auto;font:inherit}
+@keyframes desce{from{transform:translateY(-120%)}to{transform:none}}
+.push .ic{width:36px;height:36px;border-radius:9px;background:var(--ink);border:1px solid var(--gold);color:var(--gold2);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700;font-size:13px;flex-shrink:0}
+.push small{display:block;font-size:11px;color:#CFC4B3}
+.toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--gold2);font-weight:800;font-size:13px;padding:10px 16px;border-radius:99px;box-shadow:0 8px 24px rgba(0,0,0,.25);white-space:nowrap;z-index:8;max-width:92%;overflow:hidden;text-overflow:ellipsis}
+.note{font-size:12px;color:var(--dim);line-height:1.5}
+.demo{border:1px dashed var(--line2);border-radius:12px;padding:10px 12px;font-size:12px;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="stage">
+<div class="phone">
+  <main id="vista" aria-live="polite"></main>
+  <nav class="tabs" id="tabs" aria-label="Navegação da gestão" hidden>
+    <a href="#painel" data-t="painel"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Painel</a>
+    <a href="#clientes" data-t="clientes"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21c1.2-3.5 3.8-5 7-5s5.8 1.5 7 5"/><path d="M16 4a4 4 0 0 1 0 8"/><path d="M19 16c1.5.8 2.4 2.5 3 5"/></svg>Clientes</a>
+    <a href="#duvidas" data-t="duvidas"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Dúvidas<span class="badge" id="tab-badge" hidden>0</span></a>
+    <a href="#novo" data-t="novo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Novo</a>
+  </nav>
+  <button class="push" id="push" type="button" hidden></button>
+  <div class="toast" id="toast" role="status" hidden></div>
+</div>
+</div>
+
+<script>
+(function(){
+  // ===== Dados de exemplo (fictícios) =====
+  var hoje = '14 nov';
+  var clientes = [
+    {id:'tiago', nome:'Tiago M.', ini:'TM', pos:'Médio', menor:true, email:'tiago@exemplo.pt', pack:'Pro', formato:'Pack 4', feitas:2, total:4, preco:250, pagamentos:[{d:'12 out',v:125,m:'MB WAY'}], acesso:'Hoje, 10h15',
+      analises:[{jogo:'vs. Atlético B',data:'9 nov',estado:'Em análise',rel:'',vid:''},{jogo:'vs. União Norte',data:'26 out',estado:'Concluída',rel:'Relatorio_UniaoNorte.pdf',vid:'Lances_UniaoNorte.mp4'},{jogo:'vs. Desportivo Sul',data:'12 out',estado:'Concluída',rel:'Relatorio_DesportivoSul.pdf',vid:'Lances_DesportivoSul.mp4'}],
+      manter:['Receção orientada para a frente','Apoio frontal ao colega com bola'], melhorar:['Olhar antes de receber (2 vezes)','Reação nos 3 segundos após a perda'],
+      comp:[{n:'Exemplo: olhar antes de receber',d:'13 nov'},{n:'O teu lance 07, comentado',d:'10 nov'}], stats:{passes:'',duelos:'',rec:'',dec:''}},
+    {id:'rui', nome:'Rui S.', ini:'RS', pos:'Defesa central', menor:false, email:'rui@exemplo.pt', pack:'Elite', formato:'Individual', feitas:1, total:1, preco:110, pagamentos:[{d:'3 nov',v:110,m:'Multibanco'}], acesso:'Ontem, 22h40',
+      analises:[{jogo:'vs. Sporting Norte',data:'2 nov',estado:'Concluída',rel:'Relatorio_SportingNorte.pdf',vid:'Lances_SportingNorte.mp4'}],
+      manter:['Controlo da profundidade'], melhorar:['Primeiro passe a romper linhas'], comp:[], stats:{passes:'88%',duelos:'9/12',rec:'11',dec:'81'}},
+    {id:'bruno', nome:'Bruno L.', ini:'BL', pos:'Extremo', menor:true, email:'pais.bruno@exemplo.pt', pack:'Performance', formato:'Individual', feitas:0, total:1, preco:45, pagamentos:[], acesso:'Ainda não ativou a conta',
+      analises:[{jogo:'vs. Leões FC',data:'8 nov',estado:'Recebido',rel:'',vid:''}], manter:[], melhorar:[], comp:[], stats:{passes:'',duelos:'',rec:'',dec:''}}
+  ];
+  var conversas = [
+    {cli:'tiago', jogo:'vs. União Norte', lida:false, msgs:[
+      {de:'cli', sb:'Vídeo · lance 07', t:'No lance 07 devia ter passado por dentro em vez de abrir na ala?', q:'27 out, 21h10'},
+      {de:'eu', sb:'Tu', t:'Boa pergunta! Tinhas as duas soluções. Por dentro queimavas uma linha, mas o médio deles estava perto. Fala com o teu treinador sobre qual prefere no modelo da equipa.', q:'28 out, 09h32'},
+      {de:'cli', sb:'Vídeo', t:'No lance 03 o que devia ter feito?', q:'Hoje, 10h15'}]},
+    {cli:'rui', jogo:'vs. Sporting Norte', lida:true, msgs:[
+      {de:'cli', sb:'Relatório', t:'Na página 6, o controlo da profundidade conta só quando a equipa está a defender baixo?', q:'4 nov, 19h02'},
+      {de:'eu', sb:'Tu', t:'Não, conta também com o bloco alto. Mostro-te dois exemplos na próxima sessão.', q:'5 nov, 08h50'}]}
+  ];
+  var ESTADOS = ['Recebido','Em análise','Pronto','Sessão marcada','Concluída'];
+  var POSICOES = ['Defesa central','Lateral','Médio','Interior','Extremo','Avançado'];
+
+  // ===== utilidades =====
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function cli(id){ for (var i=0;i<clientes.length;i++) if (clientes[i].id===id) return clientes[i]; }
+  function pago(c){ return c.pagamentos.reduce(function(a,p){ return a+p.v; },0); }
+  function falta(c){ return Math.max(0, c.preco - pago(c)); }
+  function estPag(c){ var p=pago(c); return p>=c.preco ? ['Pago','p-ok'] : (p>0 ? ['Parcial','p-warn'] : ['Por pagar','p-bad']); }
+  function porResponder(){ return conversas.filter(function(v){ return v.msgs[v.msgs.length-1].de==='cli'; }); }
+  var tT, tEl=document.getElementById('toast');
+  function toast(m){ tEl.textContent=m; tEl.hidden=false; clearTimeout(tT); tT=setTimeout(function(){ tEl.hidden=true; },2600); }
+  var V=document.getElementById('vista');
+  var ICONE_VOLTAR='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
+
+  // ===== vistas =====
+  function vLogin(){
+    return '<div class="top"><div class="marca"><span class="em">F<span>iQ</span></span>Field<b>IQ</b></div><span class="tag">Gestão</span></div>'+
+      '<div style="margin-top:60px"><div class="eyebrow">Acesso reservado ao analista</div><h1>Gestão <em>FieldIQ</em></h1>'+
+      '<p class="sub" style="margin:10px 0 0">Clientes, análises, pagamentos e dúvidas, num só sítio.</p></div>'+
+      '<div style="margin-top:auto;display:flex;flex-direction:column;gap:10px">'+
+      '<button class="btn ink" type="button" id="g-bio">Entrar com biometria</button>'+
+      '<form id="g-login" style="display:flex;flex-direction:column;gap:10px">'+
+      '<label class="l" for="g-email">Email</label><input class="input" id="g-email" type="email" autocomplete="username" placeholder="geral@fieldiqcm.com">'+
+      '<label class="l" for="g-pass">Palavra-passe</label><input class="input" id="g-pass" type="password" autocomplete="current-password">'+
+      '<button class="btn ghost" type="submit">Entrar</button></form>'+
+      '<p class="note" style="margin:0;text-align:center">A conta de gestão entra pela mesma app e abre este painel. Na versão real tem verificação em 2 passos.<br>Esboço: qualquer entrada serve.</p></div>';
+  }
+  function vPainel(){
+    var pr=porResponder(), emFalta=clientes.filter(function(c){return falta(c)>0;});
+    var totFalta=emFalta.reduce(function(a,c){return a+falta(c);},0);
+    var curso=[]; clientes.forEach(function(c){ c.analises.forEach(function(a){ if(a.estado!=='Concluída') curso.push({c:c,a:a}); }); });
+    var h='<div class="top"><div class="marca"><span class="em">F<span>iQ</span></span>Field<b>IQ</b> <span class="tag">Gestão</span></div>'+
+      '<a class="iconbtn" href="#duvidas" aria-label="Notificações: '+pr.length+' dúvidas por responder"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>'+(pr.length?'<span class="badge">'+pr.length+'</span>':'')+'</a></div>'+
+      '<div><div class="sub">Sábado, '+hoje+'</div><h1>Bom dia. Tens <em>'+(pr.length+curso.length)+' coisas</em> para tratar.</h1></div>'+
+      '<div class="grid2">'+
+      '<a class="dark kpi" href="#duvidas"><b>'+pr.length+'</b><span>Dúvidas por responder</span></a>'+
+      '<a class="card kpi" href="#clientes"><b>'+totFalta+' €</b><span>Em falta · '+emFalta.length+' clientes</span></a>'+
+      '<a class="card kpi" href="#clientes"><b>'+curso.length+'</b><span>Análises em curso</span></a>'+
+      '<a class="card kpi" href="#clientes"><b>'+clientes.length+'</b><span>Clientes ativos</span></a></div>'+
+      '<h2>A fazer</h2><div class="lista">';
+    pr.forEach(function(v){ var c=cli(v.cli); h+='<a class="card cli" href="#conversa-'+conversas.indexOf(v)+'"><span class="dot"></span><span style="flex:1"><span class="nm">Responder a '+esc(c.nome)+'</span><span class="ds" style="display:block">"'+esc(v.msgs[v.msgs.length-1].t)+'"</span></span></a>'; });
+    curso.forEach(function(x){ var falt=[]; if(!x.a.rel) falt.push('relatório'); if(!x.a.vid) falt.push('vídeo');
+      h+='<a class="card cli" href="#cliente-'+x.c.id+'"><span class="av" style="width:34px;height:34px;font-size:12px">'+x.c.ini+'</span><span style="flex:1"><span class="nm">'+esc(x.c.nome)+' · '+esc(x.a.jogo)+'</span><span class="ds" style="display:block">'+x.a.estado+(falt.length?' · falta carregar '+falt.join(' e '):'')+'</span></span></a>'; });
+    emFalta.forEach(function(c){ h+='<a class="card cli" href="#cliente-'+c.id+'"><span class="pill '+estPag(c)[1]+'">'+falta(c)+' €</span><span style="flex:1"><span class="nm">Pagamento · '+esc(c.nome)+'</span><span class="ds" style="display:block">'+c.pack+' · '+c.formato+'</span></span></a>'; });
+    h+='</div><button class="btn ghost small" type="button" data-acao="sair" style="align-self:flex-start">Sair da gestão</button><div class="demo">Esboço: daqui a uns segundos chega uma notificação de exemplo, como aparece no telemóvel quando um cliente te escreve.</div>';
+    return h;
+  }
+  function vClientes(){
+    var h='<div class="top"><div><div class="eyebrow">'+clientes.length+' clientes</div><h1>Clientes</h1></div><a class="btn ink small" href="#novo">+ Novo</a></div>'+
+      '<label class="l" for="procura" style="position:absolute;left:-9999px">Procurar cliente</label><input class="input" id="procura" type="search" placeholder="Procurar por nome">'+
+      '<div class="lista" id="lista-cli">';
+    clientes.forEach(function(c){ var e=estPag(c);
+      h+='<a class="card cli" href="#cliente-'+c.id+'" data-nome="'+esc(c.nome.toLowerCase())+'"><span class="av">'+c.ini+'</span><span style="flex:1;min-width:0"><span class="nm">'+esc(c.nome)+'</span><span class="ds" style="display:block">'+esc(c.pos)+' · '+c.pack+' · '+(c.formato==='Pack 4'?c.feitas+'/'+c.total+' sessões':'sessão individual')+'</span></span><span class="pill '+e[1]+'">'+e[0]+'</span></a>'; });
+    return h+'</div>';
+  }
+  function vCliente(c){
+    var e=estPag(c), nPack={Performance:1,Pro:2,Elite:3}[c.pack];
+    var h='<div class="row"><a class="iconbtn" href="#clientes" aria-label="Voltar aos clientes">'+ICONE_VOLTAR+'</a><span class="av">'+c.ini+'</span><div style="min-width:0"><div class="serif" style="font-family:var(--display);font-weight:700;font-size:22px">'+esc(c.nome)+'</div><div class="sub">'+esc(c.pos)+(c.menor?' · menor · conta dos pais':'')+'</div></div></div>'+
+      '<div class="row" style="flex-wrap:wrap;gap:8px"><span class="pill p-soft">Último acesso: '+esc(c.acesso)+'</span><button class="btn ghost small" type="button" data-acao="ver-como">Ver como o cliente</button></div>'+
+      // pack
+      '<div class="card" style="display:flex;flex-direction:column;gap:10px"><h2>Pack</h2>'+
+      '<div class="seg" role="group" aria-label="Pack">'+['Performance','Pro','Elite'].map(function(p){return '<button type="button" data-pack="'+p+'" aria-pressed="'+(c.pack===p)+'">'+p+'</button>';}).join('')+'</div>'+
+      '<div class="seg" role="group" aria-label="Formato">'+['Individual','Pack 4'].map(function(f){return '<button type="button" data-formato="'+f+'" aria-pressed="'+(c.formato===f)+'">'+(f==='Pack 4'?'Pack de 4':f)+'</button>';}).join('')+'</div>'+
+      '<div class="note">O cliente passa a ver o que este pack desbloqueia.</div></div>'+
+      // sessões
+      '<div class="card" style="display:flex;flex-direction:column;gap:12px"><h2>Sessões</h2>'+
+      '<div class="between"><span style="font-weight:700">Feitas</span><div class="step"><button type="button" data-ses="feitas:-1" aria-label="Menos uma sessão feita">−</button><b>'+c.feitas+'</b><button type="button" data-ses="feitas:1" aria-label="Mais uma sessão feita">+</button></div></div>'+
+      '<div class="between"><span style="font-weight:700">Total do plano</span><div class="step"><button type="button" data-ses="total:-1" aria-label="Menos uma sessão no total">−</button><b>'+c.total+'</b><button type="button" data-ses="total:1" aria-label="Mais uma sessão no total">+</button></div></div>'+
+      '<div class="sub">O cliente vê <strong>'+c.feitas+'/'+c.total+'</strong>'+(c.total-c.feitas>0?' · faltam '+(c.total-c.feitas):' · plano concluído')+'.</div></div>'+
+      // pagamento
+      '<div class="card" style="display:flex;flex-direction:column;gap:10px"><div class="between"><h2>Pagamento</h2><span class="pill '+e[1]+'">'+e[0]+'</span></div>'+
+      '<div class="between" style="font-variant-numeric:tabular-nums"><span>Valor <strong>'+c.preco+' €</strong></span><span>Pago <strong>'+pago(c)+' €</strong></span><span>Falta <strong>'+falta(c)+' €</strong></span></div>'+
+      (c.pagamentos.length?'<div class="lista">'+c.pagamentos.map(function(p){return '<div class="between sub"><span>'+p.d+' · '+p.m+'</span><strong>'+p.v+' €</strong></div>';}).join('')+'</div>':'<div class="sub">Ainda sem pagamentos.</div>')+
+      (falta(c)>0?'<form id="f-pag" class="row" style="flex-wrap:wrap;gap:8px"><label class="l" for="pag-v" style="position:absolute;left:-9999px">Valor recebido</label><input class="input" id="pag-v" type="number" min="1" value="'+falta(c)+'" style="flex:1;min-width:90px"><label class="l" for="pag-m" style="position:absolute;left:-9999px">Método</label><select class="input" id="pag-m" style="flex:1;min-width:120px"><option>MB WAY</option><option>Multibanco</option><option>Numerário</option><option>Transferência</option></select><button class="btn cobre" type="submit">Registar pagamento</button></form>':'')+
+      '</div>'+
+      // análises
+      '<div class="card" style="display:flex;flex-direction:column;gap:10px"><div class="between"><h2>Análises</h2><button class="btn ghost small" type="button" data-acao="nova-analise">+ Nova</button></div>';
+    c.analises.forEach(function(a,i){
+      h+='<div class="an"><div class="between"><span style="font-weight:800">'+esc(a.jogo)+'</span><span class="sub">'+a.data+'</span></div>'+
+        '<label class="l" for="est-'+i+'">Estado</label><select class="input" id="est-'+i+'" data-estado="'+i+'">'+ESTADOS.map(function(s){return '<option'+(s===a.estado?' selected':'')+'>'+s+'</option>';}).join('')+'</select>'+
+        '<label class="up'+(a.rel?' feito':'')+'"><input type="file" accept="application/pdf" data-up="rel:'+i+'">'+(a.rel?'✓ '+esc(a.rel):'＋ Carregar relatório (PDF)')+'</label>'+
+        '<label class="up'+(a.vid?' feito':'')+'"><input type="file" accept="video/*" data-up="vid:'+i+'">'+(a.vid?'✓ '+esc(a.vid):'＋ Carregar vídeo dos lances')+'</label></div>';
+    });
+    h+='</div>';
+    // plano da semana
+    h+='<div class="card" style="display:flex;flex-direction:column;gap:10px"><h2>Plano da semana</h2>';
+    if (nPack>=2){
+      h+='<div class="eyebrow">Manter</div>'+c.manter.map(function(t,i){return '<div class="it"><span>'+esc(t)+'</span><button type="button" data-rm="manter:'+i+'" aria-label="Retirar">×</button></div>';}).join('')+
+        '<form class="row" data-add="manter"><label class="l" for="add-manter" style="position:absolute;left:-9999px">Novo ponto a manter</label><input class="input" id="add-manter" placeholder="Novo ponto a manter"><button class="btn ink small" type="submit">Pôr</button></form>'+
+        '<div class="eyebrow">Melhorar</div>'+c.melhorar.map(function(t,i){return '<div class="it"><span>'+esc(t)+'</span><button type="button" data-rm="melhorar:'+i+'" aria-label="Retirar">×</button></div>';}).join('')+
+        '<form class="row" data-add="melhorar"><label class="l" for="add-melhorar" style="position:absolute;left:-9999px">Novo ponto a melhorar</label><input class="input" id="add-melhorar" placeholder="Novo ponto a melhorar"><button class="btn ink small" type="submit">Pôr</button></form>';
+    } else h+='<div class="lock">Disponível no Pro e no Elite. Muda o pack acima para ativar.</div>';
+    h+='</div>';
+    // vídeos complementares
+    h+='<div class="card" style="display:flex;flex-direction:column;gap:10px"><h2>Vídeos complementares</h2>';
+    if (nPack>=2){
+      h+=(c.comp.length?c.comp.map(function(v){return '<div class="it"><span>▶ '+esc(v.n)+'</span><span class="sub" style="flex:0">'+v.d+'</span></div>';}).join(''):'<div class="sub">Ainda sem vídeos esta semana.</div>')+
+        '<label class="up"><input type="file" accept="video/*" data-up="comp:0">＋ Adicionar vídeo (o cliente recebe aviso)</label>';
+    } else h+='<div class="lock">Disponível no Pro e no Elite.</div>';
+    h+='</div>';
+    // estatísticas
+    h+='<div class="card" style="display:flex;flex-direction:column;gap:10px"><h2>Estatísticas do último jogo</h2>';
+    if (nPack>=3){
+      h+='<div class="grid2">'+[['passes','Passes certos'],['duelos','Duelos ganhos'],['rec','Recuperações'],['dec','Tomada de decisão']].map(function(s){return '<div class="campo"><label class="l" for="st-'+s[0]+'">'+s[1]+'</label><input class="input" id="st-'+s[0]+'" data-stat="'+s[0]+'" value="'+esc(c.stats[s[0]])+'"></div>';}).join('')+'</div>'+
+        '<button class="btn ink small" type="button" data-acao="guardar-stats">Guardar estatísticas</button>';
+    } else h+='<div class="lock">Só no Elite.</div>';
+    h+='</div>';
+    // acesso
+    h+='<div class="card" style="display:flex;flex-direction:column;gap:10px"><h2>Acesso à app</h2><div class="sub">'+esc(c.email)+'</div>'+
+      '<div class="row" style="flex-wrap:wrap;gap:8px"><button class="btn ghost small" type="button" data-acao="reenviar">Reenviar email de ativação</button><button class="btn ghost small" type="button" data-acao="suspender">Suspender acesso</button></div></div>';
+    return h;
+  }
+  function vDuvidas(){
+    var h='<div><div class="eyebrow">'+porResponder().length+' por responder</div><h1>Dúvidas</h1></div><div class="lista">';
+    conversas.slice().sort(function(a,b){ return (b.msgs[b.msgs.length-1].de==='cli')-(a.msgs[a.msgs.length-1].de==='cli'); }).forEach(function(v){
+      var c=cli(v.cli), u=v.msgs[v.msgs.length-1], aberta=u.de==='cli';
+      h+='<a class="card cli" href="#conversa-'+conversas.indexOf(v)+'">'+(aberta?'<span class="dot"></span>':'')+'<span class="av">'+c.ini+'</span><span style="flex:1;min-width:0"><span class="nm">'+esc(c.nome)+' · '+esc(v.jogo)+'</span><span class="ds" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(u.de==='eu'?'Tu: ':'')+esc(u.t)+'</span></span><span class="pill '+(aberta?'p-bad':'p-ok')+'">'+(aberta?'Responder':'Respondida')+'</span></a>';
+    });
+    return h+'</div>';
+  }
+  function vConversa(i){
+    var v=conversas[i], c=cli(v.cli); v.lida=true;
+    var h='<div class="row"><a class="iconbtn" href="#duvidas" aria-label="Voltar às dúvidas">'+ICONE_VOLTAR+'</a><div style="min-width:0"><div class="eyebrow">'+esc(v.jogo)+'</div><div style="font-family:var(--display);font-weight:700;font-size:20px">'+esc(c.nome)+'</div></div><a class="btn ghost small" href="#cliente-'+c.id+'" style="margin-left:auto">Ficha</a></div>'+
+      '<div style="display:flex;flex-direction:column;gap:10px" id="thread">'+v.msgs.map(function(m){return '<div class="msg '+(m.de==='eu'?'eu':'cli2')+'"><span class="sb">'+esc(m.sb)+'</span>'+esc(m.t)+'<small>'+esc(m.q)+'</small></div>';}).join('')+'</div>'+
+      '<form id="f-resp" style="display:flex;flex-direction:column;gap:10px;margin-top:auto;padding-top:10px;border-top:1px solid var(--line2)"><label class="l" for="resp">A tua resposta</label><textarea class="input" id="resp" rows="3" placeholder="Escreve a resposta. Lembra-te: sempre adaptado ao modelo da equipa."></textarea><button class="btn ink" type="submit">Enviar resposta</button></form>';
+    return h;
+  }
+  function vNovo(){
+    return '<div><div class="eyebrow">Só tu crias contas</div><h1>Novo <em>cliente</em></h1><p class="sub" style="margin:8px 0 0">Ao criar, o cliente recebe o email de boas-vindas para ativar a conta.</p></div>'+
+      '<form id="f-novo" style="display:flex;flex-direction:column;gap:12px">'+
+      '<div class="campo"><label class="l" for="n-nome">Nome do jogador</label><input class="input" id="n-nome" required placeholder="Ex.: João P."></div>'+
+      '<div class="campo"><label class="l" for="n-pos">Posição</label><select class="input" id="n-pos">'+POSICOES.map(function(p){return '<option>'+p+'</option>';}).join('')+'</select></div>'+
+      '<label class="it" style="cursor:pointer"><input type="checkbox" id="n-menor" style="width:20px;height:20px;accent-color:#8A4F24"><span>Menor de 18 anos (a conta fica com o email dos pais)</span></label>'+
+      '<div class="campo"><label class="l" for="n-email" id="n-email-l">Email do jogador</label><input class="input" id="n-email" type="email" required placeholder="email@exemplo.pt"></div>'+
+      '<div class="campo"><span class="l">Pack</span><div class="seg" role="group" aria-label="Pack" id="n-pack">'+['Performance','Pro','Elite'].map(function(p,i){return '<button type="button" data-np="'+p+'" aria-pressed="'+(i===1)+'">'+p+'</button>';}).join('')+'</div></div>'+
+      '<div class="campo"><span class="l">Formato</span><div class="seg" role="group" aria-label="Formato" id="n-form">'+['Individual','Pack 4'].map(function(f,i){return '<button type="button" data-nf="'+f+'" aria-pressed="'+(i===0)+'">'+(f==='Pack 4'?'Pack de 4':f)+'</button>';}).join('')+'</div></div>'+
+      '<div class="campo"><label class="l" for="n-preco">Valor (€)</label><input class="input" id="n-preco" type="number" min="0" value="70"></div>'+
+      '<button class="btn ink" type="submit">Criar e enviar email de ativação</button></form>';
+  }
+
+  // ===== router =====
+  var vistaAnterior=null;
+  var logado=false; try { logado = sessionStorage.getItem('fiq-gestao') === '1'; } catch(x){}
+  function render(){
+    var h=(location.hash||'').replace('#','');
+    if(!logado && h!=='login'){ h='login'; }
+    var tab=h, html='';
+    if(h==='login') html=vLogin();
+    else if(h==='clientes') html=vClientes();
+    else if(h.indexOf('cliente-')===0 && cli(h.slice(8))){ html=vCliente(cli(h.slice(8))); tab='clientes'; }
+    else if(h==='duvidas') html=vDuvidas();
+    else if(h.indexOf('conversa-')===0 && conversas[+h.slice(9)]){ html=vConversa(+h.slice(9)); tab='duvidas'; }
+    else if(h==='novo') html=vNovo();
+    else { html=vPainel(); tab='painel'; h='painel'; }
+    var mesma=(h===vistaAnterior), sc=V.scrollTop;
+    V.innerHTML=html; V.scrollTop=mesma?sc:0;
+    if(!mesma){ V.style.animation='none'; void V.offsetWidth; V.style.animation=''; }
+    vistaAnterior=h;
+    var tabs=document.getElementById('tabs'); tabs.hidden=(h==='login');
+    tabs.querySelectorAll('a').forEach(function(a){ if(a.dataset.t===tab) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+    var n=porResponder().length, b=document.getElementById('tab-badge'); b.textContent=n; b.hidden=!n;
+    if(h==='painel') agendarPush();
+    if(h.indexOf('conversa-')===0){ var th=V; th.scrollTop=th.scrollHeight; }
+  }
+  window.addEventListener('hashchange', render);
+
+  // ===== notificação de exemplo =====
+  var pushFeito=false, pushT;
+  function agendarPush(){
+    if(pushFeito) return; pushFeito=true;
+    pushT=setTimeout(function(){
+      var p=document.getElementById('push');
+      p.innerHTML='<span class="ic">F<span style="color:#E2C27A">iQ</span></span><span style="flex:1"><small>FieldIQ Gestão · agora</small><strong>Nova dúvida de Tiago M.</strong><br><span style="font-size:13px">"No lance 03 o que devia ter feito?"</span></span>';
+      p.hidden=false;
+      setTimeout(function(){ p.hidden=true; },7000);
+    },3500);
+  }
+  document.getElementById('push').addEventListener('click', function(){ this.hidden=true; location.hash='conversa-0'; });
+
+  // ===== ações =====
+  var clienteAtual=function(){ var h=location.hash.replace('#',''); return h.indexOf('cliente-')===0 ? cli(h.slice(8)) : null; };
+  var novoPack='Pro', novoForm='Individual';
+  V.addEventListener('click', function(e){
+    var t=e.target.closest('button'); if(!t) return;
+    var c=clienteAtual();
+    if(t.id==='g-bio'){ logado=true; try{ sessionStorage.setItem('fiq-gestao','1'); }catch(x){} location.hash='painel'; render(); return; }
+    if(t.dataset.pack && c){ c.pack=t.dataset.pack; toast('Pack alterado para '+c.pack+'. O cliente já vê o novo pack.'); render(); return; }
+    if(t.dataset.formato && c){ c.formato=t.dataset.formato; if(c.formato==='Pack 4' && c.total<4) c.total=4; if(c.formato==='Individual'){ c.total=Math.max(1,c.feitas||1); } render(); return; }
+    if(t.dataset.ses && c){ var k=t.dataset.ses.split(':'), d=+k[1];
+      if(k[0]==='feitas') c.feitas=Math.min(c.total, Math.max(0,c.feitas+d)); else c.total=Math.max(Math.max(1,c.feitas), c.total+d);
+      render(); return; }
+    if(t.dataset.rm && c){ var r=t.dataset.rm.split(':'); c[r[0]].splice(+r[1],1); render(); return; }
+    if(t.dataset.np){ novoPack=t.dataset.np; document.querySelectorAll('[data-np]').forEach(function(x){x.setAttribute('aria-pressed',x===t);}); atualizaPreco(); return; }
+    if(t.dataset.nf){ novoForm=t.dataset.nf; document.querySelectorAll('[data-nf]').forEach(function(x){x.setAttribute('aria-pressed',x===t);}); atualizaPreco(); return; }
+    var a=t.dataset.acao;
+    if(a==='sair'){ try{ sessionStorage.removeItem('fiq-gestao'); }catch(x){} logado=false; if(/github\.io$|fieldiqcm\.com$/.test(location.hostname)) location.href='index.html'; else { location.hash='login'; render(); } return; }
+    if(a==='ver-como') toast('Abre a app tal como o '+c.nome+' a vê.');
+    if(a==='reenviar') toast('Email de ativação reenviado para '+c.email);
+    if(a==='suspender') toast('Esboço: aqui suspendes o acesso (pede confirmação).');
+    if(a==='guardar-stats'){ document.querySelectorAll('[data-stat]').forEach(function(i){ c.stats[i.dataset.stat]=i.value; }); toast('Estatísticas guardadas. O cliente já as vê.'); }
+    if(a==='nova-analise'){ c.analises.unshift({jogo:'Novo jogo',data:hoje,estado:'Recebido',rel:'',vid:''}); toast('Análise criada. Muda o nome e carrega os ficheiros.'); render(); }
+  });
+  function atualizaPreco(){
+    var tabela={Performance:[45,160],Pro:[70,250],Elite:[110,400]};
+    var el=document.getElementById('n-preco'); if(el) el.value=tabela[novoPack][novoForm==='Pack 4'?1:0];
+  }
+  V.addEventListener('change', function(e){
+    var t=e.target, c=clienteAtual();
+    if(t.dataset.estado!==undefined && c){ c.analises[+t.dataset.estado].estado=t.value; toast('Estado: '+t.value+'. O cliente recebe um aviso.'); }
+    if(t.dataset.up && c && t.files && t.files[0]){ var u=t.dataset.up.split(':'), nome=t.files[0].name;
+      if(u[0]==='comp'){ c.comp.unshift({n:nome.replace(/\.[^.]+$/,''),d:hoje}); toast('Vídeo adicionado. O cliente recebe um aviso.'); }
+      else { c.analises[+u[1]][u[0]]=nome; toast((u[0]==='rel'?'Relatório':'Vídeo')+' carregado. O cliente recebe um aviso.'); }
+      render(); }
+    if(t.id==='n-menor'){ document.getElementById('n-email-l').textContent=t.checked?'Email do encarregado de educação':'Email do jogador'; }
+  });
+  V.addEventListener('input', function(e){
+    if(e.target.id==='procura'){ var q=e.target.value.trim().toLowerCase(); document.querySelectorAll('#lista-cli [data-nome]').forEach(function(a){ a.hidden=q && a.dataset.nome.indexOf(q)<0; }); }
+  });
+  V.addEventListener('submit', function(e){
+    e.preventDefault(); var f=e.target, c=clienteAtual();
+    if(f.id==='g-login'){ logado=true; try{ sessionStorage.setItem('fiq-gestao','1'); }catch(x){} location.hash='painel'; render(); return; }
+    if(f.id==='f-pag' && c){ var v=+document.getElementById('pag-v').value; if(v>0){ c.pagamentos.push({d:hoje,v:v,m:document.getElementById('pag-m').value}); toast('Pagamento de '+v+' € registado.'); render(); } return; }
+    if(f.dataset.add && c){ var inp=f.querySelector('input'), tx=inp.value.trim(); if(tx){ c[f.dataset.add].push(tx); toast('Ponto adicionado ao plano da semana.'); render(); } return; }
+    if(f.id==='f-resp'){ var i=+location.hash.slice(10), tx2=document.getElementById('resp').value.trim(); if(!tx2) return;
+      var agora=new Date(), hh=String(agora.getHours()).padStart(2,'0')+'h'+String(agora.getMinutes()).padStart(2,'0');
+      conversas[i].msgs.push({de:'eu',sb:'Tu',t:tx2,q:'Hoje, '+hh}); toast('Resposta enviada. O cliente recebe um aviso.'); render(); return; }
+    if(f.id==='f-novo'){ var nome=document.getElementById('n-nome').value.trim(), em=document.getElementById('n-email').value.trim(); if(!nome||!em) return;
+      var ini=nome.split(/\s+/).map(function(p){return p[0];}).join('').slice(0,2).toUpperCase(), id='c'+Date.now().toString(36);
+      clientes.unshift({id:id,nome:nome,ini:ini,pos:document.getElementById('n-pos').value,menor:document.getElementById('n-menor').checked,email:em,pack:novoPack,formato:novoForm,feitas:0,total:novoForm==='Pack 4'?4:1,preco:+document.getElementById('n-preco').value||0,pagamentos:[],acesso:'Ainda não ativou a conta',analises:[],manter:[],melhorar:[],comp:[],stats:{passes:'',duelos:'',rec:'',dec:''}});
+      toast('Conta criada. Email de ativação enviado para '+em); location.hash='cliente-'+id; return; }
+  });
+
+  render();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});
+})();
+</script>
+</body>
+</html>
