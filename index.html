@@ -276,6 +276,13 @@ nav.tabs a[aria-current="page"]{color:var(--gold2)}
 .msg.ele{align-self:flex-start;background:var(--beje);color:var(--ink);border-bottom-left-radius:4px}
 .composer{display:flex;flex-direction:column;gap:10px;margin-top:auto;padding-top:8px;border-top:1px solid #2A2723}
 textarea.input{height:auto;padding:12px 16px;resize:none;line-height:1.4}
+.demo-faixa{position:absolute;left:0;right:0;top:0;z-index:7;display:flex;align-items:center;gap:8px;padding:6px 10px;padding-top:calc(6px + env(safe-area-inset-top,0px));background:#E8E0D3;color:#1B1815;font-size:11px;font-weight:800;letter-spacing:.4px}
+.demo-faixa > span{text-transform:uppercase;letter-spacing:1.4px;color:#8A4F24}
+.dseg{display:flex;gap:3px;flex:1;background:#D3C8B6;border-radius:99px;padding:3px}
+.dseg button{flex:1;min-height:30px;border:none;border-radius:99px;background:transparent;font-size:11px;font-weight:800;color:#4F473E;cursor:pointer}
+.dseg button[aria-pressed="true"]{background:#1B1815;color:#E2C27A}
+.dsair{min-height:32px;border:none;background:none;font-weight:800;font-size:12px;color:#8A4F24;cursor:pointer;padding:0 4px}
+body.em-demo .screen .scroll{padding-top:56px}
 .note{font-size:12px;color:var(--dim);text-align:center;line-height:1.5}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001s!important;animation-delay:0s!important;animation-iteration-count:1!important;transition:none!important}}
 </style>
@@ -389,9 +396,6 @@ textarea.input{height:auto;padding:12px 16px;resize:none;line-height:1.4}
     </button>
 
     <div class="intro-form" style="margin-top:auto;display:flex;flex-direction:column;gap:12px;padding-top:8px">
-      <button class="btn gold" id="bio-entrar" type="button"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 11v3a8 8 0 0 1-1.5 4.7"/><path d="M8.6 7.6A5 5 0 0 1 17 11v1.5"/><path d="M7 11a5 5 0 0 0 0 .5V14a12 12 0 0 1-1 4.5"/><path d="M15 14.5a15 15 0 0 1-1 4"/><path d="M4.5 9A8 8 0 0 1 19 7.5"/><path d="M19.5 11.5v1"/></svg><span class="bio-nome">Entrar com biometria</span></button>
-      <p class="note" id="bio-conta" style="margin:0" hidden></p>
-      <div class="ou"><span>ou</span></div>
       <form id="f-login" style="display:flex;flex-direction:column;gap:10px">
         <label for="email" class="sr">Email</label>
         <input class="input" id="email" type="email" placeholder="Email (exemplo: tiago@exemplo.pt)" autocomplete="username">
@@ -407,8 +411,10 @@ textarea.input{height:auto;padding:12px 16px;resize:none;line-height:1.4}
           <button class="chip" type="button" aria-pressed="false" data-lp="3">Elite</button>
         </div>
         <p class="erro" id="login-erro" role="alert" hidden></p>
-        <button class="btn ghost" type="submit">Entrar</button>
+        <button class="btn gold" type="submit">Entrar</button>
       </form>
+      <div class="ou"><span>ou</span></div>
+      <button class="btn ghost" id="demo-entrar" type="button">Ver a app por dentro<span style="font-weight:600;opacity:.75">· exemplo</span></button>
       <div class="between" style="font-size:13px">
         <a href="#recuperar" style="font-weight:800;text-decoration:none">Esqueci-me da palavra-passe</a>
         <a href="#ativar" style="font-weight:800;text-decoration:none">1.ª vez? Ativar conta</a>
@@ -867,6 +873,15 @@ textarea.input{height:auto;padding:12px 16px;resize:none;line-height:1.4}
   <a href="#entrada" data-tab="entrada"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Perfil</a>
 </nav>
 
+<div class="demo-faixa" id="demo-faixa" hidden>
+  <span>Exemplo</span>
+  <div class="dseg" role="group" aria-label="Ver o exemplo de cada pack">
+    <button type="button" data-dp="1" aria-pressed="false">Performance</button>
+    <button type="button" data-dp="2" aria-pressed="true">Pro</button>
+    <button type="button" data-dp="3" aria-pressed="false">Elite</button>
+  </div>
+  <button type="button" class="dsair" id="demo-sair">Sair</button>
+</div>
 <div class="toast" id="toast" role="status" hidden></div>
 </div>
 </div>
@@ -944,7 +959,7 @@ textarea.input{height:auto;padding:12px 16px;resize:none;line-height:1.4}
       if (a.dataset.tab === tabDe[h]) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
     });
     var sc = document.querySelector('#s-' + h + ' .scroll'); if (sc) sc.scrollTop = 0;
-    if (h === 'entrada') reiniciarIntro(); else pararIntro();
+    if (h === 'entrada'){ reiniciarIntro(); poeDemo(false); } else pararIntro();
     if (h === 'ativar'){ if (vemDaRecuperacao) vemDaRecuperacao = false; else passoAtivar(1); }
     if (h !== 'inicio') pararDesafio();
   }
@@ -979,6 +994,7 @@ textarea.input{height:auto;padding:12px 16px;resize:none;line-height:1.4}
   }
   function mostrarConta(){
     var em = lerConta(), p = document.getElementById('bio-conta');
+    if (!p) return;
     if (!em){ p.hidden = true; return; }
     var nome = GESTAO.indexOf(em) >= 0 ? 'Gestão FieldIQ' : (CONTAS[em] ? CONTAS[em].nome + ' · ' + nomesPack[CONTAS[em].pack] : em);
     p.innerHTML = 'Neste telemóvel: <strong style="color:var(--fg)"></strong> · <a href="#entrada" id="outra-conta" style="font-weight:800;text-decoration:none">Usar outra conta</a>';
@@ -989,13 +1005,22 @@ textarea.input{height:auto;padding:12px 16px;resize:none;line-height:1.4}
       toast('Entra com o email da outra conta.'); document.getElementById('email').focus();
     });
   }
-  document.getElementById('bio-entrar').addEventListener('click', function(){
-    var em = lerConta();
-    if (!em){ toast('Entra uma vez com o email para ligar a biometria a este telemóvel.'); document.getElementById('email').focus(); return; }
-    if (GESTAO.indexOf(em) >= 0){ verificar('Bem-vindo, analista', abrirGestao); return; }
-    if (CONTAS[em]){ verificar('Bem-vindo de volta', function(){ entrarComo(CONTAS[em]); }); return; }
-    toast('Entra com o email e a palavra-passe.');
+  // Modo demonstração: ver a app por dentro com dados de exemplo (para mostrar na 1.ª sessão)
+  function poeDemo(on){
+    document.body.classList.toggle('em-demo', on);
+    document.getElementById('demo-faixa').hidden = !on;
+  }
+  document.getElementById('demo-entrar').addEventListener('click', function(){
+    poeDemo(true); entrarComo(CONTAS['tiago@exemplo.pt']);
+    document.querySelectorAll('[data-dp]').forEach(function(x){ x.setAttribute('aria-pressed', x.dataset.dp === '2' ? 'true' : 'false'); });
   });
+  document.querySelectorAll('[data-dp]').forEach(function(b){
+    b.addEventListener('click', function(){
+      poePack(+b.dataset.dp);
+      document.querySelectorAll('[data-dp]').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+    });
+  });
+  document.getElementById('demo-sair').addEventListener('click', function(){ poeDemo(false); location.hash = 'entrada'; });
   // contas de exemplo: email -> pack (1 Performance, 2 Pro, 3 Elite). A conta de gestão abre o painel.
   var CONTAS = {'tiago@exemplo.pt':{pack:2,nome:'Tiago'}, 'rui@exemplo.pt':{pack:3,nome:'Rui'}, 'bruno@exemplo.pt':{pack:1,nome:'Bruno'}};
   var GESTAO = ['fieldiqcm@gmail.com'];
@@ -1022,7 +1047,7 @@ textarea.input{height:auto;padding:12px 16px;resize:none;line-height:1.4}
     if (!conta){ falha('Não encontramos uma conta com este email. A app FieldIQ é só para clientes: a conta é criada pelo analista quando marcas a tua análise.'); return; }
     if (!packEscolhido){ falha('Escolhe o teu pack: Performance, Pro ou Elite.'); return; }
     if (packEscolhido !== conta.pack){ falha('Este email não tem o pack ' + nomesPack[packEscolhido] + '. Confirma o pack que marcaste ou fala com o analista.'); return; }
-    erro.hidden = true; guardarConta(em); entrarComo(conta);
+    erro.hidden = true; guardarConta(em); poeDemo(false); entrarComo(conta);
   });
   document.getElementById('email').addEventListener('input', function(){ document.getElementById('login-erro').hidden = true; });
   document.querySelectorAll('[data-olho]').forEach(function(b){
