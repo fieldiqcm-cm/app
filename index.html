@@ -1,0 +1,1046 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FieldIQ</title>
+<meta name="description" content="As tuas análises, vídeos e sessões FieldIQ, num só sítio.">
+<meta name="theme-color" content="#111111">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="FieldIQ">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preload" href="assets/fonts/playfair-display-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/mulish-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:'Playfair Display';font-style:normal;font-weight:700;font-display:swap;src:url(assets/fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Playfair Display';font-style:italic;font-weight:600;font-display:swap;src:url(assets/fonts/playfair-display-latin-600-italic.woff2) format('woff2')}
+@font-face{font-family:Mulish;font-style:normal;font-weight:400;font-display:swap;src:url(assets/fonts/mulish-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Mulish;font-style:normal;font-weight:600;font-display:swap;src:url(assets/fonts/mulish-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:Mulish;font-style:normal;font-weight:800;font-display:swap;src:url(assets/fonts/mulish-latin-800-normal.woff2) format('woff2')}
+body{margin:0;-webkit-tap-highlight-color:transparent}
+img{max-width:100%}
+[hidden]{display:none!important}
+.phone{padding-top:env(safe-area-inset-top,0px)}
+.instalar{display:flex;align-items:center;gap:12px;background:#1A1917;border:1px solid #C9A453;border-radius:14px;padding:12px 14px;color:#F2EEE2;text-align:left;cursor:pointer;width:100%;font:inherit}
+.instalar img{width:36px;height:36px;border-radius:9px}
+/* Layout: um telemóvel ao centro (moldura em ecrãs largos, ecrã inteiro no telemóvel); ecrãs trocados por #hash; barra de navegação em baixo. Quadros táticos animados no estilo dos stories. */
+:root{
+  --bg:#0A0A09; --app:#111111; --card:#1A1917; --line:#2E2A25; --line2:#3A3631;
+  --fg:#F2EEE2; --muted:#B8B2A4; --dim:#8F897C;
+  --gold:#C9A453; --gold2:#E2C27A; --beje:#E8E0D3; --ink:#1B1815; --cobre:#8A4F24; --red:#D45B4C; --mate:#8F897C;
+  --display:'Playfair Display', Georgia, serif; --body:Mulish, system-ui, sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px}
+*{box-sizing:border-box}
+button,input{font-family:inherit}
+a{color:var(--gold2)}
+:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
+.stage{min-height:100%;display:flex;justify-content:center;align-items:flex-start}
+.phone{width:100%;max-width:430px;min-height:100%;height:100%;background:var(--app);display:flex;flex-direction:column;position:relative;overflow:hidden}
+@media (min-width:600px){
+  .stage{padding-block:32px}
+  .phone{min-height:860px;height:860px;border-radius:40px;border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 8px #050505}
+}
+.scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:16px;
+  padding-block:24px 20px;padding-left:max(20px, env(safe-area-inset-left,0px));padding-right:max(20px, env(safe-area-inset-right,0px))}
+.screen{display:flex;flex-direction:column;flex:1;min-height:0}
+.screen:not([hidden]){animation:entra .35s ease-out}
+@keyframes entra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase}
+.eyebrow.cobre{color:var(--cobre)}
+h1{margin:6px 0 0;font-family:var(--display);font-weight:700;font-size:30px;line-height:1.12;text-wrap:balance}
+h1 em{font-style:italic;font-weight:600;color:var(--gold2)}
+.sub{font-size:13px;color:var(--muted);margin-top:4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;color:var(--fg);text-decoration:none;display:block}
+.beje{background:var(--beje);color:var(--ink);border-radius:16px;padding:18px;display:block;text-decoration:none}
+.pill{font-size:11px;font-weight:800;border-radius:99px;padding:4px 10px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.pill.on{background:var(--gold2);color:#111}
+.pill.off{background:#2A2723;color:var(--muted)}
+.pill.ink{background:var(--ink);color:var(--gold2)}
+.pulse{width:7px;height:7px;border-radius:4px;background:#111;animation:pulsa 1.4s ease-in-out infinite}
+@keyframes pulsa{0%,100%{opacity:1}50%{opacity:.25}}
+.serif{font-family:var(--display);font-weight:700}
+.btn{height:52px;border-radius:12px;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;cursor:pointer;border:none;width:100%}
+.btn.gold{background:var(--gold);color:#111}
+.btn.ghost{background:transparent;border:1.5px solid var(--gold);color:var(--gold2)}
+.btn.ink{background:var(--ink);color:var(--gold2)}
+.iconbtn{width:44px;height:44px;border-radius:22px;border:1px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;color:var(--fg);text-decoration:none;cursor:pointer;position:relative;flex-shrink:0}
+.row{display:flex;align-items:center;gap:12px}
+.between{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.mark{width:28px;height:28px;flex-shrink:0;border-radius:14px;background:var(--ink);color:var(--gold2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+.lbl{font-size:11px;font-weight:800;letter-spacing:1.2px;color:#6B5F52;text-transform:uppercase}
+.wordmark{font-family:var(--display);font-weight:700;font-size:19px}
+.wordmark span{color:var(--gold2)}
+.textbtn{background:none;border:none;color:var(--dim);font-weight:800;font-size:12px;letter-spacing:1px;cursor:pointer;min-height:44px;padding:0 4px;text-transform:uppercase}
+
+/* nav */
+nav.tabs{flex-shrink:0;border-top:1px solid #2A2723;background:#151412;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  padding-bottom:max(8px, env(safe-area-inset-bottom,0px));padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabs a{height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none;color:var(--dim);font-size:11px;font-weight:800}
+nav.tabs a[aria-current="page"]{color:var(--gold2)}
+
+/* ===== ENTRADA DINÂMICA ===== */
+.intro{position:relative;border-radius:18px;background:#0C0C0B;border:1px solid var(--line);overflow:hidden;height:360px}
+.segs{position:absolute;left:16px;right:64px;top:24px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;z-index:2}
+.segs span{height:3px;border-radius:2px;background:var(--line2);overflow:hidden}
+.segs span i{display:block;height:100%;width:0;background:var(--gold)}
+.segs span.feito i{width:100%}
+.segs span.agora i{animation:enche var(--dur,3.4s) linear forwards}
+.pausa{position:absolute;right:10px;top:8px;width:44px;height:44px;border-radius:22px;border:1px solid var(--line2);background:rgba(17,17,17,.8);color:var(--fg);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3}
+.sc{position:absolute;inset:0;padding:56px 18px 20px;display:flex;flex-direction:column;gap:14px;opacity:0;transition:opacity .45s ease;pointer-events:none}
+.sc.on{opacity:1}
+.sc .num{font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold)}
+.sc .tt{font-family:var(--display);font-weight:700;font-size:26px;line-height:1.15;text-wrap:balance}
+.sc .tt em{font-style:italic;font-weight:600;color:var(--gold2)}
+.sc .vis{flex:1;min-height:0;position:relative;display:flex;align-items:center;justify-content:center}
+.sc .in{opacity:0}
+.sc.on .in{animation:surge .55s cubic-bezier(.2,1.3,.4,1) both;animation-delay:var(--d,0s)}
+@keyframes surge{0%{opacity:0;transform:translateY(16px) scale(.94)}100%{opacity:1;transform:none}}
+/* cena 1: 22 jogadores → tu */
+.sc .p22{width:100%;height:100%}
+.sc .p22 .j{transition:opacity .6s ease}
+.sc.on .p22 .j{opacity:.15;transition-delay:1.1s}
+.sc .p22 .tu{opacity:0;transform-box:fill-box;transform-origin:center}
+.sc.on .p22 .tu{animation:surge .5s cubic-bezier(.2,1.6,.4,1) 1.4s both}
+.sc.on .p22 .anel{transform-box:fill-box;transform-origin:center;animation:anel 1.6s ease-out 1.7s infinite}
+@keyframes anel{0%{transform:scale(1);opacity:.9}100%{transform:scale(2);opacity:0}}
+/* cena 2: chips */
+.chipset{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-content:center}
+.mchip{border:1px solid var(--gold);color:var(--gold2);border-radius:99px;padding:8px 14px;font-size:13px;font-weight:800;background:#141311}
+.mchip.big{background:var(--gold);color:#111;font-size:15px;padding:10px 18px}
+/* cena 3: relatório + vídeo */
+.mock{position:absolute;border-radius:12px;box-shadow:0 14px 30px rgba(0,0,0,.55)}
+.rep{width:150px;height:190px;left:12%;top:4px;background:var(--beje);padding:14px;display:flex;flex-direction:column;gap:7px;transform:rotate(-5deg)}
+.rep .l{height:6px;border-radius:3px;background:#CFC4B3}
+.rep .t{font-family:var(--display);font-weight:700;color:var(--ink);font-size:14px}
+.rep .bars{display:flex;align-items:flex-end;gap:6px;height:54px;margin-top:4px}
+.rep .bars i{flex:1;background:var(--cobre);border-radius:2px}
+.vid{width:180px;height:112px;right:8%;bottom:6px;background:#0B0B0A;border:1px solid var(--line2);overflow:hidden;transform:rotate(4deg)}
+.vid .pl{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:20px;background:var(--gold);display:flex;align-items:center;justify-content:center}
+.vid .lt{position:absolute;left:8px;bottom:7px;font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--gold2)}
+/* cena 4: sessão */
+.call{width:100%;max-width:300px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tile{height:110px;border-radius:12px;background:#1A1917;border:1px solid var(--line2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--muted)}
+.tile .av{width:46px;height:46px;border-radius:23px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700}
+.bub{grid-column:1 / -1;background:var(--beje);color:var(--ink);border-radius:14px 14px 14px 4px;padding:10px 12px;font-size:13px;font-weight:600}
+/* cena 5: evolução */
+.evo{width:100%;max-width:290px;height:150px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:end}
+.evo div{display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.evo b{width:100%;border-radius:6px 6px 2px 2px;background:linear-gradient(#E2C27A,#8C6A22);height:0;transition:height .8s cubic-bezier(.2,1,.3,1)}
+.evo span{font-size:11px;font-weight:800;color:var(--dim);letter-spacing:1px}
+.evo em{font-style:normal;font-family:var(--display);font-weight:700;font-size:14px;color:var(--fg);opacity:0;transition:opacity .4s}
+.sc.on .evo em{opacity:1}
+.intro-text h1{font-size:32px;margin-top:8px}
+.stats3{display:flex;gap:14px;font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--dim);text-transform:uppercase}
+.stats3 b{color:var(--gold2);font-family:var(--display);font-size:15px;letter-spacing:0;margin-right:3px}
+
+.input{height:52px;border-radius:12px;border:1px solid var(--line2);background:var(--card);color:var(--fg);font-size:16px;padding:0 16px;width:100%}
+.code{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.code input{height:56px;text-align:center;font-family:var(--display);font-size:24px;font-weight:700;padding:0}
+
+/* progresso */
+.steps4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.steps4 .bar{height:4px;border-radius:2px;background:var(--line2);overflow:hidden}
+.steps4 .bar i{display:block;height:100%;width:0;background:var(--gold)}
+.steps4 .bar.done i{animation:enche .6s ease-out forwards}
+.steps4 .bar.done:nth-child(2) i{animation-delay:.35s}
+.steps4 .bar.now i{width:40%;background:var(--gold2);animation:carrega 1.6s ease-in-out infinite alternate}
+@keyframes enche{to{width:100%}}
+@keyframes carrega{from{width:15%}to{width:70%}}
+.steps4 span{font-size:11px;color:var(--dim)}
+.steps4 span.done{color:var(--fg)}
+.ringpack{width:86px;height:86px;flex-shrink:0}
+.ringpack .arc{stroke-dasharray:1;stroke-dashoffset:1;animation:arco 1.1s ease-out .3s forwards}
+@keyframes arco{to{stroke-dashoffset:.5}}
+
+/* desafio */
+.desafio{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.qboard{position:relative;border-radius:12px;background:#0C0C0B;border:1px solid var(--line);overflow:hidden}
+.qboard svg{display:block;width:100%;height:auto}
+.qboard .cover{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(12,12,11,.92);text-align:center;padding:16px}
+.count{font-family:var(--display);font-weight:700;font-size:64px;color:var(--gold2);line-height:1;position:absolute;right:14px;top:8px;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.count.tick{animation:slam .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes slam{0%{transform:scale(1.8);opacity:0}100%{transform:scale(1);opacity:1}}
+.opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.opt{height:52px;border-radius:12px;border:1px solid var(--line2);background:#24221F;color:var(--fg);font-family:var(--display);font-weight:700;font-size:22px;cursor:pointer}
+.opt.certa{background:var(--gold);color:#111;border-color:var(--gold)}
+.opt.errada{border-color:var(--red);color:var(--red)}
+.opt[disabled]{cursor:default}
+.qtag{font:800 9px Mulish,sans-serif;letter-spacing:1.2px}
+.livre{animation:aparece .3s ease-out forwards}
+
+/* lista */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{height:36px;padding:0 14px;border-radius:99px;font-size:13px;font-weight:800;cursor:pointer;background:var(--card);color:var(--muted);border:1px solid var(--line2)}
+.chip[aria-pressed="true"]{background:var(--gold);color:#111;border-color:var(--gold)}
+.item{display:flex;gap:14px;align-items:center;padding:14px;animation:entra .35s ease-out both}
+.date{width:56px;height:56px;flex-shrink:0;border-radius:12px;background:#24221F;border:1px solid var(--line2);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.date b{font-family:var(--display);font-size:20px;line-height:1}
+.date small{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--gold)}
+/* video */
+.video{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;border-radius:16px;border:1px solid var(--line);background:#0B0B0A;overflow:hidden;cursor:pointer;padding:0}
+.video svg.board{position:absolute;inset:0;width:100%;height:100%}
+.play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:60px;height:60px;border-radius:30px;background:var(--gold);display:flex;align-items:center;justify-content:center}
+.dur{position:absolute;left:12px;bottom:12px;font-size:12px;font-weight:800;color:var(--fg);background:rgba(17,17,17,.82);border-radius:99px;padding:5px 10px}
+/* timeline */
+.tl{display:flex;gap:14px}
+.tl .rail{display:flex;flex-direction:column;align-items:center;width:28px}
+.dot{width:28px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;border:2px solid var(--line2)}
+.dot.done{background:var(--gold);border-color:var(--gold);color:#111}
+.dot.now{border-color:var(--gold2);color:var(--gold2);animation:pulsa 1.4s ease-in-out infinite}
+.rail .ln{width:2px;flex:1;min-height:22px;background:var(--line2)}
+.rail .ln.done{background:var(--gold)}
+.tl .txt{padding-bottom:18px}
+.tl .t{font-weight:800}
+.tl .t.later{color:var(--dim)}
+.tl .s{font-size:12px;color:var(--dim);margin-top:2px}
+.switch{width:52px;height:32px;border-radius:16px;border:none;padding:3px;cursor:pointer;display:flex;background:#B9AF9F;justify-content:flex-start;flex-shrink:0}
+.switch span{width:26px;height:26px;border-radius:13px;background:var(--fg)}
+.switch[aria-checked="true"]{background:var(--ink);justify-content:flex-end}
+.switch[aria-checked="true"] span{background:var(--gold2)}
+/* pack */
+.slots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.slot{height:64px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+.slot b{font-size:16px}
+.slot.done{background:var(--gold);color:#111}
+.slot.now{border:2px solid var(--gold2);color:var(--gold2)}
+.slot.free{border:2px dashed var(--line2);color:var(--dim)}
+.meter{height:6px;border-radius:3px;background:#CFC4B3;overflow:hidden}
+.meter div{height:6px;background:var(--cobre);transition:width .6s ease}
+.slot{transition:background .3s,border-color .3s,color .3s;text-align:center;line-height:1.3}
+.slot.next{border:2px solid var(--gold2);color:var(--gold2)}
+.legenda{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--dim);font-weight:800}
+.legenda span{display:flex;align-items:center;gap:6px}
+.legenda i{width:12px;height:12px;border-radius:3px;box-sizing:border-box;display:inline-block}
+.hist{margin-top:12px;padding-top:10px;border-top:1px solid #CFC4B3;display:flex;flex-direction:column;gap:6px;font-size:13px;color:#4A433B;font-variant-numeric:tabular-nums}
+.demo{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px dashed var(--line2);border-radius:12px;padding:8px 10px}
+.demo-lbl{font-size:10px;font-weight:800;letter-spacing:1.4px;color:var(--dim);text-transform:uppercase}
+.demo .iconbtn{font-size:20px;font-weight:800}
+.pill.ok{background:#2A2723;color:var(--gold2)}
+.toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%);background:var(--beje);color:var(--ink);font-weight:800;font-size:13px;padding:10px 16px;border-radius:99px;box-shadow:0 8px 24px rgba(0,0,0,.4);white-space:nowrap;z-index:5}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ou{display:flex;align-items:center;gap:12px;color:var(--dim);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px}
+.ou::before,.ou::after{content:"";flex:1;height:1px;background:#2A2723}
+.pw{position:relative}
+.pw .input{padding-right:64px}
+.olho{position:absolute;right:4px;top:4px;height:44px;min-width:52px;border:none;background:none;color:var(--gold2);font-weight:800;font-size:13px;cursor:pointer}
+.capbar3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.capbar3 span{height:3px;border-radius:2px;background:var(--line2);transition:background .3s}
+.capbar3 span.on{background:var(--gold)}
+.regras{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--dim)}
+.regras li::before{content:"○";display:inline-block;width:20px;color:var(--dim)}
+.regras li.ok{color:var(--fg)}
+.regras li.ok::before{content:"✓";color:var(--gold2);font-weight:800}
+.btn[disabled]{opacity:.45;cursor:default}
+.bio-grande{width:120px;height:120px;border-radius:60px;border:2px solid var(--gold);color:var(--gold2);display:flex;align-items:center;justify-content:center;align-self:center;margin:8px auto}
+.bio-grande.pulsa{animation:pulsa 1s ease-in-out infinite}
+.bio-ov{position:absolute;inset:0;background:rgba(10,10,9,.88);display:flex;align-items:center;justify-content:center;z-index:6}
+.bio-cx{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--fg)}
+.note{font-size:12px;color:var(--dim);text-align:center;line-height:1.5}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001s!important;animation-delay:0s!important;animation-iteration-count:1!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="stage">
+<div class="phone">
+
+<!-- 1 ENTRADA (dinâmica) -->
+<section class="screen" id="s-entrada" data-screen="entrada">
+  <div class="scroll" style="gap:14px;padding-top:20px">
+    <div class="between">
+      <div class="row" style="gap:10px">
+        <img src="assets/icons/emblema-96.png" width="36" height="36" alt="">
+        <div class="wordmark" style="font-size:20px">Field<span>IQ</span></div>
+      </div>
+    </div>
+
+    <div class="intro-text">
+      <div class="eyebrow">Análise individual</div>
+      <h1>Vê o teu jogo como um <em>analista</em> o vê.</h1>
+    </div>
+
+    <div class="intro" id="intro" aria-roledescription="apresentação" aria-label="O que é a FieldIQ">
+      <div class="segs" aria-hidden="true"><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span></div>
+      <button class="pausa" id="pausa" type="button" aria-label="Pausar apresentação" aria-pressed="false">
+        <svg id="ic-pausa" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+      </button>
+
+      <!-- 1 · só para ti -->
+      <div class="sc" data-sc="1">
+        <div class="num">01 · SÓ PARA TI</div>
+        <div class="tt">90 minutos. 22 jogadores.<br>Um analista <em>só para ti</em>.</div>
+        <div class="vis">
+          <svg class="p22" viewBox="0 0 320 170" aria-hidden="true">
+            <rect x="4" y="4" width="312" height="162" rx="4" fill="none" stroke="#C9A453" stroke-opacity=".22"/>
+            <line x1="160" y1="4" x2="160" y2="166" stroke="#C9A453" stroke-opacity=".22"/>
+            <circle cx="160" cy="85" r="26" fill="none" stroke="#C9A453" stroke-opacity=".22"/>
+            <g id="p22j"></g>
+            <circle class="anel" cx="196" cy="98" r="11" fill="none" stroke="#E2C27A" stroke-width="1.6"/>
+            <g class="tu"><circle cx="196" cy="98" r="9" fill="#C9A453"/><text x="196" y="124" text-anchor="middle" fill="#E2C27A" font-family="Mulish,sans-serif" font-weight="800" font-size="11" letter-spacing="1.4">TU</text></g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- 2 · o teu jogo inteiro -->
+      <div class="sc" data-sc="2">
+        <div class="num">02 · O TEU JOGO INTEIRO</div>
+        <div class="tt">Do primeiro ao último minuto, <em>com e sem bola</em>.</div>
+        <div class="vis"><div class="chipset">
+          <span class="mchip big in" style="--d:.2s">Com bola</span>
+          <span class="mchip big in" style="--d:.35s">Sem bola</span>
+          <span class="mchip in" style="--d:.7s">Organização ofensiva</span>
+          <span class="mchip in" style="--d:.85s">Organização defensiva</span>
+          <span class="mchip in" style="--d:1s">Transição ofensiva</span>
+          <span class="mchip in" style="--d:1.15s">Transição defensiva</span>
+          <span class="mchip in" style="--d:1.3s">Bolas paradas</span>
+        </div></div>
+      </div>
+
+      <!-- 3 · relatório + vídeo -->
+      <div class="sc" data-sc="3">
+        <div class="num">03 · O QUE RECEBES</div>
+        <div class="tt">Relatório e vídeo com <em>os teus lances</em>.</div>
+        <div class="vis">
+          <div class="mock rep in" style="--d:.2s">
+            <div class="t">Relatório individual</div>
+            <div class="l" style="width:80%"></div><div class="l" style="width:60%"></div>
+            <div class="bars"><i style="height:40%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:90%"></i></div>
+            <div class="l" style="width:70%"></div><div class="l" style="width:50%"></div>
+          </div>
+          <div class="mock vid in" style="--d:.6s">
+            <svg viewBox="0 0 180 112" width="180" height="112" aria-hidden="true"><rect x="8" y="8" width="164" height="96" fill="none" stroke="#2F4A33"/><line x1="90" y1="8" x2="90" y2="104" stroke="#2F4A33"/><circle cx="62" cy="64" r="6" fill="#C9A453"/><circle cx="62" cy="64" r="11" fill="none" stroke="#E2C27A"/><circle cx="110" cy="50" r="5" fill="none" stroke="#D45B4C" stroke-width="2"/></svg>
+            <span class="pl"><svg width="16" height="16" viewBox="0 0 24 24" fill="#111" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
+            <span class="lt">LANCE 03 / 12</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 · sessão individual -->
+      <div class="sc" data-sc="4">
+        <div class="num">04 · SESSÃO INDIVIDUAL</div>
+        <div class="tt">Vês o teu jogo <em>com o analista</em>.</div>
+        <div class="vis"><div class="call">
+          <div class="tile in" style="--d:.2s"><img src="assets/icons/emblema-96.png" width="46" height="46" alt="">ANALISTA</div>
+          <div class="tile in" style="--d:.35s"><span class="av" style="background:var(--gold);color:#111;font-family:var(--body);font-weight:800;font-size:13px">TU</span>JOGADOR</div>
+          <div class="bub in" style="--d:.9s">Repara neste lance: olhaste antes de receber e ganhaste tempo.</div>
+        </div></div>
+      </div>
+
+      <!-- 5 · evolução -->
+      <div class="sc" data-sc="5">
+        <div class="num">05 · A TUA EVOLUÇÃO</div>
+        <div class="tt">Jogo a jogo, vês <em>o que melhoraste</em>.</div>
+        <div class="vis"><div class="evo" id="evo">
+          <div><em>62</em><b data-h="42"></b><span>JOGO 1</span></div>
+          <div><em>68</em><b data-h="56"></b><span>JOGO 2</span></div>
+          <div><em>74</em><b data-h="72"></b><span>JOGO 3</span></div>
+          <div><em>81</em><b data-h="92"></b><span>JOGO 4</span></div>
+        </div></div>
+        <div style="font-size:11px;color:var(--dim);text-align:center">Tomada de decisão · exemplo</div>
+      </div>
+    </div>
+
+    <p class="stats3" style="margin:0"><span><b>90'</b>de jogo</span><span><b>1</b>jogador</span><span><b>5</b>momentos</span></p>
+
+    <button class="instalar" id="instalar" type="button" hidden>
+      <img src="assets/icons/icon-192.png" alt="">
+      <span style="flex:1"><b style="display:block;font-size:14px">Instalar a app FieldIQ</b><span style="font-size:12px;color:var(--muted)" id="instalar-txt">Fica no ecrã do telemóvel, como uma app.</span></span>
+      <span style="color:var(--gold2);font-weight:800">→</span>
+    </button>
+
+    <div class="intro-form" style="margin-top:auto;display:flex;flex-direction:column;gap:12px;padding-top:8px">
+      <button class="btn gold" id="bio-entrar" type="button"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 11v3a8 8 0 0 1-1.5 4.7"/><path d="M8.6 7.6A5 5 0 0 1 17 11v1.5"/><path d="M7 11a5 5 0 0 0 0 .5V14a12 12 0 0 1-1 4.5"/><path d="M15 14.5a15 15 0 0 1-1 4"/><path d="M4.5 9A8 8 0 0 1 19 7.5"/><path d="M19.5 11.5v1"/></svg><span class="bio-nome">Entrar com biometria</span></button>
+      <div class="ou"><span>ou</span></div>
+      <form id="f-login" style="display:flex;flex-direction:column;gap:10px">
+        <label for="email" class="sr">Email</label>
+        <input class="input" id="email" type="email" placeholder="Email" autocomplete="username">
+        <div class="pw">
+          <label for="pass" class="sr">Palavra-passe</label>
+          <input class="input" id="pass" type="password" placeholder="Palavra-passe" autocomplete="current-password">
+          <button class="olho" type="button" data-olho="pass" aria-label="Mostrar palavra-passe">Ver</button>
+        </div>
+        <button class="btn ghost" type="submit">Entrar</button>
+      </form>
+      <div class="between" style="font-size:13px">
+        <a href="#recuperar" style="font-weight:800;text-decoration:none">Esqueci-me da palavra-passe</a>
+        <a href="#ativar" style="font-weight:800;text-decoration:none">Ativar conta</a>
+      </div>
+      <p class="note" style="margin:4px 0 0">Ainda não és cliente? Fala connosco no Instagram <a href="https://instagram.com/fieldiq_cm" target="_blank" rel="noopener" style="font-weight:800;text-decoration:none">@fieldiq_cm</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- 1b ATIVAR CONTA (primeira vez) -->
+<section class="screen" id="s-ativar" data-screen="ativar" hidden>
+  <div class="scroll">
+    <div class="between">
+      <a class="iconbtn" href="#entrada" aria-label="Voltar à entrada"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a>
+      <span class="demo-lbl" id="at-passo">Passo 1 de 3</span>
+    </div>
+    <div class="capbar3"><span class="on"></span><span id="at-b2"></span><span id="at-b3"></span></div>
+
+    <div id="at-1" class="at" style="display:flex;flex-direction:column;gap:16px">
+      <div><div class="eyebrow">Bem-vindo à FieldIQ</div><h1>Olá, <em>Tiago</em>.<br>A tua conta está pronta.</h1></div>
+      <div class="beje" style="display:flex;flex-direction:column;gap:10px">
+        <div class="eyebrow cobre" style="letter-spacing:1.6px">O que vais encontrar aqui</div>
+        <div class="row"><span class="mark">▶</span><span style="font-weight:800">Os teus lances, em vídeo</span></div>
+        <div class="row"><span class="mark">✓</span><span style="font-weight:800">Relatório de cada jogo</span></div>
+        <div class="row"><span class="mark">↗</span><span style="font-weight:800">O que trabalhar até ao próximo jogo</span></div>
+      </div>
+      <div class="sub">A conta foi criada para <strong style="color:var(--fg)">tiago@exemplo.pt</strong>.</div>
+      <button class="btn gold" type="button" data-at="2" style="margin-top:auto">Começar</button>
+    </div>
+
+    <div id="at-2" class="at" hidden style="display:flex;flex-direction:column;gap:14px">
+      <div><div class="eyebrow">Passo 2</div><h1>Cria a tua <em>palavra-passe</em></h1></div>
+      <div class="pw">
+        <label for="np1" class="sr">Nova palavra-passe</label>
+        <input class="input" id="np1" type="password" placeholder="Nova palavra-passe" autocomplete="new-password">
+        <button class="olho" type="button" data-olho="np1" aria-label="Mostrar palavra-passe">Ver</button>
+      </div>
+      <label for="np2" class="sr">Repetir palavra-passe</label>
+      <input class="input" id="np2" type="password" placeholder="Repetir palavra-passe" autocomplete="new-password">
+      <ul class="regras" aria-live="polite">
+        <li id="r1">Pelo menos 8 caracteres</li>
+        <li id="r2">Pelo menos um número</li>
+        <li id="r3">As duas são iguais</li>
+      </ul>
+      <button class="btn gold" id="at-guardar" type="button" disabled style="margin-top:auto">Guardar palavra-passe</button>
+    </div>
+
+    <div id="at-3" class="at" hidden style="display:flex;flex-direction:column;gap:16px;align-items:stretch">
+      <div><div class="eyebrow">Passo 3</div><h1>Entra mais depressa com <em class="bio-curto">biometria</em></h1></div>
+      <div class="bio-grande" aria-hidden="true"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 11v3a8 8 0 0 1-1.5 4.7"/><path d="M8.6 7.6A5 5 0 0 1 17 11v1.5"/><path d="M7 11a5 5 0 0 0 0 .5V14a12 12 0 0 1-1 4.5"/><path d="M15 14.5a15 15 0 0 1-1 4"/><path d="M4.5 9A8 8 0 0 1 19 7.5"/><path d="M19.5 11.5v1"/></svg></div>
+      <p class="sub" style="text-align:center;margin:0">Da próxima vez, abres a app e entras com <span class="bio-curto">biometria</span>. Sem escrever nada.</p>
+      <button class="btn gold" id="at-bio" type="button" style="margin-top:auto"><span class="bio-nome">Ativar biometria</span></button>
+      <button class="textbtn" id="at-saltar" type="button" style="align-self:center">Agora não</button>
+    </div>
+  </div>
+</section>
+
+<!-- 1c RECUPERAR PALAVRA-PASSE -->
+<section class="screen" id="s-recuperar" data-screen="recuperar" hidden>
+  <div class="scroll">
+    <a class="iconbtn" href="#entrada" aria-label="Voltar à entrada"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a>
+    <div><div class="eyebrow">Recuperar acesso</div><h1>Esqueceste-te da <em>palavra-passe</em>?</h1></div>
+    <form id="f-rec" style="display:flex;flex-direction:column;gap:12px">
+      <div id="rec-1" style="display:flex;flex-direction:column;gap:12px">
+        <p class="sub" style="margin:0">Escreve o teu email. Enviamos-te um código de 6 dígitos.</p>
+        <label for="rec-email" class="sr">Email</label>
+        <input class="input" id="rec-email" type="email" placeholder="Email" autocomplete="username">
+        <button class="btn gold" type="submit">Enviar código</button>
+      </div>
+      <div id="rec-2" hidden style="display:flex;flex-direction:column;gap:12px">
+        <p class="sub" style="margin:0">Escreve o código que recebeste no email.</p>
+        <div class="code">
+          <input class="input" id="c1" inputmode="numeric" maxlength="1" aria-label="Dígito 1">
+          <input class="input" id="c2" inputmode="numeric" maxlength="1" aria-label="Dígito 2">
+          <input class="input" id="c3" inputmode="numeric" maxlength="1" aria-label="Dígito 3">
+          <input class="input" id="c4" inputmode="numeric" maxlength="1" aria-label="Dígito 4">
+          <input class="input" id="c5" inputmode="numeric" maxlength="1" aria-label="Dígito 5">
+          <input class="input" id="c6" inputmode="numeric" maxlength="1" aria-label="Dígito 6">
+        </div>
+        <button class="btn gold" type="submit">Confirmar e criar nova palavra-passe</button>
+        <p class="note" style="margin:0">Esboço: qualquer código serve.</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- verificação biométrica (simulada) -->
+<div class="bio-ov" id="bio-ov" hidden role="status">
+  <div class="bio-cx">
+    <div class="bio-grande pulsa"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 11v3a8 8 0 0 1-1.5 4.7"/><path d="M8.6 7.6A5 5 0 0 1 17 11v1.5"/><path d="M7 11a5 5 0 0 0 0 .5V14a12 12 0 0 1-1 4.5"/><path d="M15 14.5a15 15 0 0 1-1 4"/><path d="M4.5 9A8 8 0 0 1 19 7.5"/><path d="M19.5 11.5v1"/></svg></div>
+    <div style="font-weight:800" id="bio-msg">A verificar…</div>
+  </div>
+</div>
+
+<!-- 2 INÍCIO -->
+<section class="screen" id="s-inicio" data-screen="inicio" hidden>
+  <div class="scroll">
+    <div class="between">
+      <div class="wordmark">Field<span>IQ</span></div>
+      <button class="iconbtn" aria-label="Notificações" data-toast="Sem notificações novas">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span style="position:absolute;top:10px;right:11px;width:8px;height:8px;border-radius:4px;background:var(--gold2)"></span>
+      </button>
+    </div>
+    <div>
+      <div class="sub" id="hoje">Sábado, 14 de novembro</div>
+      <h1>Olá, <em>Tiago</em></h1>
+    </div>
+
+    <a class="card" href="#estado">
+      <div class="between"><span class="eyebrow" style="letter-spacing:1.8px">Análise em curso</span><span class="pill on"><span class="pulse"></span>Em análise</span></div>
+      <div class="serif" style="margin-top:10px;font-size:20px">vs. Atlético B · 9 nov</div>
+      <div class="sub" style="margin-top:2px">Pack Pro · sessão 3 de 4</div>
+      <div class="steps4" style="margin-top:16px"><div class="bar done"><i></i></div><div class="bar done"><i></i></div><div class="bar now"><i></i></div><div class="bar"><i></i></div></div>
+      <div class="steps4" style="margin-top:8px"><span class="done">Recebido</span><span class="done">Em análise</span><span>Pronto</span><span>Sessão</span></div>
+      <div style="margin-top:14px;font-size:13px;color:var(--gold2);font-weight:800">Ver detalhe →</div>
+    </a>
+
+    <!-- Desafio da semana: teste de perceção -->
+    <div class="desafio" id="desafio">
+      <div class="between">
+        <span class="eyebrow" style="letter-spacing:1.8px">Desafio da semana</span>
+        <span class="pill off" id="q-serie">Série: 2</span>
+      </div>
+      <div class="serif" style="font-size:20px" id="q-titulo">Tens 3 segundos. <em style="font-style:italic;font-weight:600;color:var(--gold2)">Memoriza.</em></div>
+      <div class="qboard" id="qboard">
+        <svg viewBox="0 0 300 170" role="img" aria-label="Quadro do desafio: tu, três colegas A, B e C e adversários.">
+          <rect x="6" y="6" width="288" height="158" rx="4" fill="none" stroke="#C9A453" stroke-opacity=".22"/>
+          <line x1="6" y1="85" x2="294" y2="85" stroke="#C9A453" stroke-opacity=".22"/>
+          <g id="q-jogo">
+            <!-- A com pressão -->
+            <circle cx="62" cy="70" r="11" fill="#8F897C"/><text x="62" y="74" text-anchor="middle" fill="#111" font-family="Mulish" font-weight="800" font-size="11">A</text>
+            <circle cx="80" cy="56" r="8" fill="none" stroke="#D45B4C" stroke-width="2"/>
+            <!-- B com pressão -->
+            <circle cx="236" cy="62" r="11" fill="#8F897C"/><text x="236" y="66" text-anchor="middle" fill="#111" font-family="Mulish" font-weight="800" font-size="11">B</text>
+            <circle cx="220" cy="46" r="8" fill="none" stroke="#D45B4C" stroke-width="2"/>
+            <!-- C livre -->
+            <circle cx="160" cy="32" r="11" fill="#8F897C"/><text x="160" y="36" text-anchor="middle" fill="#111" font-family="Mulish" font-weight="800" font-size="11">C</text>
+            <!-- outros adversários -->
+            <circle cx="112" cy="104" r="8" fill="none" stroke="#D45B4C" stroke-width="2"/>
+            <circle cx="196" cy="110" r="8" fill="none" stroke="#D45B4C" stroke-width="2"/>
+          </g>
+          <!-- TU com bola -->
+          <circle cx="150" cy="136" r="11" fill="#C9A453"/>
+          <circle cx="161" cy="128" r="4" fill="#fff"/>
+          <text x="150" y="160" text-anchor="middle" fill="#E2C27A" font-family="Mulish" font-weight="800" font-size="9" letter-spacing="1.4">TU</text>
+          <!-- resposta -->
+          <g id="q-resposta" hidden>
+            <path d="M150 124 L160 46" stroke="#F2EEE2" stroke-width="1.6"/>
+            <circle cx="160" cy="32" r="16" fill="none" stroke="#E2C27A" stroke-width="2"/>
+            <rect x="182" y="22" width="44" height="16" rx="8" fill="#111" stroke="#C9A453"/><text class="qtag" x="204" y="33" text-anchor="middle" fill="#E2C27A">LIVRE</text>
+            <rect x="30" y="88" width="64" height="16" rx="8" fill="#111" stroke="#D45B4C"/><text class="qtag" x="62" y="99" text-anchor="middle" fill="#D45B4C">PRESSÃO</text>
+            <rect x="204" y="80" width="64" height="16" rx="8" fill="#111" stroke="#D45B4C"/><text class="qtag" x="236" y="91" text-anchor="middle" fill="#D45B4C">PRESSÃO</text>
+          </g>
+        </svg>
+        <span class="count" id="q-count" hidden>3</span>
+        <div class="cover" id="q-capa">
+          <div style="font-size:13px;color:var(--muted);max-width:240px">Vais ver o quadro durante 3 segundos. Depois perguntamos-te uma coisa.</div>
+          <button class="btn gold" id="q-start" type="button" style="width:auto;padding:0 22px;height:46px">Começar</button>
+        </div>
+        <div class="cover" id="q-pergunta" hidden>
+          <div class="serif" style="font-size:22px">Que colega estava <em style="font-style:italic;font-weight:600;color:var(--gold2)">livre</em>?</div>
+        </div>
+      </div>
+      <div class="opts" id="q-opts" hidden>
+        <button class="opt" data-op="A" type="button">A</button>
+        <button class="opt" data-op="B" type="button">B</button>
+        <button class="opt" data-op="C" type="button">C</button>
+      </div>
+      <div id="q-fim" hidden style="display:flex;flex-direction:column;gap:6px">
+        <div style="font-weight:800" id="q-veredito">Boa! Era a C.</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.5">Olhar antes de receber deixa-te ver as soluções antes de a bola chegar. Sempre adaptado ao modelo da tua equipa.</div>
+        <button class="textbtn" id="q-repetir" type="button" style="align-self:flex-start;color:var(--gold2);padding:0">Repetir ↺</button>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <a class="card row" href="#pack" style="padding:14px;gap:10px">
+        <svg class="ringpack" viewBox="0 0 86 86" aria-hidden="true">
+          <circle cx="43" cy="43" r="36" fill="none" stroke="#3A3631" stroke-width="7"/>
+          <circle class="arc" cx="43" cy="43" r="36" fill="none" stroke="#C9A453" stroke-width="7" stroke-linecap="round" pathLength="1" transform="rotate(-90 43 43)"/>
+          <text x="43" y="50" text-anchor="middle" fill="#F2EEE2" font-family="Playfair Display,serif" font-weight="700" font-size="22">2/4</text>
+        </svg>
+        <div style="min-width:0"><div class="eyebrow" style="letter-spacing:1.4px">Pack Pro</div><div style="font-size:12px;color:var(--muted);margin-top:4px">sessões usadas</div></div>
+      </a>
+      <div class="beje" style="padding:16px">
+        <div class="eyebrow cobre" style="letter-spacing:1.6px">Próxima sessão</div>
+        <div class="serif" style="margin-top:8px;font-size:20px">Por marcar</div>
+        <div style="font-size:12px;color:#4A433B">quando o relatório ficar pronto</div>
+      </div>
+    </div>
+
+    <a class="beje" href="#analise">
+      <div class="eyebrow cobre" style="letter-spacing:1.8px">Última análise · 26 out</div>
+      <div class="serif" style="margin-top:6px;font-size:20px">vs. União Norte</div>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;font-size:14px">
+        <div class="row" style="gap:10px"><span class="mark" style="width:24px;height:24px;font-size:12px">✓</span>Receção orientada</div>
+        <div class="row" style="gap:10px"><span class="mark" style="width:24px;height:24px;font-size:12px">↗</span>Olhar antes de receber</div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- 3 ANÁLISES -->
+<section class="screen" id="s-analises" data-screen="analises" hidden>
+  <div class="scroll">
+    <div><div class="eyebrow">Histórico</div><h1>As minhas <em>análises</em></h1></div>
+    <div class="chips" role="group" aria-label="Filtrar por nível">
+      <button class="chip" aria-pressed="true" data-f="Todas">Todas</button>
+      <button class="chip" aria-pressed="false" data-f="Performance">Performance</button>
+      <button class="chip" aria-pressed="false" data-f="Pro">Pro</button>
+      <button class="chip" aria-pressed="false" data-f="Elite">Elite</button>
+    </div>
+    <div id="lista" style="display:flex;flex-direction:column;gap:10px"></div>
+    <p class="note" id="vazio" hidden>Ainda não tens análises deste nível.</p>
+    <a class="btn ghost" href="#estado" style="margin-top:auto">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Pedir nova análise
+    </a>
+  </div>
+</section>
+
+<!-- 4 UMA ANÁLISE -->
+<section class="screen" id="s-analise" data-screen="analise" hidden>
+  <div class="scroll" style="gap:14px">
+    <a class="iconbtn" href="#analises" aria-label="Voltar às análises">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+    </a>
+    <div><div class="eyebrow">Pro · 26 outubro</div><h1 style="font-size:28px">vs. União <em>Norte</em></h1></div>
+    <button class="video" aria-label="Ver o vídeo dos teus lances" data-toast="Aqui abre o vídeo dos teus lances">
+      <svg class="board" viewBox="0 0 350 196" preserveAspectRatio="xMidYMid slice" aria-hidden="true" fill="none">
+        <rect x="14" y="14" width="322" height="168" stroke="#2F4A33"/>
+        <line x1="175" y1="14" x2="175" y2="182" stroke="#2F4A33"/>
+        <circle cx="175" cy="98" r="28" stroke="#2F4A33"/>
+        <circle cx="110" cy="120" r="7" fill="#8F897C"/>
+        <circle cx="230" cy="70" r="7" fill="#8F897C"/>
+        <circle cx="205" cy="128" r="8" stroke="#D45B4C" stroke-width="2"/>
+        <circle cx="262" cy="104" r="8" stroke="#D45B4C" stroke-width="2"/>
+        <circle cx="160" cy="92" r="9" fill="#C9A453"/>
+        <circle cx="160" cy="92" r="15" stroke="#E2C27A" stroke-width="1.5"/>
+        <path d="M110 120 L160 92" stroke="#F2EEE2" stroke-width="1.5"/>
+        <path d="M160 92 C190 88,210 78,228 72" stroke="#E2C27A" stroke-width="1.5" stroke-dasharray="4 5"/>
+      </svg>
+      <span class="play"><svg width="22" height="22" viewBox="0 0 24 24" fill="#111" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span>
+      <span class="dur">Os teus lances · 6:40</span>
+    </button>
+    <div class="card row" style="padding:12px 14px">
+      <div style="width:40px;height:40px;border-radius:10px;background:#24221F;display:flex;align-items:center;justify-content:center;color:var(--gold2)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 14h8M8 17h5"/></svg>
+      </div>
+      <div style="flex:1"><div style="font-weight:800">Relatório individual</div><div style="font-size:12px;color:var(--muted)">PDF · 17 páginas</div></div>
+      <button class="iconbtn" aria-label="Descarregar relatório" data-toast="Aqui descarrega o relatório" style="background:transparent;color:var(--gold2)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
+      </button>
+    </div>
+    <div class="beje" style="display:flex;flex-direction:column;gap:12px;padding:16px">
+      <div class="eyebrow cobre" style="letter-spacing:1.8px">Resumo do jogo</div>
+      <div class="row" style="align-items:flex-start"><span class="mark">✓</span><div><div class="lbl">Fazes bem</div><div style="font-weight:800">Receção orientada</div></div></div>
+      <div class="row" style="align-items:flex-start"><span class="mark">✕</span><div><div class="lbl">Onde perdes</div><div style="font-weight:800">Reação à perda</div></div></div>
+      <div class="row" style="align-items:flex-start"><span class="mark">↗</span><div><div class="lbl">O que trabalhar</div><div style="font-weight:800">Olhar antes de receber</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ESTADO -->
+<section class="screen" id="s-estado" data-screen="estado" hidden>
+  <div class="scroll">
+    <a class="iconbtn" href="#inicio" aria-label="Voltar ao início">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+    </a>
+    <div>
+      <div class="eyebrow">Estado da análise</div>
+      <h1 style="font-size:28px">vs. Atlético <em>B</em></h1>
+      <div class="sub">Jogo de 9 nov · Pro · com estatísticas</div>
+    </div>
+    <div class="card" style="padding:18px 18px 4px">
+      <div class="tl"><div class="rail"><span class="dot done">✓</span><span class="ln done"></span></div><div class="txt"><div class="t">Pedido recebido</div><div class="s">10 nov, 18h20</div></div></div>
+      <div class="tl"><div class="rail"><span class="dot now">•</span><span class="ln"></span></div><div class="txt"><div class="t">Em análise</div><div class="s">O analista está a ver o teu jogo</div></div></div>
+      <div class="tl"><div class="rail"><span class="dot"></span><span class="ln"></span></div><div class="txt"><div class="t later">Relatório e vídeo prontos</div><div class="s">Previsão: até 17 nov</div></div></div>
+      <div class="tl"><div class="rail"><span class="dot"></span><span class="ln"></span></div><div class="txt"><div class="t later">Sessão marcada</div><div class="s">Escolhes o dia e a hora</div></div></div>
+      <div class="tl"><div class="rail"><span class="dot"></span></div><div class="txt"><div class="t later">Concluída</div><div class="s">Fica no teu histórico</div></div></div>
+    </div>
+    <div class="beje row" style="padding:14px 16px">
+      <div style="flex:1"><div style="font-weight:800" id="lbl-aviso">Avisa-me quando estiver pronto</div><div style="font-size:12px;color:#4A433B">Notificação no telemóvel</div></div>
+      <button class="switch" id="aviso" role="switch" aria-checked="true" aria-labelledby="lbl-aviso"><span></span></button>
+    </div>
+    <p class="note" style="margin-top:auto">Dúvidas sobre esta análise? <a href="#estado" data-toast="Aqui abre a conversa com o analista" style="font-weight:800;text-decoration:none">Envia-nos mensagem</a></p>
+  </div>
+</section>
+
+<!-- 6 PACK -->
+<section class="screen" id="s-pack" data-screen="pack" hidden>
+  <div class="scroll">
+    <div><div class="eyebrow">Sessões e pagamentos</div><h1>O meu <em>plano</em></h1></div>
+
+    <!-- só no protótipo: escolher o exemplo -->
+    <div class="demo">
+      <span class="demo-lbl">Ver exemplo</span>
+      <div class="chips" role="group" aria-label="Escolher exemplo">
+        <button class="chip" type="button" aria-pressed="true" data-plano="pack">Pack de 4</button>
+        <button class="chip" type="button" aria-pressed="false" data-plano="ind">Sessão individual</button>
+      </div>
+    </div>
+
+    <!-- PACK DE 4 -->
+    <div id="v-pack" style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <div class="between"><span class="eyebrow" style="letter-spacing:1.8px">Pack Pro · 4 sessões</span><span class="pill" id="pk-pill"></span></div>
+        <div class="row" style="margin-top:12px;gap:16px;align-items:flex-end">
+          <span class="serif" style="font-size:52px;line-height:1"><span id="pk-feitas">2</span><span style="font-size:24px;color:var(--dim)">/4</span></span>
+          <div style="padding-bottom:6px"><div style="font-weight:800" id="pk-l1">sessões feitas</div><div style="font-size:13px;color:var(--gold2);font-weight:800" id="pk-l2">Faltam 2</div></div>
+        </div>
+        <div class="slots" id="pk-slots" style="margin-top:16px"></div>
+        <div class="legenda"><span><i style="background:var(--gold)"></i>Feita</span><span><i style="border:2px solid var(--gold2)"></i>A seguir</span><span><i style="border:2px dashed var(--line2)"></i>Por fazer</span></div>
+      </div>
+
+      <div class="beje" style="padding:16px">
+        <div class="between">
+          <div><div class="eyebrow cobre" style="letter-spacing:1.6px">Pagamento do pack</div><div class="serif" style="font-size:22px;margin-top:4px">250 €</div></div>
+          <span class="pill ink" id="pg-pill">Parcial</span>
+        </div>
+        <div class="meter" style="margin-top:12px"><div id="pg-bar" style="width:50%"></div></div>
+        <div class="between" style="margin-top:8px;font-size:13px;font-variant-numeric:tabular-nums"><span>Pago <strong id="pg-pago">125 €</strong></span><span>Em falta <strong id="pg-falta">125 €</strong></span></div>
+        <div class="hist">
+          <div class="between"><span>12 out · MB WAY</span><strong>125 €</strong></div>
+          <div class="between" id="pg-h2" hidden><span>9 nov · MB WAY</span><strong>125 €</strong></div>
+        </div>
+        <button class="btn ink" id="pg-btn" style="margin-top:12px;height:48px" type="button">Pagar 125 € · MB WAY ou Multibanco</button>
+      </div>
+
+      <div class="demo" style="justify-content:space-between">
+        <span class="demo-lbl">Simular sessões feitas</span>
+        <div class="row" style="gap:8px">
+          <button class="iconbtn" id="sim-menos" type="button" aria-label="Menos uma sessão">−</button>
+          <button class="iconbtn" id="sim-mais" type="button" aria-label="Mais uma sessão">+</button>
+          <button class="chip" id="sim-pago" type="button" aria-pressed="false">Pago total</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SESSÃO INDIVIDUAL -->
+    <div id="v-ind" hidden style="display:flex;flex-direction:column;gap:12px">
+      <div class="beje" style="padding:16px">
+        <div class="between">
+          <div><div class="eyebrow cobre" style="letter-spacing:1.6px">Sessão Pro · vs. Atlético B</div><div class="serif" style="font-size:22px;margin-top:4px">70 €</div></div>
+          <span class="pill ink" id="ind-pill">Por pagar</span>
+        </div>
+        <div style="font-size:13px;color:#4A433B;margin-top:8px" id="ind-txt">Podes pagar até ao dia da sessão.</div>
+        <button class="btn ink" id="ind-btn" style="margin-top:12px;height:48px" type="button">Pagar 70 € · MB WAY ou Multibanco</button>
+      </div>
+      <div class="card between" style="padding:14px 16px">
+        <div><div style="font-weight:800">Sessão Performance · vs. Académico FC</div><div style="font-size:12px;color:var(--muted)">45 € · 28 set · MB WAY</div></div>
+        <span class="pill off">Pago</span>
+      </div>
+      <div class="card" style="padding:14px 16px;font-size:13px;color:var(--muted);line-height:1.5">
+        Com o <strong style="color:var(--gold2)">pack de 4</strong> ficas com 4 sessões e acompanhas aqui as que já fizeste e as que te faltam.
+      </div>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs" id="tabs" aria-label="Navegação principal" hidden>
+  <a href="#inicio" data-tab="inicio"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>Início</a>
+  <a href="#analises" data-tab="analises"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg>Análises</a>
+  <a href="#pack" data-tab="pack"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>Plano</a>
+  <a href="#entrada" data-tab="entrada"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Perfil</a>
+</nav>
+
+<div class="toast" id="toast" role="status" hidden></div>
+</div>
+</div>
+
+<script>
+(function(){
+  var vemDaRecuperacao = false;
+  var ecras = ['entrada','ativar','recuperar','inicio','analises','analise','estado','pack'];
+  var tabDe = {inicio:'inicio',analises:'analises',analise:'analises',estado:'inicio',pack:'pack'};
+  var intro = document.getElementById('intro');
+
+  // capa: o que é a FieldIQ, em 5 cenas
+  (function(){
+    // 22 jogadores (colegas cinzentos, adversários em anel vermelho); o TU entra depois
+    var pos = [[40,30],[40,85],[40,140],[90,50],[90,120],[120,85],[135,30],[135,140],[230,40],[240,140],
+               [70,85],[105,20],[105,150],[150,60],[150,112],[205,30],[205,140],[250,85],[270,50],[270,120],[290,85]];
+    var g = document.getElementById('p22j'), h = '';
+    pos.forEach(function(p, i){
+      h += i < 10
+        ? '<circle class="j" cx="'+p[0]+'" cy="'+p[1]+'" r="7" fill="#8F897C"/>'
+        : '<circle class="j" cx="'+p[0]+'" cy="'+p[1]+'" r="7" fill="none" stroke="#D45B4C" stroke-width="2"/>';
+    });
+    g.innerHTML = h;
+  })();
+  var cenas = document.querySelectorAll('.sc'), segs = document.querySelectorAll('.segs span');
+  var duracoes = [3800, 3600, 3600, 3800, 4200];
+  var cena = 0, tIntro = null, pausado = false;
+  var reduz = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function poeCena(n){
+    cena = n;
+    cenas.forEach(function(c, i){ c.classList.toggle('on', i === n); });
+    segs.forEach(function(s, i){
+      var bar = s.querySelector('i'); bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = '';
+      s.className = i < n ? 'feito' : (i === n ? (pausado || reduz ? 'feito' : 'agora') : '');
+      s.style.setProperty('--dur', duracoes[i] + 'ms');
+    });
+    var bars = document.querySelectorAll('#evo b');
+    bars.forEach(function(b, i){
+      b.style.transitionDelay = (n === 4 ? (0.25 + i * 0.25) : 0) + 's';
+      b.style.height = n === 4 ? b.dataset.h + '%' : '0';
+    });
+  }
+  function seguinte(){
+    clearTimeout(tIntro);
+    if (pausado) return;
+    tIntro = setTimeout(function(){ poeCena((cena + 1) % cenas.length); seguinte(); }, duracoes[cena]);
+  }
+  function reiniciarIntro(){
+    clearTimeout(tIntro);
+    poeCena(0);
+    if (!reduz) seguinte();
+  }
+  function pararIntro(){ clearTimeout(tIntro); }
+  document.getElementById('pausa').addEventListener('click', function(){
+    pausado = !pausado;
+    this.setAttribute('aria-pressed', pausado ? 'true' : 'false');
+    this.setAttribute('aria-label', pausado ? 'Continuar apresentação' : 'Pausar apresentação');
+    document.getElementById('ic-pausa').innerHTML = pausado ? '<path d="M8 5v14l11-7z"/>' : '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>';
+    if (pausado){ pararIntro(); poeCena(cena); } else { poeCena(cena); seguinte(); }
+  });
+  // tocar no quadro passa à cena seguinte
+  intro.addEventListener('click', function(e){
+    if (e.target.closest('#pausa')) return;
+    poeCena((cena + 1) % cenas.length);
+    if (!pausado && !reduz) seguinte();
+  });
+
+  function mostrar(){
+    var h = (location.hash || '').replace('#','');
+    if (ecras.indexOf(h) < 0) h = 'entrada';
+    document.querySelectorAll('.screen').forEach(function(s){ s.hidden = s.dataset.screen !== h; });
+    var tabs = document.getElementById('tabs');
+    tabs.hidden = (h === 'entrada' || h === 'ativar' || h === 'recuperar');
+    tabs.querySelectorAll('a').forEach(function(a){
+      if (a.dataset.tab === tabDe[h]) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
+    });
+    var sc = document.querySelector('#s-' + h + ' .scroll'); if (sc) sc.scrollTop = 0;
+    if (h === 'entrada') reiniciarIntro(); else pararIntro();
+    if (h === 'ativar'){ if (vemDaRecuperacao) vemDaRecuperacao = false; else passoAtivar(1); }
+    if (h !== 'inicio') pararDesafio();
+  }
+  window.addEventListener('hashchange', mostrar);
+
+  // data de hoje
+  try {
+    var d = new Date().toLocaleDateString('pt-PT',{weekday:'long',day:'numeric',month:'long'});
+    document.getElementById('hoje').textContent = d.charAt(0).toUpperCase() + d.slice(1);
+  } catch(e){}
+
+  // ===== Entrada: biometria ou palavra-passe =====
+  var iosDev = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var bioNome = iosDev ? 'Face ID' : 'impressão digital';
+  document.querySelectorAll('.bio-nome').forEach(function(el){
+    el.textContent = el.textContent.indexOf('Ativar') === 0 ? 'Ativar ' + bioNome : 'Entrar com ' + bioNome;
+  });
+  document.querySelectorAll('.bio-curto').forEach(function(el){ el.textContent = bioNome; });
+  function verificar(msgFim, depois){
+    var ov = document.getElementById('bio-ov'), m = document.getElementById('bio-msg');
+    m.textContent = 'A verificar…'; ov.hidden = false;
+    setTimeout(function(){ m.textContent = msgFim; }, 900);
+    setTimeout(function(){ ov.hidden = true; depois(); }, 1500);
+  }
+  document.getElementById('bio-entrar').addEventListener('click', function(){
+    verificar('Bem-vindo de volta', function(){ location.hash = 'inicio'; });
+  });
+  document.getElementById('f-login').addEventListener('submit', function(e){ e.preventDefault(); location.hash = 'inicio'; });
+  document.querySelectorAll('[data-olho]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var inp = document.getElementById(b.dataset.olho), ver = inp.type === 'password';
+      inp.type = ver ? 'text' : 'password';
+      b.textContent = ver ? 'Ocultar' : 'Ver';
+      b.setAttribute('aria-label', ver ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe');
+    });
+  });
+
+  // Ativar conta (3 passos)
+  function passoAtivar(n){
+    [1,2,3].forEach(function(i){ document.getElementById('at-' + i).hidden = i !== n; });
+    document.getElementById('at-passo').textContent = 'Passo ' + n + ' de 3';
+    document.getElementById('at-b2').className = n >= 2 ? 'on' : '';
+    document.getElementById('at-b3').className = n >= 3 ? 'on' : '';
+  }
+  document.querySelector('[data-at="2"]').addEventListener('click', function(){ passoAtivar(2); document.getElementById('np1').focus(); });
+  function validar(){
+    var a = document.getElementById('np1').value, b2 = document.getElementById('np2').value;
+    var r1 = a.length >= 8, r2 = /\d/.test(a), r3 = a.length > 0 && a === b2;
+    document.getElementById('r1').className = r1 ? 'ok' : '';
+    document.getElementById('r2').className = r2 ? 'ok' : '';
+    document.getElementById('r3').className = r3 ? 'ok' : '';
+    document.getElementById('at-guardar').disabled = !(r1 && r2 && r3);
+  }
+  document.getElementById('np1').addEventListener('input', validar);
+  document.getElementById('np2').addEventListener('input', validar);
+  document.getElementById('at-guardar').addEventListener('click', function(){ toast('Palavra-passe guardada'); passoAtivar(3); });
+  document.getElementById('at-bio').addEventListener('click', function(){
+    verificar(bioNome + ' ativado', function(){ location.hash = 'inicio'; });
+  });
+  document.getElementById('at-saltar').addEventListener('click', function(){ location.hash = 'inicio'; });
+
+  // Recuperar palavra-passe
+  document.getElementById('f-rec').addEventListener('submit', function(e){
+    e.preventDefault();
+    var r1 = document.getElementById('rec-1'), r2 = document.getElementById('rec-2');
+    if (!r1.hidden){ r1.hidden = true; r2.hidden = false; toast('Enviámos um código para o teu email'); document.getElementById('c1').focus(); }
+    else { r1.hidden = false; r2.hidden = true; vemDaRecuperacao = true; passoAtivar(2); location.hash = 'ativar'; }
+  });
+  var cods = document.querySelectorAll('.code input');
+  cods.forEach(function(inp, i){
+    inp.addEventListener('input', function(){ if (inp.value && cods[i+1]) cods[i+1].focus(); });
+  });
+
+  // ===== Desafio da semana =====
+  var q = {
+    capa: document.getElementById('q-capa'), perg: document.getElementById('q-pergunta'),
+    count: document.getElementById('q-count'), opts: document.getElementById('q-opts'),
+    fim: document.getElementById('q-fim'), resp: document.getElementById('q-resposta'),
+    titulo: document.getElementById('q-titulo'), veredito: document.getElementById('q-veredito'),
+    serie: document.getElementById('q-serie')
+  };
+  var serie = 2, timers = [];
+  function pararDesafio(){ timers.forEach(clearTimeout); timers = []; }
+  function repor(){
+    pararDesafio();
+    q.capa.hidden = false; q.perg.hidden = true; q.count.hidden = true;
+    q.opts.hidden = true; q.fim.hidden = true; q.resp.hidden = true;
+    q.titulo.innerHTML = 'Tens 3 segundos. <em style="font-style:italic;font-weight:600;color:var(--gold2)">Memoriza.</em>';
+    q.opts.querySelectorAll('.opt').forEach(function(b){ b.className = 'opt'; b.disabled = false; });
+  }
+  function tick(n){
+    q.count.textContent = n; q.count.classList.remove('tick'); void q.count.offsetWidth; q.count.classList.add('tick');
+  }
+  document.getElementById('q-start').addEventListener('click', function(){
+    q.capa.hidden = true; q.count.hidden = false; tick(3);
+    timers.push(setTimeout(function(){ tick(2); }, 1000));
+    timers.push(setTimeout(function(){ tick(1); }, 2000));
+    timers.push(setTimeout(function(){
+      q.count.hidden = true; q.perg.hidden = false; q.opts.hidden = false;
+      q.titulo.textContent = 'O quadro desapareceu.';
+      q.opts.querySelector('.opt').focus();
+    }, 3000));
+  });
+  q.opts.querySelectorAll('.opt').forEach(function(b){
+    b.addEventListener('click', function(){
+      var certo = b.dataset.op === 'C';
+      q.opts.querySelectorAll('.opt').forEach(function(x){
+        x.disabled = true;
+        if (x.dataset.op === 'C') x.classList.add('certa');
+      });
+      if (!certo) b.classList.add('errada');
+      serie = certo ? serie + 1 : 0;
+      q.serie.textContent = 'Série: ' + serie;
+      q.perg.hidden = true; q.resp.hidden = false; q.fim.hidden = false;
+      q.titulo.innerHTML = 'Era a <em style="font-style:italic;font-weight:600;color:var(--gold2)">C</em>.';
+      q.veredito.textContent = certo ? 'Boa! Viste a solução livre.' : 'Quase. A e B tinham pressão; a C estava livre.';
+    });
+  });
+  document.getElementById('q-repetir').addEventListener('click', repor);
+
+  // lista de análises
+  var dados = [
+    {dia:'9',mes:'NOV',jogo:'vs. Atlético B',nivel:'Pro',det:'sessão 3 do pack',estado:'Em análise',on:true,link:'#estado'},
+    {dia:'26',mes:'OUT',jogo:'vs. União Norte',nivel:'Pro',det:'relatório + vídeo',estado:'Concluída',link:'#analise'},
+    {dia:'12',mes:'OUT',jogo:'vs. Desportivo Sul',nivel:'Pro',det:'relatório + vídeo',estado:'Concluída',link:'#analise'},
+    {dia:'28',mes:'SET',jogo:'vs. Académico FC',nivel:'Performance',det:'relatório + vídeo',estado:'Concluída',link:'#analise'}
+  ];
+  function desenhar(f){
+    var el = document.getElementById('lista'); el.innerHTML = '';
+    var l = dados.filter(function(a){ return f === 'Todas' || a.nivel === f; });
+    l.forEach(function(a, i){
+      var c = document.createElement('a'); c.className = 'card item'; c.href = a.link;
+      c.style.animationDelay = (i * 70) + 'ms';
+      c.innerHTML = '<div class="date"><b>'+a.dia+'</b><small>'+a.mes+'</small></div>'+
+        '<div style="flex:1;min-width:0"><div style="font-weight:800">'+a.jogo+'</div><div style="font-size:12px;color:var(--muted);margin-top:3px">'+a.nivel+' · '+a.det+'</div></div>'+
+        '<span class="pill '+(a.on?'on':'off')+'">'+(a.on?'<span class="pulse"></span>':'')+a.estado+'</span>';
+      el.appendChild(c);
+    });
+    document.getElementById('vazio').hidden = l.length > 0;
+  }
+  document.querySelectorAll('#s-analises .chip').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('#s-analises .chip').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true':'false'); });
+      desenhar(b.dataset.f);
+    });
+  });
+  desenhar('Todas');
+
+  // ===== O meu plano: pack de 4 e sessão individual =====
+  var feitas = 2, pagoTotal = false;
+  var datas = ['12 out','26 out','9 nov','23 nov'];
+  function $(id){ return document.getElementById(id); }
+  function renderPack(){
+    var h = '';
+    for (var i = 1; i <= 4; i++){
+      if (i <= feitas) h += '<div class="slot done"><b>✓</b>Sessão '+i+'<br>'+datas[i-1]+'</div>';
+      else if (i === feitas + 1) h += '<div class="slot next"><b>'+i+'</b>a seguir</div>';
+      else h += '<div class="slot free"><b>'+i+'</b>por fazer</div>';
+    }
+    $('pk-slots').innerHTML = h;
+    $('pk-feitas').textContent = feitas;
+    $('pk-l2').textContent = feitas === 4 ? 'Pack concluído' : (feitas === 0 ? 'Tens 4 sessões' : 'Faltam ' + (4 - feitas));
+    var pill = $('pk-pill');
+    pill.className = 'pill ' + (feitas === 4 ? 'ok' : 'on');
+    pill.innerHTML = feitas === 4 ? 'Concluído' : '<span class="pulse"></span>Ativo';
+    $('pg-pill').textContent = pagoTotal ? 'Pago' : 'Parcial';
+    $('pg-bar').style.width = pagoTotal ? '100%' : '50%';
+    $('pg-pago').textContent = pagoTotal ? '250 €' : '125 €';
+    $('pg-falta').textContent = pagoTotal ? '0 €' : '125 €';
+    $('pg-h2').hidden = !pagoTotal;
+    $('pg-btn').hidden = pagoTotal;
+    $('sim-pago').setAttribute('aria-pressed', pagoTotal ? 'true' : 'false');
+    $('sim-menos').disabled = feitas === 0; $('sim-mais').disabled = feitas === 4;
+  }
+  $('sim-menos').addEventListener('click', function(){ if (feitas > 0){ feitas--; renderPack(); } });
+  $('sim-mais').addEventListener('click', function(){ if (feitas < 4){ feitas++; renderPack(); if (feitas === 4) toast('Pack concluído: 4/4 sessões'); } });
+  $('sim-pago').addEventListener('click', function(){ pagoTotal = !pagoTotal; renderPack(); });
+  $('pg-btn').addEventListener('click', function(){ pagoTotal = true; renderPack(); toast('Pagamento registado (exemplo)'); });
+  $('ind-btn').addEventListener('click', function(){
+    $('ind-pill').textContent = 'Pago';
+    $('ind-txt').textContent = 'Pago a 14 nov · MB WAY. Obrigado!';
+    $('ind-btn').hidden = true;
+    toast('Pagamento registado (exemplo)');
+  });
+  document.querySelectorAll('[data-plano]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('[data-plano]').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      $('v-pack').hidden = b.dataset.plano !== 'pack';
+      $('v-ind').hidden = b.dataset.plano !== 'ind';
+    });
+  });
+  renderPack();
+
+  // interruptor
+  var sw = document.getElementById('aviso');
+  sw.addEventListener('click', function(){
+    var on = sw.getAttribute('aria-checked') !== 'true';
+    sw.setAttribute('aria-checked', on ? 'true':'false');
+    toast(on ? 'Vais receber um aviso' : 'Aviso desligado');
+  });
+
+  // avisos rápidos para botões ainda sem ecrã
+  var t, tEl = document.getElementById('toast');
+  function toast(msg){ tEl.textContent = msg; tEl.hidden = false; clearTimeout(t); t = setTimeout(function(){ tEl.hidden = true; }, 2200); }
+  document.querySelectorAll('[data-toast]').forEach(function(b){
+    b.addEventListener('click', function(e){ e.preventDefault(); toast(b.dataset.toast); });
+  });
+
+  // ===== PWA: instalação e atualizações =====
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  var btnInst = document.getElementById('instalar'), pedido = null;
+  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (!standalone){
+    window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); pedido = e; btnInst.hidden = false; });
+    if (ios){ btnInst.hidden = false; document.getElementById('instalar-txt').textContent = 'No Safari: Partilhar → Adicionar ao ecrã principal.'; }
+  }
+  btnInst.addEventListener('click', function(){
+    if (pedido){ pedido.prompt(); pedido.userChoice.then(function(){ pedido = null; btnInst.hidden = true; }); }
+    else if (ios){ toast('Partilhar  →  Adicionar ao ecrã principal'); }
+  });
+  window.addEventListener('appinstalled', function(){ btnInst.hidden = true; toast('App instalada'); });
+  if ('serviceWorker' in navigator){
+    window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+  }
+
+  mostrar();
+})();
+</script>
+
+</body>
+</html>
