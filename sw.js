@@ -2,7 +2,7 @@
    Sempre que mudares ficheiros da app, aumenta a VERSAO (ex.: 'fieldiq-v2').
    Estratégia: tenta sempre a rede primeiro (as alterações aparecem logo);
    sem rede, usa a cópia guardada (a app abre na mesma). */
-const VERSAO = 'fieldiq-v7';
+const VERSAO = 'fieldiq-v8';
 const BASE = [
   './',
   './index.html',
