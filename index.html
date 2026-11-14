@@ -25,7 +25,9 @@ body{margin:0;-webkit-tap-highlight-color:transparent}
 img{max-width:100%}
 [hidden]{display:none!important}
 .phone{padding-top:env(safe-area-inset-top,0px)}
-.instalar{display:flex;align-items:center;gap:12px;background:#1A1917;border:1px solid #C9A453;border-radius:14px;padding:12px 14px;color:#F2EEE2;text-align:left;cursor:pointer;width:100%;font:inherit}
+.instalar{display:flex;align-items:center;gap:12px;background:#C9A453;border:none;border-radius:14px;padding:12px 14px;color:#111;text-align:left;cursor:pointer;width:100%;font:inherit;box-shadow:0 8px 24px rgba(201,164,83,.25)}
+.instalar #instalar-txt{color:#3A2E14!important}
+.inst-pill{display:flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:99px;border:none;background:#C9A453;color:#111;font:800 13px Mulish,sans-serif;cursor:pointer}
 .instalar img{width:36px;height:36px;border-radius:9px}
 /* Layout: um telemóvel ao centro (moldura em ecrãs largos, ecrã inteiro no telemóvel); ecrãs trocados por #hash; barra de navegação em baixo. Quadros táticos animados no estilo dos stories. */
 :root{
@@ -87,7 +89,7 @@ nav.tabs a{height:64px;display:flex;flex-direction:column;align-items:center;jus
 nav.tabs a[aria-current="page"]{color:var(--gold2)}
 
 /* ===== ENTRADA DINÂMICA ===== */
-.intro{position:relative;border-radius:18px;background:#0C0C0B;border:1px solid var(--line);overflow:hidden;height:360px}
+.intro{position:relative;flex-shrink:0;border-radius:18px;background:#0C0C0B;border:1px solid var(--line);overflow:hidden;height:360px}
 .segs{position:absolute;left:16px;right:64px;top:24px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;z-index:2}
 .segs span{height:3px;border-radius:2px;background:var(--line2);overflow:hidden}
 .segs span i{display:block;height:100%;width:0;background:var(--gold)}
@@ -299,6 +301,7 @@ body.em-demo .screen .scroll{padding-top:56px}
         <img src="assets/icons/emblema-96.png" width="36" height="36" alt="">
         <div class="wordmark" style="font-size:20px">Field<span>IQ</span></div>
       </div>
+      <button class="inst-pill" id="instalar-top" type="button" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Instalar app</button>
     </div>
 
     <div class="intro-text">
@@ -392,7 +395,7 @@ body.em-demo .screen .scroll{padding-top:56px}
     <button class="instalar" id="instalar" type="button" hidden>
       <img src="assets/icons/icon-192.png" alt="">
       <span style="flex:1"><b style="display:block;font-size:14px">Instalar a app FieldIQ</b><span style="font-size:12px;color:var(--muted)" id="instalar-txt">Fica no ecrã do telemóvel, como uma app.</span></span>
-      <span style="color:var(--gold2);font-weight:800">→</span>
+      <span style="font-weight:800;font-size:18px">↓</span>
     </button>
 
     <div class="intro-form" style="margin-top:auto;display:flex;flex-direction:column;gap:12px;padding-top:8px">
@@ -1274,17 +1277,23 @@ body.em-demo .screen .scroll{padding-top:56px}
 
   // ===== PWA: instalação e atualizações =====
   var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  var btnInst = document.getElementById('instalar'), pedido = null;
-  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var btnInst = document.getElementById('instalar'), btnTop = document.getElementById('instalar-top'), pedido = null;
+  var ua = navigator.userAgent, ios = /iphone|ipad|ipod/i.test(ua), movel = /android|iphone|ipad|ipod/i.test(ua);
+  document.getElementById('instalar-txt').textContent = movel ? 'Um toque e fica no ecrã do telemóvel, como uma app.' : 'Um clique e fica no computador, numa janela própria.';
+  function mostraInstalar(){ btnInst.hidden = false; btnTop.hidden = false; }
+  function escondeInstalar(){ btnInst.hidden = true; btnTop.hidden = true; }
   if (!standalone){
-    window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); pedido = e; btnInst.hidden = false; });
-    if (ios){ btnInst.hidden = false; document.getElementById('instalar-txt').textContent = 'No Safari: Partilhar → Adicionar ao ecrã principal.'; }
+    window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); pedido = e; mostraInstalar(); });
+    if (ios){ mostraInstalar(); document.getElementById('instalar-txt').textContent = 'No Safari: Partilhar → Adicionar ao ecrã principal.'; }
   }
-  btnInst.addEventListener('click', function(){
-    if (pedido){ pedido.prompt(); pedido.userChoice.then(function(){ pedido = null; btnInst.hidden = true; }); }
+  function instalar(){
+    if (pedido){ pedido.prompt(); pedido.userChoice.then(function(r){ pedido = null; if (r && r.outcome === 'accepted') escondeInstalar(); }); }
     else if (ios){ toast('Partilhar  →  Adicionar ao ecrã principal'); }
-  });
-  window.addEventListener('appinstalled', function(){ btnInst.hidden = true; toast('App instalada'); });
+    else { toast('Menu do browser  →  Instalar app'); }
+  }
+  btnInst.addEventListener('click', instalar);
+  btnTop.addEventListener('click', instalar);
+  window.addEventListener('appinstalled', function(){ escondeInstalar(); toast('App instalada'); });
   if ('serviceWorker' in navigator){
     window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
   }
