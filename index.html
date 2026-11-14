@@ -390,6 +390,7 @@ textarea.input{height:auto;padding:12px 16px;resize:none;line-height:1.4}
 
     <div class="intro-form" style="margin-top:auto;display:flex;flex-direction:column;gap:12px;padding-top:8px">
       <button class="btn gold" id="bio-entrar" type="button"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 11v3a8 8 0 0 1-1.5 4.7"/><path d="M8.6 7.6A5 5 0 0 1 17 11v1.5"/><path d="M7 11a5 5 0 0 0 0 .5V14a12 12 0 0 1-1 4.5"/><path d="M15 14.5a15 15 0 0 1-1 4"/><path d="M4.5 9A8 8 0 0 1 19 7.5"/><path d="M19.5 11.5v1"/></svg><span class="bio-nome">Entrar com biometria</span></button>
+      <p class="note" id="bio-conta" style="margin:0" hidden></p>
       <div class="ou"><span>ou</span></div>
       <form id="f-login" style="display:flex;flex-direction:column;gap:10px">
         <label for="email" class="sr">Email</label>
@@ -968,8 +969,32 @@ textarea.input{height:auto;padding:12px 16px;resize:none;line-height:1.4}
     setTimeout(function(){ m.textContent = msgFim; }, 900);
     setTimeout(function(){ ov.hidden = true; depois(); }, 1500);
   }
+  // A biometria fica ligada à última conta que entrou neste telemóvel (como na app real).
+  function lerConta(){ try { return localStorage.getItem('fiq-conta') || ''; } catch(x){ return ''; } }
+  function guardarConta(em){ try { localStorage.setItem('fiq-conta', em); } catch(x){} mostrarConta(); }
+  function abrirGestao(){
+    try { sessionStorage.setItem('fiq-gestao', '1'); } catch(x){}
+    if (/github\.io$|fieldiqcm\.com$/.test(location.hostname)) location.href = 'gestao.html#painel';
+    else toast('Na app instalada, esta conta abre o painel de gestão.');
+  }
+  function mostrarConta(){
+    var em = lerConta(), p = document.getElementById('bio-conta');
+    if (!em){ p.hidden = true; return; }
+    var nome = GESTAO.indexOf(em) >= 0 ? 'Gestão FieldIQ' : (CONTAS[em] ? CONTAS[em].nome + ' · ' + nomesPack[CONTAS[em].pack] : em);
+    p.innerHTML = 'Neste telemóvel: <strong style="color:var(--fg)"></strong> · <a href="#entrada" id="outra-conta" style="font-weight:800;text-decoration:none">Usar outra conta</a>';
+    p.querySelector('strong').textContent = nome;
+    p.hidden = false;
+    document.getElementById('outra-conta').addEventListener('click', function(e){
+      e.preventDefault(); try { localStorage.removeItem('fiq-conta'); } catch(x){} mostrarConta();
+      toast('Entra com o email da outra conta.'); document.getElementById('email').focus();
+    });
+  }
   document.getElementById('bio-entrar').addEventListener('click', function(){
-    verificar('Bem-vindo de volta', function(){ entrarComo(contaAtual); });
+    var em = lerConta();
+    if (!em){ toast('Entra uma vez com o email para ligar a biometria a este telemóvel.'); document.getElementById('email').focus(); return; }
+    if (GESTAO.indexOf(em) >= 0){ verificar('Bem-vindo, analista', abrirGestao); return; }
+    if (CONTAS[em]){ verificar('Bem-vindo de volta', function(){ entrarComo(CONTAS[em]); }); return; }
+    toast('Entra com o email e a palavra-passe.');
   });
   // contas de exemplo: email -> pack (1 Performance, 2 Pro, 3 Elite). A conta de gestão abre o painel.
   var CONTAS = {'tiago@exemplo.pt':{pack:2,nome:'Tiago'}, 'rui@exemplo.pt':{pack:3,nome:'Rui'}, 'bruno@exemplo.pt':{pack:1,nome:'Bruno'}};
@@ -992,17 +1017,12 @@ textarea.input{height:auto;padding:12px 16px;resize:none;line-height:1.4}
     var em = document.getElementById('email').value.trim().toLowerCase();
     var erro = document.getElementById('login-erro');
     function falha(t){ erro.textContent = t; erro.hidden = false; }
-    if (GESTAO.indexOf(em) >= 0){
-      try { sessionStorage.setItem('fiq-gestao', '1'); } catch(x){}
-      if (/github\.io$|fieldiqcm\.com$/.test(location.hostname)) location.href = 'gestao.html#painel';
-      else toast('Na app instalada, esta conta abre o painel de gestão.');
-      return;
-    }
+    if (GESTAO.indexOf(em) >= 0){ guardarConta(em); abrirGestao(); return; }
     var conta = CONTAS[em];
     if (!conta){ falha('Não encontramos uma conta com este email. A app FieldIQ é só para clientes: a conta é criada pelo analista quando marcas a tua análise.'); return; }
     if (!packEscolhido){ falha('Escolhe o teu pack: Performance, Pro ou Elite.'); return; }
     if (packEscolhido !== conta.pack){ falha('Este email não tem o pack ' + nomesPack[packEscolhido] + '. Confirma o pack que marcaste ou fala com o analista.'); return; }
-    erro.hidden = true; entrarComo(conta);
+    erro.hidden = true; guardarConta(em); entrarComo(conta);
   });
   document.getElementById('email').addEventListener('input', function(){ document.getElementById('login-erro').hidden = true; });
   document.querySelectorAll('[data-olho]').forEach(function(b){
@@ -1186,6 +1206,7 @@ textarea.input{height:auto;padding:12px 16px;resize:none;line-height:1.4}
   }
   document.querySelectorAll('.plano input').forEach(function(i){ i.addEventListener('change', contaPlano); });
   poePack(2);
+  mostrarConta();
 
   // ===== Dúvidas =====
   var sobre = 'Geral';
