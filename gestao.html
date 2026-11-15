@@ -448,7 +448,9 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   // ===== router =====
   var vistaAnterior=null;
   var logado=false; try { logado = sessionStorage.getItem('fiq-gestao') === '1'; } catch(x){}
+  function guardarEstados(){ try{ var o={}; clientes.forEach(function(c){ if(!c.email) return; o[c.email.toLowerCase()]={formato:c.formato,pack:c.pack,feitas:c.feitas,total:c.total,preco:c.preco,pagamentos:c.pagamentos||[],sessoes:(c.analises||[]).map(function(a){ return {nome:a.nome,jogo:a.jogo,data:a.data,nivel:a.nivel||c.pack,preco:+a.preco||0,pago:+a.pago||0,pagoInfo:a.pagoInfo||''}; })}; }); localStorage.setItem('fiq-demo-estado',JSON.stringify(o)); }catch(e){} }
   function render(){
+    guardarEstados();
     var h=(location.hash||'').replace('#','');
     if(!logado && h!=='login'){ h='login'; }
     var tab=h, html='';

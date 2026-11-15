@@ -1211,22 +1211,12 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
   <div class="scroll">
     <div><div class="eyebrow">Sessões e pagamentos</div><h1>O meu <em>plano</em></h1></div>
 
-    <!-- só no protótipo: escolher o exemplo -->
-    <div class="demo">
-      <span class="demo-lbl">Ver exemplo</span>
-      <div class="chips" role="group" aria-label="Escolher exemplo">
-        <button class="chip" type="button" aria-pressed="true" data-plano="pack">Pack de 4</button>
-        <button class="chip" type="button" aria-pressed="false" data-plano="ind">Sessão individual</button>
-      </div>
-    </div>
-
-    <!-- PACK DE 4 -->
     <div id="v-pack" style="display:flex;flex-direction:column;gap:16px">
       <div class="card">
-        <div class="between"><span class="eyebrow" style="letter-spacing:1.8px">Pack <span class="nome-pack">Pro</span> · 4 sessões</span><span class="pill" id="pk-pill"></span></div>
+        <div class="between"><span class="eyebrow" style="letter-spacing:1.8px">Pack <span id="pk-nivel">Pro</span> · 4 sessões</span><span class="pill" id="pk-pill"></span></div>
         <div class="row" style="margin-top:12px;gap:16px;align-items:flex-end">
-          <span class="serif" style="font-size:52px;line-height:1"><span id="pk-feitas">2</span><span style="font-size:24px;color:var(--dim)">/4</span></span>
-          <div style="padding-bottom:6px"><div style="font-weight:800" id="pk-l1">sessões feitas</div><div style="font-size:13px;color:var(--gold2);font-weight:800" id="pk-l2">Faltam 2</div></div>
+          <span class="serif" style="font-size:52px;line-height:1"><span id="pk-feitas">2</span><span style="font-size:24px;color:var(--dim)">/<span id="pk-total">4</span></span></span>
+          <div style="padding-bottom:6px"><div style="font-weight:800">sessões feitas</div><div style="font-size:13px;color:var(--gold2);font-weight:800" id="pk-l2">Faltam 2</div></div>
         </div>
         <div class="slots" id="pk-slots" style="margin-top:16px"></div>
         <div class="legenda"><span><i style="background:var(--gold)"></i>Feita</span><span><i style="border:2px solid var(--gold2)"></i>A seguir</span><span><i style="border:2px dashed var(--line2)"></i>Por fazer</span></div>
@@ -1234,45 +1224,29 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
 
       <div class="beje" style="padding:16px">
         <div class="between">
-          <div><div class="eyebrow cobre" style="letter-spacing:1.6px">Pagamento do pack</div><div class="serif" style="font-size:22px;margin-top:4px">250 €</div></div>
+          <div><div class="eyebrow cobre" style="letter-spacing:1.6px">Pagamento do pack</div><div class="serif" style="font-size:22px;margin-top:4px" id="pg-total">250 €</div></div>
           <span class="pill ink" id="pg-pill">Parcial</span>
         </div>
         <div class="meter" style="margin-top:12px"><div id="pg-bar" style="width:50%"></div></div>
         <div class="between" style="margin-top:8px;font-size:13px;font-variant-numeric:tabular-nums"><span>Pago <strong id="pg-pago">125 €</strong></span><span>Em falta <strong id="pg-falta">125 €</strong></span></div>
-        <div class="hist">
-          <div class="between"><span>12 out · MB WAY</span><strong>125 €</strong></div>
-          <div class="between" id="pg-h2" hidden><span>9 nov · MB WAY</span><strong>125 €</strong></div>
-        </div>
-        <button class="btn ink" id="pg-btn" style="margin-top:12px;height:48px" type="button">Pagar 125 € · MB WAY ou Multibanco</button>
-      </div>
-
-      <div class="demo" style="justify-content:space-between">
-        <span class="demo-lbl">Simular sessões feitas</span>
-        <div class="row" style="gap:8px">
-          <button class="iconbtn" id="sim-menos" type="button" aria-label="Menos uma sessão">−</button>
-          <button class="iconbtn" id="sim-mais" type="button" aria-label="Mais uma sessão">+</button>
-          <button class="chip" id="sim-pago" type="button" aria-pressed="false">Pago total</button>
-        </div>
+        <div class="hist" id="pg-hist"></div>
       </div>
     </div>
 
-    <!-- SESSÃO INDIVIDUAL -->
     <div id="v-ind" hidden style="display:flex;flex-direction:column;gap:12px">
       <div class="beje" style="padding:16px">
         <div class="between">
-          <div><div class="eyebrow cobre" style="letter-spacing:1.6px">Sessão Pro · vs. Atlético B</div><div class="serif" style="font-size:22px;margin-top:4px">70 €</div></div>
-          <span class="pill ink" id="ind-pill">Por pagar</span>
+          <div><div class="eyebrow cobre" style="letter-spacing:1.6px">Sessões individuais</div><div class="serif" style="font-size:22px;margin-top:4px"><span id="ind-n">2</span> <span style="font-size:15px" id="ind-nl">sessões</span></div></div>
+          <span class="pill ink" id="ind-pill">Tudo pago</span>
         </div>
-        <div style="font-size:13px;color:var(--beje-muted);margin-top:8px" id="ind-txt">Podes pagar até ao dia da sessão.</div>
-        <button class="btn ink" id="ind-btn" style="margin-top:12px;height:48px" type="button">Pagar 70 € · MB WAY ou Multibanco</button>
+        <div class="between" style="margin-top:10px;font-size:13px;font-variant-numeric:tabular-nums"><span>Pago <strong id="ind-pago">0 €</strong></span><span>Em falta <strong id="ind-falta">0 €</strong></span></div>
       </div>
-      <div class="card between" style="padding:14px 16px">
-        <div><div style="font-weight:800">Sessão Performance · vs. Académico FC</div><div style="font-size:12px;color:var(--muted)">45 € · 28 set · MB WAY</div></div>
-        <span class="pill off">Pago</span>
-      </div>
-      <div class="card" style="padding:14px 16px;font-size:13px;color:var(--muted);line-height:1.5">
-        Com o <strong style="color:var(--gold2)">pack de 4</strong> ficas com 4 sessões e acompanhas aqui as que já fizeste e as que te faltam.
-      </div>
+      <div id="ind-lista" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+
+    <div class="card" style="padding:14px 16px;font-size:13px;color:var(--muted);line-height:1.55">
+      <strong style="color:var(--fg,inherit)">Como funciona o pagamento</strong><br>
+      Pagas por MB WAY ou transferência com os dados que recebes por mensagem. Assim que a FieldIQ confirmar, o estado muda aqui para <strong style="color:var(--gold2)">Pago</strong>.
     </div>
   </div>
 </section>
@@ -1454,7 +1428,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
   var emailAtual = 'tiago@exemplo.pt';
   function lerPerfil(em){ try { var v = localStorage.getItem('fiq-perfil:' + em); if (v) return JSON.parse(v); } catch(e){} return CONTAS[em] ? CONTAS[em].perfil : null; }
   function entrarComo(conta, em){
-    contaAtual = conta; emailAtual = em || 'tiago@exemplo.pt'; poePack(conta.pack);
+    contaAtual = conta; emailAtual = em || 'tiago@exemplo.pt'; poePack(conta.pack); renderPack();
     var pf = lerPerfil(emailAtual);
     if (!pf){ location.hash = 'completar'; return; }
     mostrarSaudacao(pf); location.hash = 'inicio';
@@ -1593,49 +1567,62 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
   });
   desenhar('Todas');
 
-  // ===== O meu plano: pack de 4 e sessão individual =====
-  var feitas = 2, pagoTotal = false;
-  var datas = ['12 out','26 out','9 nov','23 nov'];
+  // ===== O meu plano: só leitura (quem muda é a gestão) =====
   function $(id){ return document.getElementById(id); }
-  function renderPack(){
-    var h = '';
-    for (var i = 1; i <= 4; i++){
-      if (i <= feitas) h += '<div class="slot done"><b>✓</b>Sessão '+i+'<br>'+datas[i-1]+'</div>';
-      else if (i === feitas + 1) h += '<div class="slot next"><b>'+i+'</b>a seguir</div>';
-      else h += '<div class="slot free"><b>'+i+'</b>por fazer</div>';
-    }
-    $('pk-slots').innerHTML = h;
-    $('pk-feitas').textContent = feitas;
-    $('pk-l2').textContent = feitas === 4 ? 'Pack concluído' : (feitas === 0 ? 'Tens 4 sessões' : 'Faltam ' + (4 - feitas));
-    var pill = $('pk-pill');
-    pill.className = 'pill ' + (feitas === 4 ? 'ok' : 'on');
-    pill.innerHTML = feitas === 4 ? 'Concluído' : '<span class="pulse"></span>Ativo';
-    $('pg-pill').textContent = pagoTotal ? 'Pago' : 'Parcial';
-    $('pg-bar').style.width = pagoTotal ? '100%' : '50%';
-    $('pg-pago').textContent = pagoTotal ? '250 €' : '125 €';
-    $('pg-falta').textContent = pagoTotal ? '0 €' : '125 €';
-    $('pg-h2').hidden = !pagoTotal;
-    $('pg-btn').hidden = pagoTotal;
-    $('sim-pago').setAttribute('aria-pressed', pagoTotal ? 'true' : 'false');
-    $('sim-menos').disabled = feitas === 0; $('sim-mais').disabled = feitas === 4;
+  var EST_INI = {
+    'tiago@exemplo.pt': {formato:'Pack 4', pack:'Pro', feitas:2, total:4, preco:250, pagamentos:[{d:'12 out',v:125,m:'MB WAY'}], sessoes:[{nome:'Sessão 3',jogo:'vs. Atlético B',data:'9 nov'},{nome:'Sessão 2',jogo:'vs. União Norte',data:'26 out'},{nome:'Sessão 1',jogo:'vs. Desportivo Sul',data:'12 out'}]},
+    'rui@exemplo.pt': {formato:'Individual', pack:'Elite', sessoes:[{nome:'Sessão 2',jogo:'vs. Sporting Norte',data:'2 nov',nivel:'Elite',preco:110,pago:110,pagoInfo:'Pago · Multibanco'},{nome:'Sessão 1',jogo:'vs. Oriental',data:'19 out',nivel:'Pro',preco:70,pago:70,pagoInfo:'Pago · MB WAY'}]},
+    'bruno@exemplo.pt': {formato:'Individual', pack:'Performance', sessoes:[{nome:'Sessão 1',jogo:'vs. Leões FC',data:'8 nov',nivel:'Performance',preco:45,pago:0,pagoInfo:'Por pagar'}]}
+  };
+  function lerEstado(){
+    var em = (typeof emailAtual === 'string' && emailAtual) ? emailAtual.toLowerCase() : 'tiago@exemplo.pt';
+    try { var o = JSON.parse(localStorage.getItem('fiq-demo-estado') || '{}'); if (o[em]) return o[em]; } catch(e){}
+    return EST_INI[em] || EST_INI['tiago@exemplo.pt'];
   }
-  $('sim-menos').addEventListener('click', function(){ if (feitas > 0){ feitas--; renderPack(); } });
-  $('sim-mais').addEventListener('click', function(){ if (feitas < 4){ feitas++; renderPack(); if (feitas === 4){ toast('Pack concluído: 4/4 sessões'); if (typeof darXP === 'function') darXP(60, 'Pack concluído', 'pack4'); } } });
-  $('sim-pago').addEventListener('click', function(){ pagoTotal = !pagoTotal; renderPack(); });
-  $('pg-btn').addEventListener('click', function(){ pagoTotal = true; renderPack(); toast('Pagamento registado (exemplo)'); });
-  $('ind-btn').addEventListener('click', function(){
-    $('ind-pill').textContent = 'Pago';
-    $('ind-txt').textContent = 'Pago a 14 nov · MB WAY. Obrigado!';
-    $('ind-btn').hidden = true;
-    toast('Pagamento registado (exemplo)');
-  });
-  document.querySelectorAll('[data-plano]').forEach(function(b){
-    b.addEventListener('click', function(){
-      document.querySelectorAll('[data-plano]').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
-      $('v-pack').hidden = b.dataset.plano !== 'pack';
-      $('v-ind').hidden = b.dataset.plano !== 'ind';
-    });
-  });
+  function eur(v){ return (Math.round(v*100)/100).toString().replace('.', ',') + ' €'; }
+  function escH(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(ch){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]; }); }
+  var PILL_FALTA = 'background:rgba(214,96,74,.16);color:#e07a63';
+  function renderPack(){
+    var st = lerEstado(), pack = st.formato === 'Pack 4';
+    $('v-pack').hidden = !pack; $('v-ind').hidden = pack;
+    if (pack){
+      var feitas = +st.feitas || 0, total = +st.total || 4, ses = (st.sessoes || []).slice().reverse(), h = '';
+      for (var i = 1; i <= total; i++){
+        if (i <= feitas) h += '<div class="slot done"><b>✓</b>Sessão '+i+'<br>'+escH(ses[i-1] ? ses[i-1].data : '')+'</div>';
+        else if (i === feitas + 1) h += '<div class="slot next"><b>'+i+'</b>a seguir</div>';
+        else h += '<div class="slot free"><b>'+i+'</b>por fazer</div>';
+      }
+      $('pk-slots').innerHTML = h;
+      $('pk-nivel').textContent = st.pack || '';
+      $('pk-feitas').textContent = feitas; $('pk-total').textContent = total;
+      $('pk-l2').textContent = feitas >= total ? 'Pack concluído' : (feitas === 0 ? 'Tens '+total+' sessões' : 'Faltam ' + (total - feitas));
+      var pill = $('pk-pill');
+      pill.className = 'pill ' + (feitas >= total ? 'off' : 'on');
+      pill.innerHTML = feitas >= total ? 'Concluído' : '<span class="pulse"></span>Ativo';
+      var preco = +st.preco || 0, pagos = st.pagamentos || [], pago = pagos.reduce(function(t,p){ return t + (+p.v || 0); }, 0), falta = Math.max(0, preco - pago);
+      $('pg-total').textContent = eur(preco);
+      var pp = $('pg-pill');
+      pp.textContent = falta === 0 ? '✓ Pago' : (pago > 0 ? 'Parcial' : 'Por pagar');
+      pp.className = 'pill ' + (falta === 0 ? 'on' : 'ink'); pp.style.cssText = (pago === 0 && falta > 0) ? PILL_FALTA : '';
+      $('pg-bar').style.width = (preco ? Math.min(100, Math.round(pago / preco * 100)) : 0) + '%';
+      $('pg-pago').textContent = eur(pago); $('pg-falta').textContent = eur(falta);
+      $('pg-hist').innerHTML = pagos.length ? pagos.map(function(p){ return '<div class="between"><span>'+escH(p.d)+' · '+escH(p.m)+'</span><strong>'+eur(+p.v||0)+'</strong></div>'; }).join('') : '<div style="opacity:.7">Ainda sem pagamentos confirmados.</div>';
+    } else {
+      var lista = st.sessoes || [], tp = 0, tf = 0;
+      $('ind-lista').innerHTML = lista.map(function(s){
+        var ok = (+s.pago || 0) >= (+s.preco || 0) && (+s.preco || 0) > 0 || /oferta/i.test(s.pagoInfo || '');
+        tp += +s.pago || 0; if (!ok) tf += Math.max(0, (+s.preco || 0) - (+s.pago || 0));
+        var met = ok && s.pagoInfo ? String(s.pagoInfo).replace(/^Pago\s*·\s*/, '') : '';
+        return '<div class="card" style="padding:14px 16px"><div class="between" style="gap:10px"><div style="min-width:0"><div style="font-weight:800">'+escH(s.nome || 'Sessão')+'</div><div style="font-size:12px;color:var(--muted)">'+escH([s.jogo, s.data].filter(Boolean).join(' · '))+'</div></div><div style="text-align:right;flex:none"><span class="pill ink">'+escH(s.nivel || '')+'</span><div class="serif" style="font-size:18px;margin-top:6px">'+eur(+s.preco || 0)+'</div></div></div>'+
+          '<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill '+(ok ? 'on' : '')+'" style="'+(ok ? '' : PILL_FALTA)+'">'+(ok ? '✓ Pago' : 'Por pagar')+'</span>'+(met ? '<span style="font-size:12px;color:var(--muted)">'+escH(met)+'</span>' : '')+'</div></div>';
+      }).join('') || '<div class="card" style="padding:14px 16px;color:var(--muted)">Ainda não tens sessões.</div>';
+      $('ind-n').textContent = lista.length; $('ind-nl').textContent = lista.length === 1 ? 'sessão' : 'sessões';
+      $('ind-pago').textContent = eur(tp); $('ind-falta').textContent = eur(tf);
+      var ip = $('ind-pill'); ip.textContent = tf === 0 ? '✓ Tudo pago' : 'Falta ' + eur(tf); ip.className = 'pill ' + (tf === 0 ? 'on' : ''); ip.style.cssText = tf === 0 ? '' : PILL_FALTA;
+    }
+  }
+  window.addEventListener('hashchange', function(){ if (location.hash === '#pack') renderPack(); });
+  window.addEventListener('storage', function(e){ if (e.key === 'fiq-demo-estado') renderPack(); });
   renderPack();
 
   // ===== Desbloqueio por pack (1 Performance, 2 Pro, 3 Elite) =====
