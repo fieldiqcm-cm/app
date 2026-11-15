@@ -187,6 +187,12 @@ details.an > summary::-webkit-details-marker{display:none}
 details.an[open] > summary{border-bottom:1px solid var(--line)}
 .an-corpo{display:flex;flex-direction:column;gap:10px;padding:14px}
 @media (min-width:900px){ .nav-tema{display:flex;align-items:center;gap:12px;margin-top:auto;order:99;height:48px;padding:0 14px;border:none;border-radius:12px;background:none;color:var(--dim);font:800 14px var(--body);cursor:pointer} .nav-tema:hover{background:var(--soft);color:var(--fg)} .secnav{top:-40px} }
+.secnav button[aria-selected="true"]{background:var(--ink);color:var(--gold2);border-color:var(--ink)}
+.secnav .tab-n{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:var(--cobre);color:var(--on-cobre);font-size:10px}
+.secnav button[aria-selected="true"] .tab-n{background:var(--gold2);color:var(--ink)}
+.secnav .ver-como{margin-left:auto;background:transparent;border-style:dashed}
+.sec{animation:entra .25s ease-out}
+@media (min-width:900px){ #vista > .sec{grid-column:1 / -1} .sec{max-width:820px} }
 .note{font-size:12px;color:var(--dim);line-height:1.5}
 .demo{border:1px dashed var(--line2);border-radius:12px;padding:10px 12px;font-size:12px;color:var(--dim)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -305,14 +311,16 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   }
   function lerPerfil(c){ try{ var v=localStorage.getItem('fiq-perfil:'+c.email); if(v) return JSON.parse(v); }catch(e){} return c.perfil||null; }
   function idadeDe(n){ if(!n) return null; var d=new Date(n+'T12:00:00'); if(isNaN(d)) return null; var h=new Date(), a=h.getFullYear()-d.getFullYear(); if(h.getMonth()<d.getMonth()||(h.getMonth()===d.getMonth()&&h.getDate()<d.getDate())) a--; return a; }
-  function card(id,titulo,extra,corpo){ return '<section class="card sec" id="'+id+'"><div class="between"><h2>'+titulo+'</h2>'+(extra||'')+'</div>'+corpo+'</section>'; }
+  var secAtual='sec-analises', fichaDe=null;
+  function card(id,titulo,extra,corpo){ return '<section class="card sec" id="'+id+'" role="tabpanel"'+(id!==secAtual?' hidden':'')+'><div class="between"><h2>'+titulo+'</h2>'+(extra||'')+'</div>'+corpo+'</section>'; }
   function vCliente(c){
+    if(fichaDe!==c.id){ fichaDe=c.id; secAtual='sec-analises'; }
     var e=estPag(c), nPack={Performance:1,Pro:2,Elite:3}[c.pack], pf=lerPerfil(c), idade=pf?idadeDe(pf.nasc):null;
     var abertas=c.analises.filter(function(a){return a.estado!=='Concluída';}).length;
     var h='<div class="row"><a class="iconbtn" href="#clientes" aria-label="Voltar aos clientes">'+ICONE_VOLTAR+'</a><span class="av">'+c.ini+'</span><div style="min-width:0"><div style="font-family:var(--display);font-weight:700;font-size:22px">'+esc(pf&&pf.nome||c.nome)+'</div><div class="sub">'+esc(pf?[pf.pos,pf.clube,pf.esc].filter(Boolean).join(' · '):c.pos)+'</div></div></div>'+
       // resumo rápido
       '<div class="resumo"><span class="pill p-ink">'+c.pack+'</span><span class="pill p-soft">'+(c.formato==='Pack 4'?c.feitas+'/'+c.total+' sessões':'Sessão individual')+'</span><span class="pill '+e[1]+'">'+e[0]+(falta(c)>0?' · falta '+falta(c)+' €':'')+'</span><span class="pill p-soft">Último acesso: '+esc(c.acesso)+'</span></div>'+
-      '<div class="secnav" role="group" aria-label="Ir para secção">'+[['sec-perfil','Perfil'],['sec-analises','Análises'+(abertas?' ('+abertas+')':'')],['sec-sessoes','Sessões e pagamento'],['sec-semana','Semana'],['sec-pack','Pack e acesso']].map(function(x){return '<button type="button" data-ir="'+x[0]+'">'+x[1]+'</button>';}).join('')+'<button type="button" data-acao="ver-como">Ver como o cliente</button></div>';
+      '<div class="secnav" role="tablist" aria-label="Assuntos do cliente">'+[['sec-perfil','Perfil',pf?'':'!'],['sec-analises','Análises',abertas?String(abertas):''],['sec-sessoes','Sessões e pagamento',falta(c)>0?'€':''],['sec-semana','Semana',''],['sec-pack','Pack e acesso','']].map(function(x){return '<button type="button" role="tab" data-ir="'+x[0]+'" aria-selected="'+(x[0]===secAtual)+'">'+x[1]+(x[2]?'<span class="tab-n">'+x[2]+'</span>':'')+'</button>';}).join('')+'<button type="button" class="ver-como" data-acao="ver-como">Ver como o cliente</button></div>';
     // perfil do jogador
     if(pf){
       var dados=[['Idade',idade!==null?idade+' anos':'—'],['Altura',pf.alt?pf.alt+' cm':'—'],['Pé',pf.pe||'—'],['Camisola',pf.num?'Nº '+pf.num:'—'],['Objetivo',pf.obj||'—',1],['Conheceu por',pf.orig||'—',1]];
@@ -441,7 +449,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     var t=e.target.closest('button'); if(!t) return;
     var c=clienteAtual();
     if(t.dataset.temaToggle!==undefined){ aplicaTemaG(temaEfetivoG()==='dark'?'claro':'escuro'); toast(temaEfetivoG()==='dark'?'Modo escuro':'Modo claro'); return; }
-    if(t.dataset.ir){ var alvo=document.getElementById(t.dataset.ir); if(alvo) alvo.scrollIntoView({behavior:'smooth',block:'start'}); return; }
+    if(t.dataset.ir){ secAtual=t.dataset.ir; V.querySelectorAll('.sec').forEach(function(sc){ sc.hidden=sc.id!==secAtual; }); V.querySelectorAll('[data-ir]').forEach(function(b){ b.setAttribute('aria-selected', b.dataset.ir===secAtual?'true':'false'); }); var ativo=document.getElementById(secAtual); if(ativo){ ativo.style.animation='none'; void ativo.offsetWidth; ativo.style.animation=''; } return; }
     if(t.id==='g-bio'){ logado=true; try{ sessionStorage.setItem('fiq-gestao','1'); }catch(x){} location.hash='painel'; render(); return; }
     if(t.dataset.pack && c){ c.pack=t.dataset.pack; toast('Pack alterado para '+c.pack+'. O cliente já vê o novo pack.'); render(); return; }
     if(t.dataset.formato && c){ c.formato=t.dataset.formato; if(c.formato==='Pack 4' && c.total<4) c.total=4; if(c.formato==='Individual'){ c.total=Math.max(1,c.feitas||1); } render(); return; }
