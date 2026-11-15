@@ -196,6 +196,11 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
 .btn.whats{background:#1F7A4D;color:#fff}
 .ok-g{width:84px;height:84px;border-radius:42px;background:var(--ink);color:var(--gold2);font-size:40px;font-weight:800;display:flex;align-items:center;justify-content:center;align-self:center;margin:12px auto 0;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
 @keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+.ses-tab{display:flex;flex-direction:column;gap:6px}
+.ses-row{display:flex;align-items:center;gap:8px;width:100%;min-height:54px;padding:8px 12px;border-radius:12px;background:var(--field);border:1px solid var(--line);color:var(--fg);cursor:pointer;text-align:left;font:inherit;flex-wrap:wrap}
+.ses-row:hover{border-color:var(--cobre)}
+.ses-n{flex:1;min-width:140px;font-weight:800;font-size:14px}.ses-n small{display:block;font-weight:600;font-size:12px;color:var(--muted)}
+.ses-v{font-weight:800;font-variant-numeric:tabular-nums;min-width:52px;text-align:right}
 .note{font-size:12px;color:var(--dim);line-height:1.5}
 .demo{border:1px dashed var(--line2);border-radius:12px;padding:10px 12px;font-size:12px;color:var(--dim)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -228,10 +233,10 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       manter:['Receção orientada para a frente','Apoio frontal ao colega com bola'], melhorar:['Olhar antes de receber (2 vezes)','Reação nos 3 segundos após a perda'],
       comp:[{n:'Exemplo: olhar antes de receber',d:'13 nov'},{n:'O teu lance 07, comentado',d:'10 nov'}], stats:{passes:'',duelos:'',rec:'',dec:''}},
     {id:'rui', nome:'Rui S.', ini:'RS', pos:'Defesa central', menor:false, email:'rui@exemplo.pt', pack:'Elite', formato:'Individual', feitas:1, total:1, preco:110, pagamentos:[{d:'3 nov',v:110,m:'Multibanco'}], acesso:'Ontem, 22h40', perfil:{nome:'Rui S.',nasc:'2004-07-02',alt:186,pe:'Esquerdo',pos:'Defesa central',clube:'Clube Exemplo FC',esc:'Sénior',num:'4',obj:'Chegar a um clube maior',orig:'Um colega'},
-      analises:[{id:'sn',nome:'Sessão 1 · Rui S.',jogo:'vs. Sporting Norte',data:'2 nov',estado:'Concluída',yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''}],
+      analises:[{id:'sn',nome:'Sessão 2 · Rui S.',jogo:'vs. Sporting Norte',data:'2 nov',estado:'Concluída',nivel:'Elite',preco:110,pago:110,pagoInfo:'Pago · Multibanco',yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''},{id:'ro',nome:'Sessão 1 · Rui S.',jogo:'vs. Oriental',data:'19 out',estado:'Concluída',nivel:'Pro',preco:70,pago:70,pagoInfo:'Pago · MB WAY',yt:'',dl:'',pdf:'',ate:''}],
       manter:['Controlo da profundidade'], melhorar:['Primeiro passe a romper linhas'], comp:[], stats:{passes:'88%',duelos:'9/12',rec:'11',dec:'81'}},
     {id:'bruno', nome:'Bruno L.', ini:'BL', pos:'Extremo', menor:true, email:'bruno@exemplo.pt', pack:'Performance', formato:'Individual', feitas:0, total:1, preco:45, pagamentos:[], acesso:'Ainda não ativou a conta',
-      analises:[{id:'lf',nome:'Sessão 1 · Bruno L.',jogo:'vs. Leões FC',data:'8 nov',estado:'Recebido',yt:'',dl:'',pdf:'',ate:''}], manter:[], melhorar:[], comp:[], stats:{passes:'',duelos:'',rec:'',dec:''}}
+      analises:[{id:'lf',nome:'Sessão 1 · Bruno L.',jogo:'vs. Leões FC',data:'8 nov',estado:'Recebido',nivel:'Performance',preco:45,pago:0,pagoInfo:'Por pagar',yt:'',dl:'',pdf:'',ate:''}], manter:[], melhorar:[], comp:[], stats:{passes:'',duelos:'',rec:'',dec:''}}
   ];
   var conversas = [
     {cli:'tiago', jogo:'vs. União Norte', lida:false, msgs:[
@@ -248,9 +253,13 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   // ===== utilidades =====
   function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function cli(id){ for (var i=0;i<clientes.length;i++) if (clientes[i].id===id) return clientes[i]; }
-  function pago(c){ return c.pagamentos.reduce(function(a,p){ return a+p.v; },0); }
-  function falta(c){ return Math.max(0, c.preco - pago(c)); }
-  function estPag(c){ var p=pago(c); return p>=c.preco ? ['Pago','p-ok'] : (p>0 ? ['Parcial','p-warn'] : ['Por pagar','p-bad']); }
+  var PRECO={Performance:45,Pro:70,Elite:110};
+  function ePack(c){ return c.formato==='Pack 4'; }
+  function valor(c){ return ePack(c) ? c.preco : c.analises.reduce(function(t,a){ return t+(+a.preco||0); },0); }
+  function pago(c){ return ePack(c) ? c.pagamentos.reduce(function(a,p){ return a+p.v; },0) : c.analises.reduce(function(t,a){ return t+(+a.pago||0); },0); }
+  function falta(c){ return Math.max(0, valor(c) - pago(c)); }
+  function estPag(c){ var p=pago(c), v=valor(c); return p>=v ? ['Pago','p-ok'] : (p>0 ? ['Parcial','p-warn'] : ['Por pagar','p-bad']); }
+  function nivelAtual(c){ if(ePack(c)) return c.pack; var a=c.analises[0]; return (a&&a.nivel)||c.pack; }
   function porResponder(){ return conversas.filter(function(v){ return v.msgs[v.msgs.length-1].de==='cli'; }); }
   var tT, tEl=document.getElementById('toast');
   function toast(m){ tEl.textContent=m; tEl.hidden=false; clearTimeout(tT); tT=setTimeout(function(){ tEl.hidden=true; },2600); }
@@ -309,7 +318,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       '<label class="l" for="procura" style="position:absolute;left:-9999px">Procurar cliente</label><input class="input" id="procura" type="search" placeholder="Procurar por nome">'+
       '<div class="lista" id="lista-cli">';
     clientes.forEach(function(c){ var e=estPag(c);
-      h+='<a class="card cli" href="#cliente-'+c.id+'" data-nome="'+esc(nomeDe(c).toLowerCase())+'"><span class="av">'+iniDe(c)+'</span><span style="flex:1;min-width:0"><span class="nm">'+esc(nomeDe(c))+'</span><span class="ds" style="display:block">'+esc((function(){var pf=lerPerfil(c);return pf?[pf.pos,pf.clube].join(' · '):c.pos+' · perfil por completar';})())+' · '+c.pack+' · '+(c.formato==='Pack 4'?c.feitas+'/'+c.total:'individual')+'</span></span><span class="pill '+e[1]+'">'+e[0]+'</span></a>'; });
+      h+='<a class="card cli" href="#cliente-'+c.id+'" data-nome="'+esc(nomeDe(c).toLowerCase())+'"><span class="av">'+iniDe(c)+'</span><span style="flex:1;min-width:0"><span class="nm">'+esc(nomeDe(c))+'</span><span class="ds" style="display:block">'+esc((function(){var pf=lerPerfil(c);return pf?[pf.pos,pf.clube].join(' · '):c.pos+' · perfil por completar';})())+' · '+(ePack(c)?'Pack '+c.pack+' · '+c.feitas+'/'+c.total:nivelAtual(c)+' · sessões individuais')+'</span></span><span class="pill '+e[1]+'">'+e[0]+'</span></a>'; });
     return h+'</div>';
   }
   function lerPerfil(c){ try{ var v=localStorage.getItem('fiq-perfil:'+c.email); if(v) return JSON.parse(v); }catch(e){} return c.perfil||null; }
@@ -321,12 +330,12 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   function card(id,titulo,extra,corpo){ return '<section class="card sec" id="'+id+'" role="tabpanel"'+(id!==secAtual?' hidden':'')+'><div class="between"><h2>'+titulo+'</h2>'+(extra||'')+'</div>'+corpo+'</section>'; }
   function vCliente(c){
     if(fichaDe!==c.id){ fichaDe=c.id; secAtual='sec-analises'; }
-    var e=estPag(c), nPack={Performance:1,Pro:2,Elite:3}[c.pack], pf=lerPerfil(c), idade=pf?idadeDe(pf.nasc):null;
+    var e=estPag(c), nPack={Performance:1,Pro:2,Elite:3}[nivelAtual(c)], pf=lerPerfil(c), idade=pf?idadeDe(pf.nasc):null;
     var abertas=c.analises.filter(function(a){return a.estado!=='Concluída';}).length;
     var h='<div class="row"><a class="iconbtn" href="#clientes" aria-label="Voltar aos clientes">'+ICONE_VOLTAR+'</a><span class="av">'+iniDe(c)+'</span><div style="min-width:0"><div style="font-family:var(--display);font-weight:700;font-size:22px">'+esc(nomeDe(c))+'</div><div class="sub">'+esc(pf?[pf.pos,pf.clube,pf.esc].filter(Boolean).join(' · '):c.pos)+'</div></div></div>'+
       // resumo rápido
-      '<div class="resumo"><span class="pill p-ink">'+c.pack+'</span><span class="pill p-soft">'+(c.formato==='Pack 4'?c.feitas+'/'+c.total+' sessões':'Sessão individual')+'</span><span class="pill '+e[1]+'">'+e[0]+(falta(c)>0?' · falta '+falta(c)+' €':'')+'</span><span class="pill p-soft">Último acesso: '+esc(c.acesso)+'</span></div>'+
-      '<div class="secnav" role="tablist" aria-label="Assuntos do cliente">'+[['sec-perfil','Perfil',pf?'':'!'],['sec-analises','Análises',abertas?String(abertas):''],['sec-sessoes','Sessões e pagamento',falta(c)>0?'€':''],['sec-semana','Semana',''],['sec-pack','Pack e acesso','']].map(function(x){return '<button type="button" role="tab" data-ir="'+x[0]+'" aria-selected="'+(x[0]===secAtual)+'">'+x[1]+(x[2]?'<span class="tab-n">'+x[2]+'</span>':'')+'</button>';}).join('')+'<button type="button" class="ver-como" data-acao="ver-como">Ver como o cliente</button></div>';
+      '<div class="resumo"><span class="pill p-ink">'+(ePack(c)?'Pack de 4 · '+c.pack:'Última: '+nivelAtual(c))+'</span><span class="pill p-soft">'+(ePack(c)?c.feitas+'/'+c.total+' sessões':c.analises.length+' sessões individuais')+'</span><span class="pill '+e[1]+'">'+e[0]+(falta(c)>0?' · falta '+falta(c)+' €':'')+'</span><span class="pill p-soft">Último acesso: '+esc(c.acesso)+'</span></div>'+
+      '<div class="secnav" role="tablist" aria-label="Assuntos do cliente">'+[['sec-perfil','Perfil',pf?'':'!'],['sec-analises','Análises',abertas?String(abertas):''],['sec-sessoes','Sessões e pagamento',falta(c)>0?'€':''],['sec-semana','Semana',''],['sec-pack','Tipo e acesso','']].map(function(x){return '<button type="button" role="tab" data-ir="'+x[0]+'" aria-selected="'+(x[0]===secAtual)+'">'+x[1]+(x[2]?'<span class="tab-n">'+x[2]+'</span>':'')+'</button>';}).join('')+'<button type="button" class="ver-como" data-acao="ver-como">Ver como o cliente</button></div>';
     // perfil do jogador
     if(pf){
       var dados=[['Idade',idade!==null?idade+' anos':'—'],['Altura',pf.alt?pf.alt+' cm':'—'],['Pé',pf.pe||'—'],['Camisola',pf.num?'Nº '+pf.num:'—'],['Objetivo',pf.obj||'—',1],['Conheceu por',pf.orig||'—',1]];
@@ -338,9 +347,14 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     var an='<details class="dica"><summary>Antes de colar o link do YouTube</summary><ol><li>Visibilidade: <strong>Não listado</strong>.</li><li>Em Mais opções: <strong>Permitir incorporação</strong> ligado.</li><li>Comentários desligados.</li><li>Canal com o nome da marca, nunca o teu.</li></ol></details>';
     c.analises.forEach(function(a,i){
       var pronto=a.yt&&a.pdf;
-      an+='<details class="an"'+(a.estado!=='Concluída'?' open':'')+'><summary class="between"><span style="min-width:0"><span style="font-weight:800;display:block">'+esc(a.nome||a.jogo||'Nova análise')+'</span><span class="sub" style="font-weight:600">'+esc([a.jogo,a.data].filter(Boolean).join(' · '))+'</span></span><span class="pill '+(a.estado==='Concluída'?'p-ok':(pronto?'p-soft':'p-warn'))+'">'+a.estado+'</span></summary><div class="an-corpo">'+
+      an+='<details class="an"'+(a.estado!=='Concluída'?' open':'')+'><summary class="between"><span style="min-width:0"><span style="font-weight:800;display:block">'+esc(a.nome||a.jogo||'Nova análise')+'</span><span class="sub" style="font-weight:600">'+esc([ePack(c)?'':(a.nivel||''),a.jogo,a.data].filter(Boolean).join(' · '))+(!ePack(c)&&a.preco>0&&!(a.pago>=a.preco)?' · <span style="color:var(--bad);font-weight:800">por pagar</span>':'')+'</span></span><span class="pill '+(a.estado==='Concluída'?'p-ok':(pronto?'p-soft':'p-warn'))+'">'+a.estado+'</span></summary><div class="an-corpo">'+
         '<div class="campo"><label class="l" for="nm-'+i+'">Nome da análise</label><input class="input" id="nm-'+i+'" value="'+esc(a.nome||'')+'" placeholder="Ex.: Sessão 4 · Diogo Costa"></div>'+
         '<div class="grid2"><div class="campo"><label class="l" for="jg-'+i+'">Jogo</label><input class="input" id="jg-'+i+'" value="'+esc(a.jogo||'')+'" placeholder="Ex.: vs. Atlético B"></div><div class="campo"><label class="l" for="dt-'+i+'">Data do jogo</label><input class="input" id="dt-'+i+'" value="'+esc(a.data||'')+'" placeholder="Ex.: 9 nov"></div></div>'+
+        (ePack(c)
+          ? '<div class="it"><span>Faz parte do <strong>pack de 4 · '+c.pack+'</strong></span></div>'
+          : '<div class="campo"><span class="l">Nível desta sessão</span><div class="seg" role="group" aria-label="Nível desta sessão">'+['Performance','Pro','Elite'].map(function(p){return '<button type="button" data-annv="'+i+'|'+p+'" aria-pressed="'+((a.nivel||'Pro')===p)+'">'+p+'</button>';}).join('')+'</div></div>'+
+            '<div class="grid2"><div class="campo"><label class="l" for="pr-'+i+'">Valor (€)</label><input class="input" id="pr-'+i+'" type="number" min="0" value="'+(a.preco!=null?a.preco:'')+'"></div>'+
+            '<div class="campo"><label class="l" for="pg-'+i+'">Pagamento</label><select class="input" id="pg-'+i+'">'+['Por pagar','Pago · MB WAY','Pago · Multibanco','Pago · Numerário','Pago · Transferência','Oferta'].map(function(o){return '<option'+((a.pagoInfo||'Por pagar')===o?' selected':'')+'>'+o+'</option>';}).join('')+'</select></div></div>')+
         '<label class="l" for="est-'+i+'">Estado</label><select class="input" id="est-'+i+'" data-estado="'+i+'">'+ESTADOS.map(function(s2){return '<option'+(s2===a.estado?' selected':'')+'>'+s2+'</option>';}).join('')+'</select>'+
         campoLink('yt',i,a.yt,'Vídeo · link do YouTube (não listado)','https://youtu.be/…')+
         campoLink('dl',i,a.dl,'Descarregar vídeo · link transfer.it, WeTransfer ou Drive','https://transfer.it/…')+
@@ -350,13 +364,22 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     });
     h+=card('sec-analises','Análises','<button class="btn ghost small" type="button" data-acao="nova-analise">+ Nova</button>',an);
     // sessões + pagamento
-    var sp='<div class="between"><span style="font-weight:700">Sessões feitas</span><div class="step"><button type="button" data-ses="feitas:-1" aria-label="Menos uma sessão feita">−</button><b>'+c.feitas+'</b><button type="button" data-ses="feitas:1" aria-label="Mais uma sessão feita">+</button></div></div>'+
-      '<div class="between"><span style="font-weight:700">Total do plano</span><div class="step"><button type="button" data-ses="total:-1" aria-label="Menos uma sessão no total">−</button><b>'+c.total+'</b><button type="button" data-ses="total:1" aria-label="Mais uma sessão no total">+</button></div></div>'+
-      '<div class="sub">O cliente vê <strong>'+c.feitas+'/'+c.total+'</strong>'+(c.total-c.feitas>0?' · faltam '+(c.total-c.feitas):' · plano concluído')+'.</div>'+
-      '<div class="sep"></div><div class="between"><span style="font-weight:800">Pagamento</span><span class="pill '+e[1]+'">'+e[0]+'</span></div>'+
-      '<div class="between" style="font-variant-numeric:tabular-nums"><span>Valor <strong>'+c.preco+' €</strong></span><span>Pago <strong>'+pago(c)+' €</strong></span><span>Falta <strong>'+falta(c)+' €</strong></span></div>'+
-      (c.pagamentos.length?'<div class="lista">'+c.pagamentos.map(function(p){return '<div class="between sub"><span>'+p.d+' · '+p.m+'</span><strong>'+p.v+' €</strong></div>';}).join('')+'</div>':'<div class="sub">Ainda sem pagamentos.</div>')+
-      (falta(c)>0?'<form id="f-pag" class="row" style="flex-wrap:wrap;gap:8px"><label class="l" for="pag-v" style="position:absolute;left:-9999px">Valor recebido</label><input class="input" id="pag-v" type="number" min="1" value="'+falta(c)+'" style="flex:1;min-width:90px"><label class="l" for="pag-m" style="position:absolute;left:-9999px">Método</label><select class="input" id="pag-m" style="flex:1;min-width:120px"><option>MB WAY</option><option>Multibanco</option><option>Numerário</option><option>Transferência</option></select><button class="btn cobre" type="submit">Registar pagamento</button></form>':'');
+    var sp='';
+    if(ePack(c)){
+      sp+='<div class="it"><span><strong>Pack de 4 · '+c.pack+'</strong> · o mesmo nível nas 4 sessões</span></div>'+
+        '<div class="between"><span style="font-weight:700">Sessões feitas</span><div class="step"><button type="button" data-ses="feitas:-1" aria-label="Menos uma sessão feita">−</button><b>'+c.feitas+'</b><button type="button" data-ses="feitas:1" aria-label="Mais uma sessão feita">+</button></div></div>'+
+        '<div class="between"><span style="font-weight:700">Total do plano</span><div class="step"><button type="button" data-ses="total:-1" aria-label="Menos uma sessão no total">−</button><b>'+c.total+'</b><button type="button" data-ses="total:1" aria-label="Mais uma sessão no total">+</button></div></div>'+
+        '<div class="sub">O cliente vê <strong>'+c.feitas+'/'+c.total+'</strong>'+(c.total-c.feitas>0?' · faltam '+(c.total-c.feitas):' · plano concluído')+'.</div>'+
+        '<div class="sep"></div><div class="between"><span style="font-weight:800">Pagamento do pack</span><span class="pill '+e[1]+'">'+e[0]+'</span></div>'+
+        '<div class="between" style="font-variant-numeric:tabular-nums"><span>Valor <strong>'+valor(c)+' €</strong></span><span>Pago <strong>'+pago(c)+' €</strong></span><span>Falta <strong>'+falta(c)+' €</strong></span></div>'+
+        (c.pagamentos.length?'<div class="lista">'+c.pagamentos.map(function(p){return '<div class="between sub"><span>'+p.d+' · '+p.m+'</span><strong>'+p.v+' €</strong></div>';}).join('')+'</div>':'<div class="sub">Ainda sem pagamentos.</div>')+
+        (falta(c)>0?'<form id="f-pag" class="row" style="flex-wrap:wrap;gap:8px"><label class="l" for="pag-v" style="position:absolute;left:-9999px">Valor recebido</label><input class="input" id="pag-v" type="number" min="1" value="'+falta(c)+'" style="flex:1;min-width:90px"><label class="l" for="pag-m" style="position:absolute;left:-9999px">Método</label><select class="input" id="pag-m" style="flex:1;min-width:120px"><option>MB WAY</option><option>Multibanco</option><option>Numerário</option><option>Transferência</option></select><button class="btn cobre" type="submit">Registar pagamento</button></form>':'');
+    } else {
+      sp+='<div class="sub">Sessões individuais: cada sessão tem o seu nível, valor e pagamento. Toca numa sessão para a alterar.</div>'+
+        '<div class="ses-tab">'+(c.analises.length?c.analises.map(function(a,i){ var pg=a.pagoInfo==='Oferta'?['Oferta','p-soft']:(a.pago>=a.preco&&a.preco>0?['Paga','p-ok']:['Por pagar','p-bad']);
+          return '<button type="button" class="ses-row" data-abrir-an="'+i+'"><span class="ses-n">'+esc(a.nome||('Sessão '+(c.analises.length-i)))+'<small>'+esc([a.jogo,a.data].filter(Boolean).join(' · '))+'</small></span><span class="pill p-ink">'+(a.nivel||'—')+'</span><span class="ses-v">'+(+a.preco||0)+' €</span><span class="pill '+pg[1]+'">'+pg[0]+'</span></button>'; }).join(''):'<div class="sub">Ainda sem sessões.</div>')+'</div>'+
+        '<div class="sep"></div><div class="between" style="font-variant-numeric:tabular-nums"><span>Total <strong>'+valor(c)+' €</strong></span><span>Pago <strong>'+pago(c)+' €</strong></span><span>Falta <strong>'+falta(c)+' €</strong></span></div>';
+    }
     h+=card('sec-sessoes','Sessões e pagamento','',sp);
     // semana: plano + vídeos complementares
     var sm='';
@@ -375,12 +398,13 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     }
     h+=card('sec-semana','Esta semana','',sm);
     // pack e acesso (mexe-se pouco)
-    var pk='<div class="seg" role="group" aria-label="Pack">'+['Performance','Pro','Elite'].map(function(p){return '<button type="button" data-pack="'+p+'" aria-pressed="'+(c.pack===p)+'">'+p+'</button>';}).join('')+'</div>'+
-      '<div class="seg" role="group" aria-label="Formato">'+['Individual','Pack 4'].map(function(f){return '<button type="button" data-formato="'+f+'" aria-pressed="'+(c.formato===f)+'">'+(f==='Pack 4'?'Pack de 4':f)+'</button>';}).join('')+'</div>'+
-      '<div class="note">O cliente passa a ver o que este pack desbloqueia.</div><div class="sep"></div>'+
+    var pk='<div class="campo"><span class="l">Tipo de cliente</span><div class="seg" role="group" aria-label="Tipo de cliente">'+['Individual','Pack 4'].map(function(f){return '<button type="button" data-formato="'+f+'" aria-pressed="'+(c.formato===f)+'">'+(f==='Pack 4'?'Pack de 4':'Sessões individuais')+'</button>';}).join('')+'</div></div>'+
+      (ePack(c)?'<div class="campo"><span class="l">Nível do pack (igual nas 4 sessões)</span><div class="seg" role="group" aria-label="Nível do pack">'+['Performance','Pro','Elite'].map(function(p){return '<button type="button" data-pack="'+p+'" aria-pressed="'+(c.pack===p)+'">'+p+'</button>';}).join('')+'</div></div>'
+        :'<div class="note" style="margin:0">Em sessões individuais, o nível escolhe-se em cada sessão (separador Análises). O cliente vê em cada análise o que esse nível desbloqueia.</div>')+
+      '<div class="sep"></div>'+
       '<div class="sub">Email da conta: <strong>'+esc(c.email)+'</strong></div>'+
       '<div class="row" style="flex-wrap:wrap;gap:8px"><a class="btn whats small" href="'+linkWhats(c)+'" target="_blank" rel="noopener">Convite por WhatsApp</a><button class="btn ghost small" type="button" data-acao="reenviar">Reenviar email de ativação</button><button class="btn ghost small" type="button" data-acao="suspender">Suspender acesso</button></div>';
-    h+=card('sec-pack','Pack e acesso','',pk);
+    h+=card('sec-pack','Tipo e acesso','',pk);
     return h;
   }
   function vDuvidas(){
@@ -403,17 +427,17 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       '<form id="f-novo" style="display:flex;flex-direction:column;gap:14px">'+
       '<div class="campo"><label class="l" for="n-email">Email da conta</label><input class="input" id="n-email" type="email" required placeholder="email@exemplo.pt"><span class="note">Se o jogador for menor, usa o email do encarregado de educação.</span></div>'+
       '<div class="campo"><label class="l" for="n-tel">Telemóvel para o convite por WhatsApp <span style="font-weight:600;color:var(--dim)">(opcional)</span></label><input class="input" id="n-tel" type="tel" inputmode="tel" placeholder="9xx xxx xxx"></div>'+
-      '<div class="campo"><span class="l">Pack</span><div class="seg" role="group" aria-label="Pack" id="n-pack">'+['Performance','Pro','Elite'].map(function(p,i){return '<button type="button" data-np="'+p+'" aria-pressed="'+(i===1)+'">'+p+'</button>';}).join('')+'</div></div>'+
-      '<div class="campo"><span class="l">Formato</span><div class="seg" role="group" aria-label="Formato" id="n-form">'+['Individual','Pack 4'].map(function(f,i){return '<button type="button" data-nf="'+f+'" aria-pressed="'+(i===0)+'">'+(f==='Pack 4'?'Pack de 4':f)+'</button>';}).join('')+'</div></div>'+
+      '<div class="campo"><span class="l">Nível (da 1.ª sessão ou do pack)</span><div class="seg" role="group" aria-label="Nível" id="n-pack">'+['Performance','Pro','Elite'].map(function(p,i){return '<button type="button" data-np="'+p+'" aria-pressed="'+(i===1)+'">'+p+'</button>';}).join('')+'</div></div>'+
+      '<div class="campo"><span class="l">Tipo</span><div class="seg" role="group" aria-label="Tipo" id="n-form">'+['Individual','Pack 4'].map(function(f,i){return '<button type="button" data-nf="'+f+'" aria-pressed="'+(i===0)+'">'+(f==='Pack 4'?'Pack de 4':'Sessão individual')+'</button>';}).join('')+'</div></div>'+
       '<div class="campo"><label class="l" for="n-preco">Valor acordado (€)</label><input class="input" id="n-preco" type="number" min="0" value="70"><span class="note">Preenchido pela tabela. Muda se houver preço especial.</span></div>'+
       '<button class="btn ink" type="submit">Criar cliente</button></form>';
   }
   function textoConvite(c){
-    return 'Olá! A tua conta FieldIQ está pronta.\n\n1. Abre a app: https://fieldiqcm-cm.github.io/app/\n2. Carrega em "1.ª vez? Ativar conta" e usa este email: '+c.email+'\n3. Preenche o teu perfil (1 minuto) e instala a app no telemóvel.\n\nO teu pack: '+c.pack+(c.formato==='Pack 4'?' · 4 sessões':'')+'.\nQualquer dúvida, responde a esta mensagem.';
+    return 'Olá! A tua conta FieldIQ está pronta.\n\n1. Abre a app: https://fieldiqcm-cm.github.io/app/\n2. Carrega em "1.ª vez? Ativar conta" e usa este email: '+c.email+'\n3. Preenche o teu perfil (1 minuto) e instala a app no telemóvel.\n\n'+(ePack(c)?'O teu pack: '+c.pack+' · 4 sessões.':'A tua sessão: '+nivelAtual(c)+'.')+'\nQualquer dúvida, responde a esta mensagem.';
   }
   function linkWhats(c){ var t=String(c.tel||'').replace(/\D/g,''); if(t.length===9) t='351'+t; return 'https://wa.me/'+t+'?text='+encodeURIComponent(textoConvite(c)); }
   function vConvite(c){
-    return '<div class="ok-g" aria-hidden="true">✓</div><div style="text-align:center"><div class="eyebrow">Conta criada</div><h1>Agora envia o <em>convite</em></h1><p class="sub" style="margin:8px 0 0">'+esc(c.email)+' · '+c.pack+(c.formato==='Pack 4'?' · pack de 4':'')+' · '+c.preco+' €</p></div>'+
+    return '<div class="ok-g" aria-hidden="true">✓</div><div style="text-align:center"><div class="eyebrow">Conta criada</div><h1>Agora envia o <em>convite</em></h1><p class="sub" style="margin:8px 0 0">'+esc(c.email)+' · '+(ePack(c)?'pack de 4 · '+c.pack:'sessão '+nivelAtual(c))+' · '+c.preco+' €</p></div>'+
       '<div class="card" style="white-space:pre-line;font-size:14px;line-height:1.5" id="convite-txt">'+esc(textoConvite(c))+'</div>'+
       '<a class="btn whats" href="'+linkWhats(c)+'" target="_blank" rel="noopener">Enviar convite por WhatsApp</a>'+
       '<button class="btn ghost" type="button" data-acao="copiar-convite">Copiar mensagem</button>'+
@@ -467,11 +491,13 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   V.addEventListener('click', function(e){
     var t=e.target.closest('button'); if(!t) return;
     var c=clienteAtual();
+    if(t.dataset.abrirAn!==undefined && c){ secAtual='sec-analises'; var ia=+t.dataset.abrirAn; render(); var d2=V.querySelectorAll('details.an')[ia]; if(d2){ d2.open=true; d2.scrollIntoView({behavior:'smooth',block:'start'}); } return; }
     if(t.dataset.temaToggle!==undefined){ aplicaTemaG(temaEfetivoG()==='dark'?'claro':'escuro'); toast(temaEfetivoG()==='dark'?'Modo escuro':'Modo claro'); return; }
     if(t.dataset.ir){ secAtual=t.dataset.ir; V.querySelectorAll('.sec').forEach(function(sc){ sc.hidden=sc.id!==secAtual; }); V.querySelectorAll('[data-ir]').forEach(function(b){ b.setAttribute('aria-selected', b.dataset.ir===secAtual?'true':'false'); }); var ativo=document.getElementById(secAtual); if(ativo){ ativo.style.animation='none'; void ativo.offsetWidth; ativo.style.animation=''; } return; }
     if(t.id==='g-bio'){ logado=true; try{ sessionStorage.setItem('fiq-gestao','1'); }catch(x){} location.hash='painel'; render(); return; }
-    if(t.dataset.pack && c){ c.pack=t.dataset.pack; toast('Pack alterado para '+c.pack+'. O cliente já vê o novo pack.'); render(); return; }
-    if(t.dataset.formato && c){ c.formato=t.dataset.formato; if(c.formato==='Pack 4' && c.total<4) c.total=4; if(c.formato==='Individual'){ c.total=Math.max(1,c.feitas||1); } render(); return; }
+    if(t.dataset.annv && c){ var pa=t.dataset.annv.split('|'); V.querySelectorAll('[data-annv^="'+pa[0]+'|"]').forEach(function(x){ x.setAttribute('aria-pressed', x===t?'true':'false'); }); var pr=document.getElementById('pr-'+pa[0]); var ag=document.getElementById('pg-'+pa[0]); if(pr && ag && ag.value!=='Oferta') pr.value=PRECO[pa[1]]; return; }
+    if(t.dataset.pack && c){ c.pack=t.dataset.pack; toast('Nível do pack alterado para '+c.pack+'.'); render(); return; }
+    if(t.dataset.formato && c){ c.formato=t.dataset.formato; if(c.formato==='Pack 4' && c.total<4) c.total=4; if(c.formato==='Individual'){ c.total=Math.max(1,c.feitas||1); c.analises.forEach(function(a){ if(!a.nivel){ a.nivel=c.pack; a.preco=PRECO[c.pack]; a.pago=0; a.pagoInfo='Por pagar'; } }); } render(); return; }
     if(t.dataset.ses && c){ var k=t.dataset.ses.split(':'), d=+k[1];
       if(k[0]==='feitas') c.feitas=Math.min(c.total, Math.max(0,c.feitas+d)); else c.total=Math.max(Math.max(1,c.feitas), c.total+d);
       render(); return; }
@@ -481,6 +507,8 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(t.dataset.guardar!==undefined && c){ var gi=+t.dataset.guardar, an=c.analises[gi], erros=[];
       ['yt','dl','pdf'].forEach(function(k){ var v=document.getElementById(k+'-'+gi).value.trim(); if(v && validaLink(k,v)[0]==='bad') erros.push(k); else an[k]=v; });
       an.ate=document.getElementById('ate-'+gi).value;
+      if(!ePack(c)){ var nvb=V.querySelector('[data-annv^="'+gi+'|"][aria-pressed="true"]'); an.nivel=nvb?nvb.dataset.annv.split('|')[1]:(an.nivel||'Pro');
+        an.pagoInfo=document.getElementById('pg-'+gi).value; an.preco=an.pagoInfo==='Oferta'?0:(+document.getElementById('pr-'+gi).value||0); an.pago=an.pagoInfo.indexOf('Pago')===0?an.preco:0; }
       an.nome=document.getElementById('nm-'+gi).value.trim(); an.jogo=document.getElementById('jg-'+gi).value.trim(); an.data=document.getElementById('dt-'+gi).value.trim();
       if(erros.length){ toast('Há um link que não foi reconhecido. Corrige e volta a guardar.'); return; }
       guardarDemo(c,an); toast('Guardado. O cliente recebe um aviso.'); render(); return; }
@@ -491,7 +519,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(a==='reenviar') toast('Email de ativação reenviado para '+c.email);
     if(a==='suspender') toast('Esboço: aqui suspendes o acesso (pede confirmação).');
     if(a==='guardar-stats'){ document.querySelectorAll('[data-stat]').forEach(function(i){ c.stats[i.dataset.stat]=i.value; }); toast('Estatísticas guardadas. O cliente já as vê.'); }
-    if(a==='nova-analise'){ c.analises.unshift({id:'a'+Date.now().toString(36),nome:'Sessão '+(c.analises.length+1)+' · '+nomeCurto(c),jogo:'',data:'',estado:'Recebido',yt:'',dl:'',pdf:'',ate:''}); secAtual='sec-analises'; toast('Análise criada. Confirma o nome, o jogo e cola os links.'); render(); }
+    if(a==='nova-analise'){ var nvN=nivelAtual(c); c.analises.unshift({id:'a'+Date.now().toString(36),nome:'Sessão '+(c.analises.length+1)+' · '+nomeCurto(c),jogo:'',data:'',estado:'Recebido',nivel:nvN,preco:ePack(c)?0:PRECO[nvN],pago:0,pagoInfo:'Por pagar',yt:'',dl:'',pdf:'',ate:''}); secAtual='sec-analises'; toast('Análise criada. Confirma o nome, o jogo e cola os links.'); render(); }
   });
   function selTexto(){ var el=document.getElementById('convite-txt'); if(!el) return; var r=document.createRange(); r.selectNodeContents(el); var sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(r); toast('Texto selecionado: copia com Ctrl+C'); }
   function atualizaPreco(){
@@ -522,6 +550,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(f.id==='f-novo'){ var em=document.getElementById('n-email').value.trim().toLowerCase(); if(!em||em.indexOf('@')<1){ toast('Escreve um email válido.'); return; }
       var id='c'+Date.now().toString(36);
       clientes.unshift({id:id,nome:'',ini:'',pos:'',email:em,tel:document.getElementById('n-tel').value.trim(),pack:novoPack,formato:novoForm,feitas:0,total:novoForm==='Pack 4'?4:1,preco:+document.getElementById('n-preco').value||0,pagamentos:[],acesso:'Ainda não ativou a conta',perfil:null,analises:[],manter:[],melhorar:[],comp:[],stats:{passes:'',duelos:'',rec:'',dec:''}});
+      var nc=cli(id); if(novoForm!=='Pack 4'){ nc.analises.push({id:'a'+Date.now().toString(36),nome:'Sessão 1 · '+nomeCurto(nc),jogo:'',data:'',estado:'Recebido',nivel:novoPack,preco:nc.preco,pago:0,pagoInfo:'Por pagar',yt:'',dl:'',pdf:'',ate:''}); }
       location.hash='convite-'+id; return; }
   });
 
