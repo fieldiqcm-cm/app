@@ -140,6 +140,14 @@ nav.tabs .badge{top:6px;right:calc(50% - 22px)}
   .toast{bottom:32px}
   #vista:has(#g-login){grid-template-columns:minmax(0,440px);justify-content:center;align-content:center}
 }
+.vl{font-size:12px;font-weight:700;min-height:16px}
+.vl.ok{color:var(--ok)}
+.vl.ok::before{content:"✓ "}
+.vl.bad{color:var(--bad)}
+.vl.bad::before{content:"✕ "}
+.dica{font-size:13px;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.dica summary{font-weight:800;cursor:pointer;min-height:28px;display:flex;align-items:center}
+.dica ol{margin:6px 0 0;padding-left:20px;line-height:1.6}
 .note{font-size:12px;color:var(--dim);line-height:1.5}
 .demo{border:1px dashed var(--line2);border-radius:12px;padding:10px 12px;font-size:12px;color:var(--dim)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -167,14 +175,14 @@ nav.tabs .badge{top:6px;right:calc(50% - 22px)}
   var hoje = '14 nov';
   var clientes = [
     {id:'tiago', nome:'Tiago M.', ini:'TM', pos:'Médio', menor:true, email:'tiago@exemplo.pt', pack:'Pro', formato:'Pack 4', feitas:2, total:4, preco:250, pagamentos:[{d:'12 out',v:125,m:'MB WAY'}], acesso:'Hoje, 10h15',
-      analises:[{jogo:'vs. Atlético B',data:'9 nov',estado:'Em análise',rel:'',vid:''},{jogo:'vs. União Norte',data:'26 out',estado:'Concluída',rel:'Relatorio_UniaoNorte.pdf',vid:'Lances_UniaoNorte.mp4'},{jogo:'vs. Desportivo Sul',data:'12 out',estado:'Concluída',rel:'Relatorio_DesportivoSul.pdf',vid:'Lances_DesportivoSul.mp4'}],
+      analises:[{jogo:'vs. Atlético B',data:'9 nov',estado:'Em análise',yt:'',dl:'',pdf:'',ate:''},{jogo:'vs. União Norte',data:'26 out',estado:'Concluída',yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''},{jogo:'vs. Desportivo Sul',data:'12 out',estado:'Concluída',yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''}],
       manter:['Receção orientada para a frente','Apoio frontal ao colega com bola'], melhorar:['Olhar antes de receber (2 vezes)','Reação nos 3 segundos após a perda'],
       comp:[{n:'Exemplo: olhar antes de receber',d:'13 nov'},{n:'O teu lance 07, comentado',d:'10 nov'}], stats:{passes:'',duelos:'',rec:'',dec:''}},
     {id:'rui', nome:'Rui S.', ini:'RS', pos:'Defesa central', menor:false, email:'rui@exemplo.pt', pack:'Elite', formato:'Individual', feitas:1, total:1, preco:110, pagamentos:[{d:'3 nov',v:110,m:'Multibanco'}], acesso:'Ontem, 22h40',
-      analises:[{jogo:'vs. Sporting Norte',data:'2 nov',estado:'Concluída',rel:'Relatorio_SportingNorte.pdf',vid:'Lances_SportingNorte.mp4'}],
+      analises:[{jogo:'vs. Sporting Norte',data:'2 nov',estado:'Concluída',yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''}],
       manter:['Controlo da profundidade'], melhorar:['Primeiro passe a romper linhas'], comp:[], stats:{passes:'88%',duelos:'9/12',rec:'11',dec:'81'}},
     {id:'bruno', nome:'Bruno L.', ini:'BL', pos:'Extremo', menor:true, email:'pais.bruno@exemplo.pt', pack:'Performance', formato:'Individual', feitas:0, total:1, preco:45, pagamentos:[], acesso:'Ainda não ativou a conta',
-      analises:[{jogo:'vs. Leões FC',data:'8 nov',estado:'Recebido',rel:'',vid:''}], manter:[], melhorar:[], comp:[], stats:{passes:'',duelos:'',rec:'',dec:''}}
+      analises:[{jogo:'vs. Leões FC',data:'8 nov',estado:'Recebido',yt:'',dl:'',pdf:'',ate:''}], manter:[], melhorar:[], comp:[], stats:{passes:'',duelos:'',rec:'',dec:''}}
   ];
   var conversas = [
     {cli:'tiago', jogo:'vs. União Norte', lida:false, msgs:[
@@ -197,6 +205,12 @@ nav.tabs .badge{top:6px;right:calc(50% - 22px)}
   function porResponder(){ return conversas.filter(function(v){ return v.msgs[v.msgs.length-1].de==='cli'; }); }
   var tT, tEl=document.getElementById('toast');
   function toast(m){ tEl.textContent=m; tEl.hidden=false; clearTimeout(tT); tT=setTimeout(function(){ tEl.hidden=true; },2600); }
+  function ytId(u){ var m=String(u||'').match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{11})/); return m?m[1]:''; }
+  var HOSTS={'wetransfer.com':'WeTransfer','we.tl':'WeTransfer','transfer.it':'transfer.it','drive.google.com':'Google Drive','docs.google.com':'Google Drive','mega.nz':'MEGA','dropbox.com':'Dropbox'};
+  function servico(u){ try{ var x=new URL(u); if(x.protocol!=='https:') return ''; var h=x.hostname.replace(/^www\./,''); for(var k in HOSTS){ if(h===k||h.slice(-k.length-1)==='.'+k) return HOSTS[k]; } }catch(e){} return ''; }
+  function validaLink(tipo,v){ v=v.trim(); if(!v) return ['','']; if(tipo==='yt') return ytId(v)?['ok','Vídeo do YouTube reconhecido']:['bad','Não parece um link do YouTube']; var sv=servico(v); return sv?['ok','Link '+sv+' reconhecido']:['bad','Usa um link https do transfer.it, WeTransfer ou Google Drive']; }
+  function campoLink(tipo,i,val,rot,ph){ var r=validaLink(tipo,val||''); return '<div class="campo"><label class="l" for="'+tipo+'-'+i+'">'+rot+'</label><input class="input" id="'+tipo+'-'+i+'" data-lk="'+tipo+':'+i+'" value="'+esc(val||'')+'" inputmode="url" placeholder="'+ph+'"><span class="vl '+r[0]+'" data-vl="'+tipo+':'+i+'">'+r[1]+'</span></div>'; }
+  function guardarDemo(c,a){ try{ var k='fiq-demo-links', o=JSON.parse(localStorage.getItem(k)||'{}'); o[c.id+'|'+a.jogo]={yt:a.yt,dl:a.dl,pdf:a.pdf,ate:a.ate}; localStorage.setItem(k,JSON.stringify(o)); }catch(e){} }
   var V=document.getElementById('vista');
   var ICONE_VOLTAR='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
 
@@ -227,8 +241,8 @@ nav.tabs .badge{top:6px;right:calc(50% - 22px)}
       '<a class="card kpi" href="#clientes"><b>'+clientes.length+'</b><span>Clientes ativos</span></a></div>'+
       '<h2>A fazer</h2><div class="lista">';
     pr.forEach(function(v){ var c=cli(v.cli); h+='<a class="card cli" href="#conversa-'+conversas.indexOf(v)+'"><span class="dot"></span><span style="flex:1"><span class="nm">Responder a '+esc(c.nome)+'</span><span class="ds" style="display:block">"'+esc(v.msgs[v.msgs.length-1].t)+'"</span></span></a>'; });
-    curso.forEach(function(x){ var falt=[]; if(!x.a.rel) falt.push('relatório'); if(!x.a.vid) falt.push('vídeo');
-      h+='<a class="card cli" href="#cliente-'+x.c.id+'"><span class="av" style="width:34px;height:34px;font-size:12px">'+x.c.ini+'</span><span style="flex:1"><span class="nm">'+esc(x.c.nome)+' · '+esc(x.a.jogo)+'</span><span class="ds" style="display:block">'+x.a.estado+(falt.length?' · falta carregar '+falt.join(' e '):'')+'</span></span></a>'; });
+    curso.forEach(function(x){ var falt=[]; if(!x.a.yt) falt.push('vídeo (YouTube)'); if(!x.a.pdf) falt.push('relatório (PDF)');
+      h+='<a class="card cli" href="#cliente-'+x.c.id+'"><span class="av" style="width:34px;height:34px;font-size:12px">'+x.c.ini+'</span><span style="flex:1"><span class="nm">'+esc(x.c.nome)+' · '+esc(x.a.jogo)+'</span><span class="ds" style="display:block">'+x.a.estado+(falt.length?' · falta pôr o link do '+falt.join(' e do '):'')+'</span></span></a>'; });
     emFalta.forEach(function(c){ h+='<a class="card cli" href="#cliente-'+c.id+'"><span class="pill '+estPag(c)[1]+'">'+falta(c)+' €</span><span style="flex:1"><span class="nm">Pagamento · '+esc(c.nome)+'</span><span class="ds" style="display:block">'+c.pack+' · '+c.formato+'</span></span></a>'; });
     h+='</div><button class="btn ghost small" type="button" data-acao="sair" style="align-self:flex-start">Sair da gestão</button><div class="demo">Esboço: daqui a uns segundos chega uma notificação de exemplo, como aparece no telemóvel quando um cliente te escreve.</div>';
     return h;
@@ -262,12 +276,16 @@ nav.tabs .badge{top:6px;right:calc(50% - 22px)}
       (falta(c)>0?'<form id="f-pag" class="row" style="flex-wrap:wrap;gap:8px"><label class="l" for="pag-v" style="position:absolute;left:-9999px">Valor recebido</label><input class="input" id="pag-v" type="number" min="1" value="'+falta(c)+'" style="flex:1;min-width:90px"><label class="l" for="pag-m" style="position:absolute;left:-9999px">Método</label><select class="input" id="pag-m" style="flex:1;min-width:120px"><option>MB WAY</option><option>Multibanco</option><option>Numerário</option><option>Transferência</option></select><button class="btn cobre" type="submit">Registar pagamento</button></form>':'')+
       '</div>'+
       // análises
-      '<div class="card" style="display:flex;flex-direction:column;gap:10px"><div class="between"><h2>Análises</h2><button class="btn ghost small" type="button" data-acao="nova-analise">+ Nova</button></div>';
+      '<div class="card" style="display:flex;flex-direction:column;gap:10px"><div class="between"><h2>Análises</h2><button class="btn ghost small" type="button" data-acao="nova-analise">+ Nova</button></div>'+
+      '<details class="dica"><summary>Antes de colar o link do YouTube</summary><ol><li>Visibilidade: <strong>Não listado</strong>.</li><li>Em Mais opções: <strong>Permitir incorporação</strong> ligado.</li><li>Comentários desligados.</li><li>Canal com o nome da marca, nunca o teu.</li></ol></details>';
     c.analises.forEach(function(a,i){
       h+='<div class="an"><div class="between"><span style="font-weight:800">'+esc(a.jogo)+'</span><span class="sub">'+a.data+'</span></div>'+
         '<label class="l" for="est-'+i+'">Estado</label><select class="input" id="est-'+i+'" data-estado="'+i+'">'+ESTADOS.map(function(s){return '<option'+(s===a.estado?' selected':'')+'>'+s+'</option>';}).join('')+'</select>'+
-        '<label class="up'+(a.rel?' feito':'')+'"><input type="file" accept="application/pdf" data-up="rel:'+i+'">'+(a.rel?'✓ '+esc(a.rel):'＋ Carregar relatório (PDF)')+'</label>'+
-        '<label class="up'+(a.vid?' feito':'')+'"><input type="file" accept="video/*" data-up="vid:'+i+'">'+(a.vid?'✓ '+esc(a.vid):'＋ Carregar vídeo dos lances')+'</label></div>';
+        campoLink('yt',i,a.yt,'Vídeo · link do YouTube (não listado)','https://youtu.be/…')+
+        campoLink('dl',i,a.dl,'Descarregar vídeo · link transfer.it, WeTransfer ou Drive','https://transfer.it/…')+
+        campoLink('pdf',i,a.pdf,'Relatório PDF · link de transferência','https://transfer.it/…')+
+        '<div class="campo"><label class="l" for="ate-'+i+'">Links de transferência válidos até (opcional)</label><input class="input" type="date" id="ate-'+i+'" value="'+esc(a.ate||'')+'"></div>'+
+        '<button class="btn ink small" type="button" data-guardar="'+i+'">Guardar e avisar o cliente</button></div>';
     });
     h+='</div>';
     // plano da semana
@@ -283,7 +301,7 @@ nav.tabs .badge{top:6px;right:calc(50% - 22px)}
     h+='<div class="card" style="display:flex;flex-direction:column;gap:10px"><h2>Vídeos complementares</h2>';
     if (nPack>=2){
       h+=(c.comp.length?c.comp.map(function(v){return '<div class="it"><span>▶ '+esc(v.n)+'</span><span class="sub" style="flex:0">'+v.d+'</span></div>';}).join(''):'<div class="sub">Ainda sem vídeos esta semana.</div>')+
-        '<label class="up"><input type="file" accept="video/*" data-up="comp:0">＋ Adicionar vídeo (o cliente recebe aviso)</label>';
+        '<form class="lista" data-comp="1"><label class="l" for="comp-n">Título</label><input class="input" id="comp-n" placeholder="Ex.: exemplo de receção orientada"><label class="l" for="comp-yt">Link do YouTube (não listado)</label><input class="input" id="comp-yt" inputmode="url" placeholder="https://youtu.be/…"><button class="btn ink small" type="submit">Pôr vídeo (o cliente recebe aviso)</button></form>';
     } else h+='<div class="lock">Disponível no Pro e no Elite.</div>';
     h+='</div>';
     // estatísticas
@@ -380,13 +398,18 @@ nav.tabs .badge{top:6px;right:calc(50% - 22px)}
     if(t.dataset.rm && c){ var r=t.dataset.rm.split(':'); c[r[0]].splice(+r[1],1); render(); return; }
     if(t.dataset.np){ novoPack=t.dataset.np; document.querySelectorAll('[data-np]').forEach(function(x){x.setAttribute('aria-pressed',x===t);}); atualizaPreco(); return; }
     if(t.dataset.nf){ novoForm=t.dataset.nf; document.querySelectorAll('[data-nf]').forEach(function(x){x.setAttribute('aria-pressed',x===t);}); atualizaPreco(); return; }
+    if(t.dataset.guardar!==undefined && c){ var gi=+t.dataset.guardar, an=c.analises[gi], erros=[];
+      ['yt','dl','pdf'].forEach(function(k){ var v=document.getElementById(k+'-'+gi).value.trim(); if(v && validaLink(k,v)[0]==='bad') erros.push(k); else an[k]=v; });
+      an.ate=document.getElementById('ate-'+gi).value;
+      if(erros.length){ toast('Há um link que não foi reconhecido. Corrige e volta a guardar.'); return; }
+      guardarDemo(c,an); toast('Guardado. O cliente recebe um aviso.'); render(); return; }
     var a=t.dataset.acao;
     if(a==='sair'){ try{ sessionStorage.removeItem('fiq-gestao'); }catch(x){} logado=false; if(/github\.io$|fieldiqcm\.com$/.test(location.hostname)) location.href='index.html'; else { location.hash='login'; render(); } return; }
     if(a==='ver-como') toast('Abre a app tal como o '+c.nome+' a vê.');
     if(a==='reenviar') toast('Email de ativação reenviado para '+c.email);
     if(a==='suspender') toast('Esboço: aqui suspendes o acesso (pede confirmação).');
     if(a==='guardar-stats'){ document.querySelectorAll('[data-stat]').forEach(function(i){ c.stats[i.dataset.stat]=i.value; }); toast('Estatísticas guardadas. O cliente já as vê.'); }
-    if(a==='nova-analise'){ c.analises.unshift({jogo:'Novo jogo',data:hoje,estado:'Recebido',rel:'',vid:''}); toast('Análise criada. Muda o nome e carrega os ficheiros.'); render(); }
+    if(a==='nova-analise'){ c.analises.unshift({jogo:'Novo jogo',data:hoje,estado:'Recebido',yt:'',dl:'',pdf:'',ate:''}); toast('Análise criada. Cola os links do vídeo e do relatório.'); render(); }
   });
   function atualizaPreco(){
     var tabela={Performance:[45,160],Pro:[70,250],Elite:[110,400]};
@@ -395,19 +418,20 @@ nav.tabs .badge{top:6px;right:calc(50% - 22px)}
   V.addEventListener('change', function(e){
     var t=e.target, c=clienteAtual();
     if(t.dataset.estado!==undefined && c){ c.analises[+t.dataset.estado].estado=t.value; toast('Estado: '+t.value+'. O cliente recebe um aviso.'); }
-    if(t.dataset.up && c && t.files && t.files[0]){ var u=t.dataset.up.split(':'), nome=t.files[0].name;
-      if(u[0]==='comp'){ c.comp.unshift({n:nome.replace(/\.[^.]+$/,''),d:hoje}); toast('Vídeo adicionado. O cliente recebe um aviso.'); }
-      else { c.analises[+u[1]][u[0]]=nome; toast((u[0]==='rel'?'Relatório':'Vídeo')+' carregado. O cliente recebe um aviso.'); }
-      render(); }
+
     if(t.id==='n-menor'){ document.getElementById('n-email-l').textContent=t.checked?'Email do encarregado de educação':'Email do jogador'; }
   });
   V.addEventListener('input', function(e){
+    if(e.target.dataset && e.target.dataset.lk){ var k=e.target.dataset.lk, r=validaLink(k.split(':')[0], e.target.value), el=V.querySelector('[data-vl="'+k+'"]'); if(el){ el.className='vl '+r[0]; el.textContent=r[1]; } }
     if(e.target.id==='procura'){ var q=e.target.value.trim().toLowerCase(); document.querySelectorAll('#lista-cli [data-nome]').forEach(function(a){ a.hidden=q && a.dataset.nome.indexOf(q)<0; }); }
   });
   V.addEventListener('submit', function(e){
     e.preventDefault(); var f=e.target, c=clienteAtual();
     if(f.id==='g-login'){ logado=true; try{ sessionStorage.setItem('fiq-gestao','1'); }catch(x){} location.hash='painel'; render(); return; }
     if(f.id==='f-pag' && c){ var v=+document.getElementById('pag-v').value; if(v>0){ c.pagamentos.push({d:hoje,v:v,m:document.getElementById('pag-m').value}); toast('Pagamento de '+v+' € registado.'); render(); } return; }
+    if(f.dataset.comp && c){ var tt=document.getElementById('comp-n').value.trim(), yl=document.getElementById('comp-yt').value.trim();
+      if(!ytId(yl)){ toast('Cola um link do YouTube válido.'); return; }
+      c.comp.unshift({n:tt||'Vídeo complementar',d:hoje,yt:yl}); toast('Vídeo adicionado. O cliente recebe um aviso.'); render(); return; }
     if(f.dataset.add && c){ var inp=f.querySelector('input'), tx=inp.value.trim(); if(tx){ c[f.dataset.add].push(tx); toast('Ponto adicionado ao plano da semana.'); render(); } return; }
     if(f.id==='f-resp'){ var i=+location.hash.slice(10), tx2=document.getElementById('resp').value.trim(); if(!tx2) return;
       var agora=new Date(), hh=String(agora.getHours()).padStart(2,'0')+'h'+String(agora.getMinutes()).padStart(2,'0');
