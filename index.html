@@ -397,6 +397,123 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
 .seg3 button{min-height:42px;border:none;border-radius:9px;background:transparent;color:var(--muted);font:800 13px var(--body);cursor:pointer}
 .seg3 button[aria-pressed="true"]{background:var(--gold);color:#111}
 .an-nome{font-size:13px;font-weight:800;color:var(--muted);margin-bottom:4px}
+/* ===== cartão de jogador ===== */
+.pcard-wrap{perspective:1200px}
+.pcard{--m1:#E2C27A;--m2:#8C6A22;--m3:#C9A453;display:block;width:100%;height:268px;padding:2px;border:none;border-radius:22px;cursor:pointer;background:linear-gradient(135deg,var(--m2),var(--m1) 45%,var(--m2) 60%,var(--m1));text-align:left;color:#F2EEE2;font:inherit;box-shadow:0 16px 40px rgba(0,0,0,.35)}
+.pcard.bronze{--m1:#E0A372;--m2:#6B3A1C;--m3:#C98A5A}
+.pcard.platina{--m1:#EEF1F3;--m2:#5E666D;--m3:#C7CDD2}
+.pc-in{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.3,1.3,.5,1)}
+.pcard.virado .pc-in{transform:rotateY(180deg)}
+.pc-face{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;padding:16px 18px;border-radius:20px;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:linear-gradient(160deg,rgba(18,17,16,.92),rgba(12,12,11,.98)),repeating-linear-gradient(90deg,transparent 0 58px,rgba(255,255,255,.035) 58px 59px),#111}
+.pc-face::before{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;border:1px solid var(--m3);opacity:.18}
+.pc-face::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.16) 48%,transparent 58%);transform:translateX(-130%);animation:brilho 6s ease-in-out 1.2s infinite;pointer-events:none}
+@keyframes brilho{0%,70%{transform:translateX(-130%)}100%{transform:translateX(130%)}}
+.pc-verso{transform:rotateY(180deg)}
+.pc-top{display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:800;letter-spacing:2px}
+.pc-marca b{color:var(--m1)}
+.pc-metal{color:#111;background:linear-gradient(90deg,var(--m2),var(--m1));padding:4px 9px;border-radius:99px;letter-spacing:1.4px}
+.pc-mid{display:flex;align-items:center;gap:16px}
+.pc-num{display:flex;flex-direction:column;align-items:center;line-height:1}
+.pc-num b{font:700 54px var(--display);background:linear-gradient(180deg,var(--m1),var(--m3));-webkit-background-clip:text;background-clip:text;color:transparent}
+.pc-num small{font-size:11px;font-weight:800;letter-spacing:2px;color:var(--m1)}
+.pc-id{display:flex;flex-direction:column;gap:3px;min-width:0}
+.pc-id b{font:700 22px var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-id small{font-size:12px;color:#B8B2A4;font-weight:600}
+.pc-nivel{align-self:flex-start;margin-top:4px;font-size:10px;font-weight:800;letter-spacing:1px;color:var(--m1);border:1px solid var(--m3);border-radius:99px;padding:3px 8px}
+.pc-atr{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:auto;margin-bottom:12px}
+.pc-atr span{display:flex;flex-direction:column;gap:4px;font-size:9px;font-weight:800;letter-spacing:.6px;color:#B8B2A4;text-transform:uppercase}
+.pc-atr b{font:700 18px var(--display);color:#F2EEE2;font-variant-numeric:tabular-nums}
+.pc-atr i{display:block;height:4px;border-radius:2px;background:#2E2A25;overflow:hidden}
+.pc-atr i em{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--m2),var(--m1));transition:width 1s cubic-bezier(.2,1,.3,1)}
+.pc-vazio{grid-column:1 / -1;font-size:12px;color:#B8B2A4;line-height:1.4}
+.pc-dica{position:absolute;right:18px;bottom:7px;font-size:10px;font-weight:700;color:#8F897C}
+.pc-radar{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
+.pc-radar svg{height:100%;max-height:170px;width:auto}
+.pc-leg{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;font-size:11px;font-weight:700;color:#B8B2A4}
+.pc-leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.pc-lock{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;font-size:13px;color:#B8B2A4;padding:0 12px}
+.pc-lock svg{color:var(--m1)}
+.nivel-pill{display:inline-flex;align-items:center;gap:8px;margin-top:8px;margin-left:10px;font-size:12px;font-weight:800;color:var(--gold2);text-decoration:none;vertical-align:middle}
+.np-bar{display:inline-block;width:60px;height:5px;border-radius:3px;background:var(--line2);overflow:hidden}
+.np-bar i{display:block;height:100%;background:var(--gold);transition:width .8s ease}
+/* ===== foco ===== */
+.foco{display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden}
+.foco-cont{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.fc-b{background:var(--card2);border-radius:12px;padding:10px 0;display:flex;flex-direction:column;align-items:center}
+.fc-b b{font:700 30px var(--display);line-height:1;font-variant-numeric:tabular-nums}
+.fc-b small{font-size:10px;font-weight:800;letter-spacing:1.4px;color:var(--dim);text-transform:uppercase;margin-top:4px}
+.foco-edit{display:flex;flex-direction:column;gap:8px}
+.foco-tit{font-size:11px;font-weight:800;letter-spacing:1.6px;color:var(--gold);text-transform:uppercase;margin-top:4px}
+.foco-lista{display:flex;flex-direction:column;gap:6px}
+.foco-lista div{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px}
+.foco-lista div::before{content:"↗";width:24px;height:24px;border-radius:12px;background:var(--gold);color:#111;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.foco-link{font-size:13px;font-weight:800;color:var(--gold2);text-decoration:none}
+/* ===== momentos ===== */
+.mini-seg{display:flex;gap:3px;background:var(--card2);border-radius:99px;padding:3px}
+.mini-seg button{min-height:32px;padding:0 10px;border:none;border-radius:99px;background:transparent;color:var(--muted);font:800 11px var(--body);cursor:pointer}
+.mini-seg button[aria-pressed="true"]{background:var(--gold);color:#111}
+.mom{display:flex;flex-direction:column;gap:12px}
+.mom-track{position:relative;height:64px;margin:6px 12px 0}
+.mom-linha{position:absolute;left:0;right:0;top:30px;height:3px;border-radius:2px;background:var(--line2)}
+.mom-int{position:absolute;left:50%;top:22px;width:1px;height:19px;background:var(--dim)}
+.mom-t{position:absolute;top:46px;transform:translateX(-50%);font-size:10px;font-weight:800;color:var(--dim)}
+.mom-m{position:absolute;top:31px;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:14px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font:800 10px var(--body);animation:surgeM .45s cubic-bezier(.2,1.6,.4,1) both;transition:transform .2s,opacity .2s}
+.mom-m.bom{background:var(--gold);color:#111}
+.mom-m.mel{background:var(--card);color:var(--erro);box-shadow:inset 0 0 0 2.5px #D45B4C}
+.mom-m[aria-pressed="true"]{transform:scale(1.3);box-shadow:0 0 0 5px rgba(226,194,122,.25)}
+.mom-m.mel[aria-pressed="true"]{box-shadow:inset 0 0 0 2.5px #D45B4C,0 0 0 5px rgba(212,91,76,.2)}
+.mom-m.fora{opacity:.15;pointer-events:none}
+@keyframes surgeM{0%{transform:scale(0)}100%{transform:scale(1)}}
+.mom-sel{background:var(--card2);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-height:92px;animation:entra .3s ease-out}
+.mom-sel .ms-top{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800}
+.mom-sel .ms-min{font:700 18px var(--display);color:var(--gold2)}
+.mom-sel p{margin:0;font-size:14px;line-height:1.45}
+.mom-sel button{align-self:flex-start;min-height:36px;padding:0 12px;border-radius:99px;border:1px solid var(--gold);background:transparent;color:var(--gold2);font:800 12px var(--body);cursor:pointer}
+/* ===== mapa ===== */
+.mapa{display:flex;flex-direction:column;gap:12px}
+.mapa-campo{position:relative;width:100%;aspect-ratio:105/68;border-radius:12px;overflow:hidden;background:#0C0C0B;border:1px solid #2E2A25}
+.mapa-campo::before{content:"";position:absolute;inset:8px;border:1px solid rgba(201,164,83,.25);border-radius:3px;background:linear-gradient(90deg,transparent calc(50% - .5px),rgba(201,164,83,.25) calc(50% - .5px),rgba(201,164,83,.25) calc(50% + .5px),transparent calc(50% + .5px))}
+.mapa-campo::after{content:"";position:absolute;left:50%;top:50%;width:18%;aspect-ratio:1;transform:translate(-50%,-50%);border:1px solid rgba(201,164,83,.25);border-radius:50%}
+.mc-seta{position:absolute;right:12px;top:10px;z-index:2;font-size:10px;font-weight:800;letter-spacing:1px;color:#8F897C}
+.mc-heat{position:absolute;width:34%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(226,194,122,.38),rgba(226,194,122,0) 65%);animation:aparece .8s ease-out both;pointer-events:none}
+.mc-dot{position:absolute;z-index:1;width:30px;height:30px;margin:-15px 0 0 -15px;border:none;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;animation:surgeM .4s cubic-bezier(.2,1.6,.4,1) both}
+.mc-dot i{width:14px;height:14px;border-radius:50%;transition:transform .2s}
+.mc-dot.b i{background:#C9A453;box-shadow:0 0 0 4px rgba(201,164,83,.2)}
+.mc-dot.m i{border:2.5px solid #D45B4C;background:rgba(17,17,17,.6)}
+.mc-dot[aria-pressed="true"] i{transform:scale(1.5)}
+.mapa-cap{font-size:13px;font-weight:700;color:var(--muted);min-height:20px}
+/* ===== lance explicado ===== */
+.lance{display:flex;flex-direction:column;gap:12px}
+.lx-quadro{border-radius:12px;background:#0C0C0B;border:1px solid #2E2A25;overflow:hidden}
+.lx-quadro svg{display:block;width:100%;height:auto}
+.lx-quadro .lx1,.lx-quadro .lx2,.lx-quadro .lx3{opacity:0;transition:opacity .6s ease}
+.lx-quadro[data-step="1"] .lx1,.lx-quadro[data-step="2"] .lx2,.lx-quadro[data-step="3"] .lx2,.lx-quadro[data-step="3"] .lx3{opacity:1}
+.lx-quadro .lx-cone{transform-box:view-box;transform-origin:190px 128px;animation:varreLx 2.6s ease-in-out infinite alternate}
+@keyframes varreLx{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}
+.lx-quadro .lx-anel{transform-box:fill-box;transform-origin:center;animation:anelLx 1.8s ease-out infinite}
+@keyframes anelLx{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.9);opacity:0}}
+.lx-quadro .lx-bola,.lx-quadro .lx-tu{transition:transform 1s ease-in-out}
+.lx-quadro[data-step="2"] .lx-bola{transform:translate(90px,-40px)}
+.lx-quadro[data-step="3"] .lx-bola{transform:translate(182px,-40px)}
+.lx-quadro[data-step="3"] .lx-tu{transform:translate(76px,2px)}
+.lx-txt{display:flex;flex-direction:column;gap:4px;min-height:64px}
+.lx-txt b{font-size:16px;color:var(--gold2);text-transform:uppercase;letter-spacing:.8px}
+.lx-txt span{font-size:14px;line-height:1.45}
+.lx-ctl{display:flex;gap:8px;align-items:center}
+.lx-ctl .iconbtn{font-size:22px;font-weight:800}
+/* ===== nível e conquistas ===== */
+.nivel-card{display:flex;flex-direction:column;gap:10px}
+.xpbar{height:10px;border-radius:5px;background:var(--card2);overflow:hidden}
+.xpbar i{display:block;height:100%;width:0;border-radius:5px;background:linear-gradient(90deg,#8C6A22,#E2C27A);transition:width 1s cubic-bezier(.2,1,.3,1)}
+.badges{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 8px;margin-top:12px}
+.bdg{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.bdg span{width:52px;height:52px;border-radius:26px;display:flex;align-items:center;justify-content:center;font:800 20px var(--body);background:var(--card2);color:var(--dim);border:1.5px dashed var(--line2)}
+.bdg.on span{background:radial-gradient(circle at 35% 30%,#F3DDA0,#C9A453 55%,#8C6A22);color:#111;border:none;box-shadow:0 6px 16px rgba(201,164,83,.3)}
+.bdg b{font-size:11px;line-height:1.25}
+.bdg small{font-size:10px;color:var(--dim);line-height:1.3}
+.xp-float{position:absolute;left:50%;top:120px;z-index:9;transform:translateX(-50%);background:var(--gold);color:#111;font:800 14px var(--body);padding:8px 14px;border-radius:99px;box-shadow:0 10px 30px rgba(0,0,0,.35);animation:xpSobe 1.8s ease-out forwards;pointer-events:none;white-space:nowrap}
+@keyframes xpSobe{0%{opacity:0;transform:translate(-50%,20px) scale(.8)}15%{opacity:1;transform:translate(-50%,0) scale(1.05)}75%{opacity:1;transform:translate(-50%,-12px)}100%{opacity:0;transform:translate(-50%,-30px)}}
 .note{font-size:12px;color:var(--dim);text-align:center;line-height:1.5}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001s!important;animation-delay:0s!important;animation-iteration-count:1!important;transition:none!important}}
 </style>
@@ -688,6 +805,13 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
       <div style="min-width:0"><h1 style="margin:0" id="pf-nome">Tiago</h1><div class="sub" id="pf-sub">Médio · GD Exemplo</div></div>
     </div>
     <div class="pf-grid" id="pf-grid"></div>
+    <div class="card nivel-card">
+      <div class="between"><span class="eyebrow" style="letter-spacing:1.6px">O teu nível</span><b class="serif" style="font-size:20px" id="pf-nivel">Nível 1</b></div>
+      <div class="xpbar"><i id="pf-xpbar"></i></div>
+      <div class="sub" id="pf-xpt" style="margin:0"></div>
+      <div class="note" style="margin:0;text-align:left">Ganhas pontos com desafios, com o plano da semana, ao ver as análises e ao perguntar ao analista.</div>
+    </div>
+    <div class="card"><span class="eyebrow" style="letter-spacing:1.6px">Conquistas</span><div class="badges" id="badges"></div></div>
     <a class="btn ghost" href="#completar" id="pf-editar">Editar perfil</a>
     <div class="card" id="pf-ee" hidden><div class="eyebrow" style="letter-spacing:1.6px">Encarregado de educação</div><div style="margin-top:8px;font-weight:800" id="pf-ee-nome"></div><div class="sub" id="pf-ee-cont"></div><div class="sub" id="pf-ee-aut" style="margin-top:6px"></div></div>
     <div class="card">
@@ -721,6 +845,38 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
       <div class="sub" id="hoje">Sábado, 14 de novembro</div>
       <h1>Olá, <em id="ini-nome">Tiago</em></h1>
       <a class="ini-perfil" href="#perfil" id="ini-perfil">Médio · GD Exemplo · Sub-15</a>
+      <a class="nivel-pill" href="#perfil" id="nivel-pill"><span class="np-n">Nível 3</span><span class="np-bar"><i id="np-bar"></i></span></a>
+    </div>
+
+    <div class="pcard-wrap">
+      <button class="pcard ouro" id="pcard" type="button" aria-label="Cartão de jogador. Toca para virar e ver a evolução.">
+        <span class="pc-in">
+          <span class="pc-face pc-frente">
+            <span class="pc-top"><span class="pc-marca">FIELD<b>IQ</b></span><span class="pc-metal" id="pc-metal">OURO · PRO</span></span>
+            <span class="pc-mid">
+              <span class="pc-num"><b id="pc-num">8</b><small id="pc-pos">MED</small></span>
+              <span class="pc-id"><b id="pc-nome">Tiago M.</b><small id="pc-clube">GD Exemplo · Sub-15</small><span class="pc-nivel" id="pc-nivel">Nível 3</span></span>
+            </span>
+            <span class="pc-atr" id="pc-atr"></span>
+            <span class="pc-dica">Toca para virar ↻</span>
+          </span>
+          <span class="pc-face pc-verso">
+            <span class="pc-top"><span class="pc-marca">EVOLUÇÃO</span><span class="pc-metal">ÚLTIMOS 2 JOGOS</span></span>
+            <span class="pc-radar" id="pc-radar"></span>
+            <span class="pc-leg" id="pc-leg"></span>
+          </span>
+        </span>
+      </button>
+    </div>
+
+    <div class="card foco" id="foco">
+      <div class="between"><span class="eyebrow" style="letter-spacing:1.8px">Próximo jogo</span><button class="textbtn" id="foco-mudar" type="button">Mudar data</button></div>
+      <div class="foco-cont" aria-live="off"><div class="fc-b"><b id="fc-d">0</b><small>dias</small></div><div class="fc-b"><b id="fc-h">0</b><small>horas</small></div><div class="fc-b"><b id="fc-m">0</b><small>min</small></div></div>
+      <div class="sub" id="foco-quando" style="margin:0"></div>
+      <div class="foco-edit" id="foco-edit" hidden><label class="cp-l" for="foco-dt">Data e hora do próximo jogo</label><input class="input" id="foco-dt" type="datetime-local"><button class="btn gold" id="foco-ok" type="button" style="height:44px">Guardar</button></div>
+      <div class="foco-tit">Foca-te em</div>
+      <div class="foco-lista" id="foco-lista"></div>
+      <a class="foco-link" href="#analise" id="foco-link">Rever o lance explicado →</a>
     </div>
 
     <div class="card nov">
@@ -888,6 +1044,48 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
       <div class="row" style="align-items:flex-start"><span class="mark">✕</span><div><div class="lbl">Onde perdes</div><div style="font-weight:800">Reação à perda</div></div></div>
       <div class="row" style="align-items:flex-start"><span class="mark">↗</span><div><div class="lbl">O que trabalhar</div><div style="font-weight:800">Olhar antes de receber</div></div></div>
     </div>
+
+    <div class="card mom" id="mom">
+      <div class="between" style="flex-wrap:wrap"><span class="eyebrow" style="letter-spacing:1.8px">Momentos do jogo</span>
+        <div class="mini-seg" role="group" aria-label="Filtrar momentos"><button type="button" data-mf="todos" aria-pressed="true">Todos</button><button type="button" data-mf="bom" aria-pressed="false">Fazes bem</button><button type="button" data-mf="mel" aria-pressed="false">A melhorar</button></div></div>
+      <div class="mom-track" id="mom-track"><span class="mom-linha"></span><span class="mom-int"></span><span class="mom-t" style="left:0">0'</span><span class="mom-t" style="left:50%">45'</span><span class="mom-t" style="left:100%">90'</span></div>
+      <div class="mom-sel" id="mom-sel" aria-live="polite"></div>
+    </div>
+
+    <div class="card mapa" data-min="2">
+      <div class="between" style="flex-wrap:wrap"><span class="eyebrow" style="letter-spacing:1.8px">Mapa de ação</span>
+        <div class="mini-seg" role="group" aria-label="Tipo de ação"><button type="button" data-mp="com" aria-pressed="true">Com bola</button><button type="button" data-mp="sem" aria-pressed="false">Sem bola</button></div></div>
+      <div class="mapa-campo" id="mapa-campo"><span class="mc-seta">Ataque →</span></div>
+      <div class="mapa-cap" id="mapa-cap" aria-live="polite">Toca num ponto para ver a ação.</div>
+      <div class="legenda" style="margin-top:0"><span><i style="background:#C9A453;border-radius:50%"></i>Correu bem</span><span><i style="border:2px solid #D45B4C;border-radius:50%"></i>A melhorar</span></div>
+    </div>
+    <div class="lock" data-lock="2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div><b>Mapa de ação</b><span>Onde fizeste cada ação no campo. Disponível no Pro e no Elite.</span></div></div>
+
+    <div class="card lance" data-min="2">
+      <div class="between"><span class="eyebrow" style="letter-spacing:1.8px">Lance explicado · 31'</span><span class="sub" style="margin:0" id="lx-passo">Passo 1 de 3</span></div>
+      <div class="lx-quadro" id="lx" data-step="1">
+        <svg viewBox="0 0 350 220" role="img" aria-label="Quadro tático do lance: olhar antes de receber, passe e receção orientada.">
+          <defs><marker id="lx-pt" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#E2C27A"/></marker>
+          <radialGradient id="lx-cone" cx=".5" cy="1" r="1"><stop offset="0" stop-color="#E2C27A" stop-opacity=".5"/><stop offset="1" stop-color="#E2C27A" stop-opacity="0"/></radialGradient></defs>
+          <rect x="6" y="6" width="338" height="208" rx="4" fill="none" stroke="#C9A453" stroke-opacity=".25"/>
+          <line x1="175" y1="6" x2="175" y2="214" stroke="#C9A453" stroke-opacity=".25"/>
+          <circle cx="175" cy="110" r="30" fill="none" stroke="#C9A453" stroke-opacity=".25"/>
+          <path class="lx1 lx-cone" d="M190 128 L140 50 A100 100 0 0 1 250 56 Z" fill="url(#lx-cone)"/>
+          <circle cx="150" cy="104" r="9" fill="none" stroke="#D45B4C" stroke-width="2.2"/>
+          <circle cx="236" cy="86" r="9" fill="none" stroke="#D45B4C" stroke-width="2.2"/>
+          <circle cx="226" cy="170" r="9" fill="none" stroke="#D45B4C" stroke-width="2.2"/>
+          <circle cx="88" cy="176" r="9" fill="#8F897C"/>
+          <circle cx="268" cy="44" r="9" fill="#8F897C"/>
+          <path class="lx2" d="M96 170 L180 132" stroke="#F2EEE2" stroke-width="2" fill="none"/>
+          <path class="lx3" d="M202 126 Q238 112 272 128" stroke="#E2C27A" stroke-width="2.2" fill="none" stroke-dasharray="6 6" marker-end="url(#lx-pt)"/>
+          <g class="lx-tu"><circle class="lx-anel" cx="190" cy="128" r="14" fill="none" stroke="#E2C27A" stroke-width="1.6"/><circle cx="190" cy="128" r="11" fill="#C9A453"/><text x="190" y="156" text-anchor="middle" fill="#E2C27A" font-family="Mulish,sans-serif" font-weight="800" font-size="11" letter-spacing="1.4">TU</text></g>
+          <circle class="lx-bola" cx="94" cy="170" r="5" fill="#FFFFFF"/>
+        </svg>
+      </div>
+      <div class="lx-txt"><b id="lx-acao">Olha antes de receber</b><span id="lx-leg">Antes de a bola chegar, olhas à volta e vês o espaço livre à direita.</span></div>
+      <div class="lx-ctl"><button class="iconbtn" type="button" id="lx-ant" aria-label="Passo anterior">‹</button><button class="btn gold" type="button" id="lx-play" style="flex:1;height:46px">▶ Ver o lance</button><button class="iconbtn" type="button" id="lx-seg" aria-label="Passo seguinte">›</button></div>
+    </div>
+    <div class="lock" data-lock="2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div><b>Lance explicado</b><span>Um lance teu desenhado passo a passo pelo analista. Disponível no Pro e no Elite.</span></div></div>
 
     <a class="card row" href="#duvidas" style="padding:14px 16px">
       <span class="mark" style="background:var(--gold);color:#111">?</span>
@@ -1096,6 +1294,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
   </div>
   <button type="button" class="dsair" id="demo-sair">Sair</button>
 </div>
+<div class="xp-float" id="xp-float" aria-hidden="true" hidden></div>
 <div class="toast" id="toast" role="status" hidden></div>
 </div>
 </div>
@@ -1171,6 +1370,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     tabs.hidden = (h === 'entrada' || h === 'ativar' || h === 'recuperar' || h === 'completar');
     if (h === 'completar' && typeof abrirCompletar === 'function') abrirCompletar();
     if (h === 'perfil' && typeof mostrarPerfil === 'function') mostrarPerfil();
+    if (h === 'analise' && typeof darXP === 'function') setTimeout(function(){ darXP(10, 'Análise vista', 'ver-un'); }, 600);
     tabs.querySelectorAll('a').forEach(function(a){
       if (a.dataset.tab === tabDe[h]) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
     });
@@ -1356,6 +1556,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
       });
       if (!certo) b.classList.add('errada');
       serie = certo ? serie + 1 : 0;
+      if (certo && typeof darXP === 'function'){ darXP(20, 'Desafio certo'); if (serie >= 3) darXP(30, '3 desafios seguidos', 'desafio3'); }
       q.serie.textContent = 'Série: ' + serie;
       q.perg.hidden = true; q.resp.hidden = false; q.fim.hidden = false;
       q.titulo.innerHTML = 'Era a <em style="font-style:italic;font-weight:600;color:var(--gold2)">C</em>.';
@@ -1419,7 +1620,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     $('sim-menos').disabled = feitas === 0; $('sim-mais').disabled = feitas === 4;
   }
   $('sim-menos').addEventListener('click', function(){ if (feitas > 0){ feitas--; renderPack(); } });
-  $('sim-mais').addEventListener('click', function(){ if (feitas < 4){ feitas++; renderPack(); if (feitas === 4) toast('Pack concluído: 4/4 sessões'); } });
+  $('sim-mais').addEventListener('click', function(){ if (feitas < 4){ feitas++; renderPack(); if (feitas === 4){ toast('Pack concluído: 4/4 sessões'); if (typeof darXP === 'function') darXP(60, 'Pack concluído', 'pack4'); } } });
   $('sim-pago').addEventListener('click', function(){ pagoTotal = !pagoTotal; renderPack(); });
   $('pg-btn').addEventListener('click', function(){ pagoTotal = true; renderPack(); toast('Pagamento registado (exemplo)'); });
   $('ind-btn').addEventListener('click', function(){
@@ -1439,7 +1640,9 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
 
   // ===== Desbloqueio por pack (1 Performance, 2 Pro, 3 Elite) =====
   var nomesPack = {1:'Performance',2:'Pro',3:'Elite'};
+  var packAtual = 2;
   function poePack(n){
+    packAtual = n; setTimeout(function(){ if (typeof renderCartao === 'function'){ renderCartao(); renderFoco(); } }, 0);
     document.querySelectorAll('[data-min]').forEach(function(el){ el.hidden = n < +el.dataset.min; });
     document.querySelectorAll('[data-lock]').forEach(function(el){ el.hidden = n >= +el.dataset.lock; });
     document.querySelectorAll('.nome-pack').forEach(function(el){ el.textContent = nomesPack[n]; });
@@ -1449,7 +1652,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
   function contaPlano(){
     var n = document.querySelectorAll('.plano input:checked').length;
     document.getElementById('pl-cont').textContent = n + ' de 4';
-    if (n === 4) toast('Plano da semana cumprido');
+    if (n === 4){ toast('Plano da semana cumprido'); if (typeof darXP === 'function') darXP(40, 'Semana cumprida', 'plano'); }
   }
   document.querySelectorAll('.plano input').forEach(function(i){ i.addEventListener('change', contaPlano); });
   poePack(2);
@@ -1474,7 +1677,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     m.querySelector('.tx').textContent = txt;
     document.getElementById('thread').appendChild(m);
     t.value = '';
-    toast('Enviada. O analista recebeu um aviso.');
+    toast('Enviada. O analista recebeu um aviso.'); if (typeof darXP === 'function') darXP(15, 'Pergunta ao analista', 'duvida');
     setTimeout(function(){ m.querySelector('small').textContent = 'Hoje, ' + hh + ' · Vista pelo analista'; }, 2500);
     var sc = document.querySelector('#s-duvidas .scroll'); sc.scrollTop = sc.scrollHeight;
   });
@@ -1493,11 +1696,14 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
       if (dados.data) document.getElementById('an-data').textContent = dados.data;
     }
     var id = dados ? ytId(dados.yt) : '';
-    document.getElementById('yt-btn').addEventListener('click', function(){
-      if (!id){ toast('Aqui abre o vídeo dos teus lances (YouTube não listado).'); return; }
+    function tocar(inicio){
+      if (!id){ toast(inicio ? 'No vídeo, este momento começa em ' + Math.floor(inicio/60) + ':' + String(inicio%60).padStart(2,'0') + '.' : 'Aqui abre o vídeo dos teus lances (YouTube não listado).'); return; }
       if (!podeIncorporar){ toast('No protótipo o vídeo só toca na app publicada.'); return; }
-      document.getElementById('yt-wrap').innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1&modestbranding=1" title="Os teus lances" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
-    });
+      document.getElementById('yt-wrap').innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1&modestbranding=1' + (inicio ? '&start=' + inicio : '') + '" title="Os teus lances" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+      document.getElementById('yt-wrap').scrollIntoView({behavior:'smooth', block:'center'});
+    }
+    window.__fiqTocar = tocar;
+    document.getElementById('yt-btn').addEventListener('click', function(){ tocar(0); });
     var hoje = new Date(); hoje.setHours(0,0,0,0);
     var exp = !!(dados && dados.ate && new Date(dados.ate + 'T23:59:59') < hoje);
     function liga(el, url, demo){
@@ -1544,6 +1750,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     document.getElementById('ini-nome').textContent = String(pf.nome||'').split(' ')[0] || 'jogador';
     var bits = [pf.pos, pf.clube, pf.esc].filter(Boolean);
     document.getElementById('ini-perfil').textContent = bits.join(' · ');
+    if (typeof renderCartao === 'function'){ renderCartao(); renderFoco(); }
   }
   var cp = {};
   function cpEscolhe(attr, val){ cp[attr] = val; document.querySelectorAll('[data-' + attr + ']').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset[attr] === val ? 'true' : 'false'); }); }
@@ -1608,6 +1815,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     erroCp(3, '');
     var pf = {nome: document.getElementById('cp-nome').value.trim(), nasc: nasc, alt: +alt.value, pe: cp.pe, pos: cp.pos, clube: document.getElementById('cp-clube').value.trim(), esc: cp.esc, num: document.getElementById('cp-num').value.trim(), obj: cp.obj, orig: cp.orig || '', ee: menor ? ee : null, aut: menor ? document.getElementById('cp-aut').checked : null, redes: document.getElementById('cp-redes').checked};
     try { localStorage.setItem('fiq-perfil:' + emailAtual, JSON.stringify(pf)); } catch(e){}
+    if (typeof darXP === 'function') setTimeout(function(){ darXP(50, 'Perfil completo', 'perfil'); }, 400);
     if (CONTAS[emailAtual]) CONTAS[emailAtual].perfil = pf;
     mostrarSaudacao(pf);
     var res = document.getElementById('cp-resumo'); res.innerHTML = '';
@@ -1629,9 +1837,176 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     var ee = document.getElementById('pf-ee');
     if (pf.ee){ ee.hidden = false; document.getElementById('pf-ee-nome').textContent = pf.ee.nome; document.getElementById('pf-ee-cont').textContent = pf.ee.cont; document.getElementById('pf-ee-aut').textContent = pf.aut ? '✓ Autorização de imagem dada (só para a análise)' : 'Autorização de imagem em falta'; }
     else ee.hidden = true;
-    aplicaTema(temaPref());
+    aplicaTema(temaPref()); renderNivel();
   }
   document.getElementById('pf-sair').addEventListener('click', function(){ poeDemo(false); location.hash = 'entrada'; toast('Sessão terminada'); });
+
+  // ===== Cartão de jogador, foco, momentos, mapa, lance, nível =====
+  function vibra(){ try { if (navigator.vibrate) navigator.vibrate(12); } catch(e){} }
+  var ATR = {
+    'tiago@exemplo.pt': {at:[['Decisão',78],['Posição',72],['Receção',81],['Pressão',64],['Passe',75]], ant:[70,69,74,66,71]},
+    'rui@exemplo.pt': {at:[['Decisão',81],['Posição',86],['Receção',70],['Pressão',79],['Passe',77]], ant:[76,80,68,74,72]}
+  };
+  var ABREV = {'Defesa central':'DC','Lateral':'LAT','Médio':'MED','Interior':'INT','Extremo':'EXT','Avançado':'AV'};
+  var METAL = {1:['bronze','BRONZE · PERFORMANCE'],2:['ouro','OURO · PRO'],3:['platina','PLATINA · ELITE']};
+  function radarSVG(at, ant, cor){
+    var N = at.length, cx = 120, cy = 100, R = 70, pts = function(vals, k){ return vals.map(function(v, i){ var a = -Math.PI/2 + i*2*Math.PI/N, r = R*v/100*k; return (cx + r*Math.cos(a)).toFixed(1) + ',' + (cy + r*Math.sin(a)).toFixed(1); }).join(' '); };
+    var g = '';
+    [0.25,0.5,0.75,1].forEach(function(k){ g += '<polygon points="' + pts(at.map(function(){return 100;}), k) + '" fill="none" stroke="#3A3631" stroke-width="1"/>'; });
+    at.forEach(function(x, i){ var a = -Math.PI/2 + i*2*Math.PI/N; g += '<line x1="' + cx + '" y1="' + cy + '" x2="' + (cx + R*Math.cos(a)).toFixed(1) + '" y2="' + (cy + R*Math.sin(a)).toFixed(1) + '" stroke="#3A3631"/>';
+      var lx = cx + (R + 18)*Math.cos(a), ly = cy + (R + 14)*Math.sin(a);
+      g += '<text x="' + lx.toFixed(1) + '" y="' + (ly + 3).toFixed(1) + '" text-anchor="middle" fill="#B8B2A4" font-family="Mulish,sans-serif" font-size="9" font-weight="800">' + x[0].toUpperCase() + '</text>'; });
+    g += '<polygon points="' + pts(ant, 1) + '" fill="none" stroke="#8F897C" stroke-width="1.5" stroke-dasharray="4 4"/>';
+    g += '<polygon points="' + pts(at.map(function(x){return x[1];}), 1) + '" fill="' + cor + '" fill-opacity=".28" stroke="' + cor + '" stroke-width="2"/>';
+    return '<svg viewBox="0 0 240 200" aria-hidden="true">' + g + '</svg>';
+  }
+  function renderCartao(){
+    var pf = lerPerfil(emailAtual) || {}, pc = document.getElementById('pcard'), m = METAL[packAtual] || METAL[2];
+    pc.className = 'pcard ' + m[0] + (pc.classList.contains('virado') ? ' virado' : '');
+    document.getElementById('pc-metal').textContent = m[1];
+    document.getElementById('pc-num').textContent = pf.num || '—';
+    document.getElementById('pc-pos').textContent = ABREV[pf.pos] || '';
+    document.getElementById('pc-nome').textContent = pf.nome || 'Jogador';
+    document.getElementById('pc-clube').textContent = [pf.clube, pf.esc].filter(Boolean).join(' · ');
+    var A = ATR[emailAtual], box = document.getElementById('pc-atr');
+    if (!A){ box.innerHTML = '<span class="pc-vazio">Os teus atributos aparecem aqui depois da primeira análise.</span>'; }
+    else {
+      box.innerHTML = A.at.map(function(x){ return '<span>' + x[0] + '<b>' + x[1] + '</b><i><em data-w="' + x[1] + '"></em></i></span>'; }).join('');
+      setTimeout(function(){ box.querySelectorAll('em').forEach(function(e){ e.style.width = e.dataset.w + '%'; }); }, 80);
+    }
+    var rad = document.getElementById('pc-radar'), leg = document.getElementById('pc-leg'), cor = getComputedStyle(pc).getPropertyValue('--m1').trim() || '#E2C27A';
+    if (packAtual >= 3 && A){
+      rad.innerHTML = radarSVG(A.at, A.ant, cor);
+      var melhor = A.at.map(function(x, i){ return [x[0], x[1] - A.ant[i]]; }).sort(function(a, b){ return b[1] - a[1]; })[0];
+      leg.innerHTML = '<span><i style="background:' + cor + '"></i>Último jogo</span><span><i style="border:1.5px dashed #8F897C"></i>Jogo anterior</span><span style="color:' + cor + '">' + melhor[0] + ' +' + melhor[1] + '</span>';
+    } else {
+      rad.innerHTML = '<span class="pc-lock">' + '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>' + (A ? 'A evolução jogo a jogo, com o radar dos teus atributos, é do pack Elite.' : 'Depois de duas análises, vês aqui a tua evolução.') + '</span>';
+      leg.innerHTML = '';
+    }
+    renderNivel();
+  }
+  document.getElementById('pcard').addEventListener('click', function(){ this.classList.toggle('virado'); vibra(); });
+
+  // Foco para o próximo jogo
+  var DIAS = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  function proxSabado(){ var d = new Date(); d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7 || 7)); d.setHours(15, 0, 0, 0); return d; }
+  function lerJogo(){ try { var v = localStorage.getItem('fiq-jogo:' + emailAtual); if (v) return new Date(v); } catch(e){} return proxSabado(); }
+  function renderFoco(){
+    var d = lerJogo(), dif = d - new Date();
+    document.getElementById('foco-quando').textContent = DIAS[d.getDay()] + ', ' + d.getDate() + ' ' + MESES[d.getMonth()] + ' · ' + String(d.getHours()).padStart(2,'0') + 'h' + String(d.getMinutes()).padStart(2,'0');
+    var dd = Math.max(0, Math.floor(dif/864e5)), hh = Math.max(0, Math.floor(dif/36e5) % 24), mm = Math.max(0, Math.floor(dif/6e4) % 60);
+    document.getElementById('fc-d').textContent = dd; document.getElementById('fc-h').textContent = hh; document.getElementById('fc-m').textContent = String(mm).padStart(2,'0');
+    var A = ATR[emailAtual], lista = document.getElementById('foco-lista');
+    var itens = !A ? [] : (packAtual >= 2 ? ['Olhar antes de receber (2 vezes)', 'Reação nos 3 segundos após a perda'] : ['Olhar antes de receber']);
+    lista.innerHTML = itens.length ? itens.map(function(t){ return '<div></div>'; }).join('') : '<p class="sub" style="margin:0">A tua primeira análise vai dizer-te onde focar.</p>';
+    lista.querySelectorAll('div').forEach(function(el, i){ el.textContent = itens[i]; });
+    document.getElementById('foco-link').hidden = !(A && packAtual >= 2);
+  }
+  setInterval(function(){ if (!document.getElementById('s-inicio').hidden) renderFoco(); }, 30000);
+  document.getElementById('foco-mudar').addEventListener('click', function(){
+    var ed = document.getElementById('foco-edit'), d = lerJogo(); ed.hidden = !ed.hidden;
+    var loc = new Date(d.getTime() - d.getTimezoneOffset()*6e4); document.getElementById('foco-dt').value = loc.toISOString().slice(0,16);
+  });
+  document.getElementById('foco-ok').addEventListener('click', function(){
+    var v = document.getElementById('foco-dt').value; if (!v) return;
+    try { localStorage.setItem('fiq-jogo:' + emailAtual, new Date(v).toISOString()); } catch(e){}
+    document.getElementById('foco-edit').hidden = true; renderFoco(); toast('Próximo jogo guardado. Bom jogo!');
+  });
+
+  // Momentos do jogo
+  var MOM = [
+    {m:7, t:'bom', a:'Receção orientada', d:'Olhaste antes de receber e rodaste logo para a frente.', s:15},
+    {m:18, t:'mel', a:'Reação à perda', d:'Depois de perderes a bola ficaste parado. Nos 3 segundos seguintes, pressiona logo.', s:62},
+    {m:31, t:'bom', a:'Passe a romper linhas', d:'Passe entre o médio e o central deles a encontrar o avançado.', s:110},
+    {m:44, t:'mel', a:'Olhar antes de receber', d:'Recebeste de costas sem olhar e tiveste de devolver a bola para trás.', s:165},
+    {m:63, t:'bom', a:'Apoio frontal', d:'Deste linha de passe ao colega com bola, de frente para o jogo.', s:240},
+    {m:78, t:'mel', a:'Posição sem bola', d:'Ficaste na mesma linha do adversário e o passe não te chegou.', s:330}
+  ];
+  var momSel = 0;
+  function renderMomentos(filtro){
+    var tr = document.getElementById('mom-track');
+    tr.querySelectorAll('.mom-m').forEach(function(b){ b.remove(); });
+    MOM.forEach(function(x, i){
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'mom-m ' + x.t + (filtro && filtro !== 'todos' && filtro !== x.t ? ' fora' : '');
+      b.style.left = (x.m/90*100) + '%'; b.style.animationDelay = (i*70) + 'ms'; b.textContent = x.m + "'";
+      b.setAttribute('aria-label', x.m + ' minutos: ' + x.a); b.setAttribute('aria-pressed', i === momSel ? 'true' : 'false');
+      b.addEventListener('click', function(){ momSel = i; vibra(); renderMomentos(filtro); });
+      tr.appendChild(b);
+    });
+    var x = MOM[momSel], sel = document.getElementById('mom-sel');
+    sel.innerHTML = '<div class="ms-top"><span class="ms-min"></span><span class="pill ' + (x.t === 'bom' ? 'on' : 'off') + '">' + (x.t === 'bom' ? 'Fazes bem' : 'A melhorar') + '</span></div><b></b><p></p><button type="button">▶ Ver no vídeo</button>';
+    sel.querySelector('.ms-min').textContent = x.m + "'"; sel.querySelector('b').textContent = x.a; sel.querySelector('p').textContent = x.d;
+    sel.querySelector('button').addEventListener('click', function(){ if (window.__fiqTocar) window.__fiqTocar(x.s); });
+    sel.style.animation = 'none'; void sel.offsetWidth; sel.style.animation = '';
+  }
+  var momFiltro = 'todos';
+  document.querySelectorAll('[data-mf]').forEach(function(b){ b.addEventListener('click', function(){
+    momFiltro = b.dataset.mf; document.querySelectorAll('[data-mf]').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+    if (momFiltro !== 'todos' && MOM[momSel].t !== momFiltro){ for (var i = 0; i < MOM.length; i++) if (MOM[i].t === momFiltro){ momSel = i; break; } }
+    renderMomentos(momFiltro);
+  }); });
+  renderMomentos('todos');
+
+  // Mapa de ação
+  var MAPA = {
+    com: [{x:58,y:38,b:1,a:"Receção orientada · 7'"},{x:66,y:52,b:1,a:"Passe a romper linhas · 31'"},{x:52,y:60,b:0,a:"Recebeste de costas · 44'"},{x:74,y:34,b:1,a:"Condução para o espaço · 52'"},{x:47,y:44,b:0,a:"Passe para trás sem necessidade · 58'"},{x:62,y:70,b:1,a:"Apoio frontal · 63'"},{x:80,y:50,b:1,a:"Último passe · 71'"}],
+    sem: [{x:44,y:50,b:1,a:"Recuperação · 12'"},{x:38,y:38,b:0,a:"Reação à perda tardia · 18'"},{x:52,y:28,b:1,a:"Pressão ao portador · 26'"},{x:40,y:66,b:1,a:"Cobertura ao lateral · 49'"},{x:56,y:56,b:0,a:"Posição sem bola · 78'"}]
+  };
+  function renderMapa(tipo){
+    var c = document.getElementById('mapa-campo');
+    c.querySelectorAll('.mc-dot,.mc-heat').forEach(function(e){ e.remove(); });
+    var L = MAPA[tipo], cx = 0, cy = 0;
+    L.forEach(function(p){ cx += p.x; cy += p.y; });
+    var h = document.createElement('span'); h.className = 'mc-heat'; h.style.left = (cx/L.length) + '%'; h.style.top = (cy/L.length) + '%'; c.appendChild(h);
+    L.forEach(function(p, i){
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'mc-dot ' + (p.b ? 'b' : 'm');
+      b.style.left = p.x + '%'; b.style.top = p.y + '%'; b.style.animationDelay = (150 + i*80) + 'ms';
+      b.setAttribute('aria-label', p.a); b.setAttribute('aria-pressed', 'false'); b.innerHTML = '<i></i>';
+      b.addEventListener('click', function(){ c.querySelectorAll('.mc-dot').forEach(function(x){ x.setAttribute('aria-pressed', 'false'); }); b.setAttribute('aria-pressed', 'true'); document.getElementById('mapa-cap').textContent = (p.b ? '✓ ' : '✕ ') + p.a; vibra(); });
+      c.appendChild(b);
+    });
+    document.getElementById('mapa-cap').textContent = 'Toca num ponto para ver a ação.';
+  }
+  document.querySelectorAll('[data-mp]').forEach(function(b){ b.addEventListener('click', function(){
+    document.querySelectorAll('[data-mp]').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); renderMapa(b.dataset.mp);
+  }); });
+  renderMapa('com');
+
+  // Lance explicado
+  var LX = [['Olha antes de receber','Antes de a bola chegar, olhas à volta e vês o espaço livre à direita.'],['O passe chega','Como já olhaste, sabes o que vais fazer quando a bola chega.'],['Receção orientada','O primeiro toque leva-te para o espaço, longe da pressão.']];
+  var lxPasso = 1, lxT = null;
+  function passoLx(n){ lxPasso = Math.min(3, Math.max(1, n)); document.getElementById('lx').dataset.step = lxPasso; document.getElementById('lx-passo').textContent = 'Passo ' + lxPasso + ' de 3'; document.getElementById('lx-acao').textContent = LX[lxPasso-1][0]; document.getElementById('lx-leg').textContent = LX[lxPasso-1][1]; }
+  document.getElementById('lx-ant').addEventListener('click', function(){ clearTimeout(lxT); passoLx(lxPasso - 1); });
+  document.getElementById('lx-seg').addEventListener('click', function(){ clearTimeout(lxT); passoLx(lxPasso + 1); });
+  document.getElementById('lx-play').addEventListener('click', function(){
+    clearTimeout(lxT); passoLx(1); vibra();
+    lxT = setTimeout(function(){ passoLx(2); lxT = setTimeout(function(){ passoLx(3); }, 2600); }, 2600);
+  });
+
+  // Nível, XP e conquistas
+  var XP_INI = {'tiago@exemplo.pt':{xp:290,k:{perfil:1,evolucao:1}}, 'rui@exemplo.pt':{xp:520,k:{perfil:1,'ver-un':1,duvida:1,evolucao:1}}};
+  function xpLer(){ try { var v = localStorage.getItem('fiq-xp:' + emailAtual); if (v) return JSON.parse(v); } catch(e){} var b = XP_INI[emailAtual]; return b ? JSON.parse(JSON.stringify(b)) : {xp:0,k:{}}; }
+  function xpGuardar(st){ try { localStorage.setItem('fiq-xp:' + emailAtual, JSON.stringify(st)); } catch(e){} }
+  var POR_NIVEL = 150;
+  function nivelDe(xp){ return Math.floor(xp/POR_NIVEL) + 1; }
+  function darXP(n, motivo, chave){
+    var st = xpLer(); if (chave && st.k[chave]) return;
+    var antes = nivelDe(st.xp); st.xp += n; if (chave) st.k[chave] = 1; xpGuardar(st);
+    var f = document.getElementById('xp-float'); f.textContent = '+' + n + ' XP · ' + motivo; f.hidden = false; f.style.animation = 'none'; void f.offsetWidth; f.style.animation = '';
+    clearTimeout(f._t); f._t = setTimeout(function(){ f.hidden = true; }, 1900);
+    if (nivelDe(st.xp) > antes) setTimeout(function(){ toast('Subiste para o nível ' + nivelDe(st.xp) + '!'); vibra(); }, 1200);
+    renderNivel();
+  }
+  var BADGES = [['perfil','✓','Perfil completo','Preenche o teu perfil'],['ver-un','▶','1.ª análise','Abre uma análise'],['desafio3','◎','Olhos de analista','3 desafios certos seguidos'],['plano','★','Semana cumprida','Cumpre o plano da semana'],['duvida','?','Curioso','Pergunta ao analista'],['app','↓','Sempre à mão','Instala a app'],['pack4','4','Pack completo','Conclui um pack de 4'],['evolucao','↗','Em evolução','+5 num atributo']];
+  function renderNivel(){
+    var st = xpLer(), nv = nivelDe(st.xp), dentro = st.xp % POR_NIVEL, pct = Math.round(dentro/POR_NIVEL*100);
+    var np = document.getElementById('nivel-pill'); if (np){ np.querySelector('.np-n').textContent = 'Nível ' + nv; document.getElementById('np-bar').style.width = pct + '%'; }
+    var pcn = document.getElementById('pc-nivel'); if (pcn) pcn.textContent = 'Nível ' + nv;
+    var pn = document.getElementById('pf-nivel'); if (pn){ pn.textContent = 'Nível ' + nv; document.getElementById('pf-xpt').textContent = st.xp + ' XP · faltam ' + (POR_NIVEL - dentro) + ' para o nível ' + (nv + 1); setTimeout(function(){ document.getElementById('pf-xpbar').style.width = pct + '%'; }, 60); }
+    var bx = document.getElementById('badges');
+    if (bx){ bx.innerHTML = BADGES.map(function(b){ var on = !!st.k[b[0]]; return '<div class="bdg' + (on ? ' on' : '') + '"><span aria-hidden="true">' + (on ? b[1] : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>') + '</span><b>' + b[2] + '</b><small>' + (on ? 'Conquistado' : b[3]) + '</small></div>'; }).join(''); }
+  }
+  if (window.matchMedia && (matchMedia('(display-mode: standalone)').matches || navigator.standalone === true)) setTimeout(function(){ darXP(30, 'App instalada', 'app'); }, 1500);
 
   // interruptor
   var sw = document.getElementById('aviso');
