@@ -396,6 +396,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
 .seg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;background:var(--card2);border-radius:12px;padding:4px}
 .seg3 button{min-height:42px;border:none;border-radius:9px;background:transparent;color:var(--muted);font:800 13px var(--body);cursor:pointer}
 .seg3 button[aria-pressed="true"]{background:var(--gold);color:#111}
+.an-nome{font-size:13px;font-weight:800;color:var(--muted);margin-bottom:4px}
 .note{font-size:12px;color:var(--dim);text-align:center;line-height:1.5}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001s!important;animation-delay:0s!important;animation-iteration-count:1!important;transition:none!important}}
 </style>
@@ -847,7 +848,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     <a class="iconbtn" href="#analises" aria-label="Voltar às análises">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
     </a>
-    <div><div class="eyebrow"><span class="nome-pack">Pro</span> · 26 outubro</div><h1 style="font-size:28px">vs. União <em>Norte</em></h1></div>
+    <div><div class="an-nome" id="an-nome">Sessão 2 · Tiago M.</div><div class="eyebrow"><span class="nome-pack">Pro</span> · <span id="an-data">26 outubro</span></div><h1 style="font-size:28px" id="an-titulo">vs. União <em>Norte</em></h1></div>
     <div class="video-wrap" id="yt-wrap">
     <button class="video" id="yt-btn" type="button" aria-label="Ver o vídeo dos teus lances">
       <svg class="board" viewBox="0 0 350 196" preserveAspectRatio="xMidYMid slice" aria-hidden="true" fill="none">
@@ -1365,9 +1366,9 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
 
   // lista de análises
   var dados = [
-    {dia:'9',mes:'NOV',jogo:'vs. Atlético B',nivel:'Pro',det:'sessão 3 do pack',estado:'Em análise',on:true,link:'#estado'},
-    {dia:'26',mes:'OUT',jogo:'vs. União Norte',nivel:'Pro',det:'relatório + vídeo',estado:'Concluída',link:'#analise'},
-    {dia:'12',mes:'OUT',jogo:'vs. Desportivo Sul',nivel:'Pro',det:'relatório + vídeo',estado:'Concluída',link:'#analise'},
+    {dia:'9',mes:'NOV',jogo:'vs. Atlético B',nivel:'Pro',det:'Sessão 3',estado:'Em análise',on:true,link:'#estado'},
+    {dia:'26',mes:'OUT',jogo:'vs. União Norte',nivel:'Pro',det:'Sessão 2',estado:'Concluída',link:'#analise'},
+    {dia:'12',mes:'OUT',jogo:'vs. Desportivo Sul',nivel:'Pro',det:'Sessão 1',estado:'Concluída',link:'#analise'},
     {dia:'28',mes:'SET',jogo:'vs. Académico FC',nivel:'Performance',det:'relatório + vídeo',estado:'Concluída',link:'#analise'}
   ];
   function desenhar(f){
@@ -1480,12 +1481,17 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
 
   // ===== Vídeo (YouTube não listado) e links de transferência =====
   (function(){
-    var ANALISE = 'tiago|vs. União Norte';
+    var ANALISE = 'tiago|un';
     var dados = null;
     try { dados = (JSON.parse(localStorage.getItem('fiq-demo-links') || '{}'))[ANALISE] || null; } catch(e){}
     function ytId(u){ var m = String(u||'').match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{11})/); return m ? m[1] : ''; }
     function https(u){ try { return new URL(u).protocol === 'https:'; } catch(e){ return false; } }
     var podeIncorporar = /github\.io$|fieldiqcm\.com$|pages\.dev$|^localhost$/.test(location.hostname);
+    if (dados){
+      if (dados.nome) document.getElementById('an-nome').textContent = dados.nome;
+      if (dados.jogo) document.getElementById('an-titulo').textContent = dados.jogo;
+      if (dados.data) document.getElementById('an-data').textContent = dados.data;
+    }
     var id = dados ? ytId(dados.yt) : '';
     document.getElementById('yt-btn').addEventListener('click', function(){
       if (!id){ toast('Aqui abre o vídeo dos teus lances (YouTube não listado).'); return; }
