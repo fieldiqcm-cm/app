@@ -15,6 +15,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preload" href="assets/fonts/playfair-display-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/mulish-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<script>(function(){try{var t=localStorage.getItem('fiq-tema')||'escuro';if(t!=='auto')document.documentElement.setAttribute('data-theme',t==='claro'?'light':'dark');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 <style>
 @font-face{font-family:'Playfair Display';font-style:normal;font-weight:700;font-display:swap;src:url(assets/fonts/playfair-display-latin-700-normal.woff2) format('woff2')}
 @font-face{font-family:'Playfair Display';font-style:italic;font-weight:600;font-display:swap;src:url(assets/fonts/playfair-display-latin-600-italic.woff2) format('woff2')}
@@ -27,16 +28,35 @@ img{max-width:100%}
 .phone{padding-top:env(safe-area-inset-top,0px)}
 .instalar{display:flex;align-items:center;gap:12px;background:#C9A453;border:none;border-radius:14px;padding:12px 14px;color:#111;text-align:left;cursor:pointer;width:100%;font:inherit;box-shadow:0 8px 24px rgba(201,164,83,.25)}
 .instalar #instalar-txt{color:#3A2E14!important}
-.inst-pill{display:flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:99px;border:none;background:#C9A453;color:#111;font:800 13px Mulish,sans-serif;cursor:pointer}
+.inst-pill{margin-left:auto;margin-right:8px;display:flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:99px;border:none;background:#C9A453;color:#111;font:800 13px Mulish,sans-serif;cursor:pointer}
 .instalar img{width:36px;height:36px;border-radius:9px}
 /* Layout: um telemóvel ao centro (moldura em ecrãs largos, ecrã inteiro no telemóvel); ecrãs trocados por #hash; barra de navegação em baixo. Quadros táticos animados no estilo dos stories. */
 :root{
-  --bg:#0A0A09; --app:#111111; --card:#1A1917; --line:#2E2A25; --line2:#3A3631;
+  --bg:#0A0A09; --app:#111111; --card:#1A1917; --card2:#24221F; --line0:#2A2723; --line:#2E2A25; --line2:#3A3631;
+  --nav:#151412; --side:#141312; --sel:#1F1D1A;
   --fg:#F2EEE2; --muted:#B8B2A4; --dim:#8F897C;
   --gold:#C9A453; --gold2:#E2C27A; --beje:#E8E0D3; --ink:#1B1815; --cobre:#8A4F24; --red:#D45B4C; --mate:#8F897C;
+  --beje-muted:#4A433B; --beje-lbl:#6B5F52; --beje-line:#CFC4B3; --erro:#F0A296;
   --display:'Playfair Display', Georgia, serif; --body:Mulish, system-ui, sans-serif;
   color-scheme:dark;
 }
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
+  --bg:#E4DDD0; --app:#F6F2EA; --card:#FFFFFF; --card2:#F0EADF; --line0:#E5DCCD; --line:#E0D6C5; --line2:#CDBFA9;
+  --nav:#FFFFFF; --side:#FBF8F2; --sel:#F0EADF;
+  --fg:#1B1815; --muted:#4F473E; --dim:#6E6457;
+  --gold:#B8923D; --gold2:#8A6A1F; --beje:#EBE1CD; --beje-line:#D6C8AE; --erro:#A33A2C;
+  color-scheme:light; } }
+:root[data-theme="light"]{
+  --bg:#E4DDD0; --app:#F6F2EA; --card:#FFFFFF; --card2:#F0EADF; --line0:#E5DCCD; --line:#E0D6C5; --line2:#CDBFA9;
+  --nav:#FFFFFF; --side:#FBF8F2; --sel:#F0EADF;
+  --fg:#1B1815; --muted:#4F473E; --dim:#6E6457;
+  --gold:#B8923D; --gold2:#8A6A1F; --beje:#EBE1CD; --beje-line:#D6C8AE; --erro:#A33A2C;
+  color-scheme:light;
+}
+:root[data-theme="dark"]{ color-scheme:dark; }
+/* "ecrãs" (capa, quadros, vídeo) ficam sempre escuros, nos dois modos */
+.intro,.qboard,.video-wrap,.vid,.campo-mini{--fg:#F2EEE2;--muted:#B8B2A4;--dim:#8F897C;--gold:#C9A453;--gold2:#E2C27A;--card:#1A1917;--card2:#24221F;--line0:#2A2723;--line:#2E2A25;--line2:#3A3631;color:var(--fg)}
+.phone,.scroll,.card,.toast,nav.tabs{transition:background-color .3s ease,color .3s ease,border-color .3s ease}
 html,body{height:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px}
 *{box-sizing:border-box}
@@ -62,8 +82,8 @@ h1 em{font-style:italic;font-weight:600;color:var(--gold2)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;color:var(--fg);text-decoration:none;display:block}
 .beje{background:var(--beje);color:var(--ink);border-radius:16px;padding:18px;display:block;text-decoration:none}
 .pill{font-size:11px;font-weight:800;border-radius:99px;padding:4px 10px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
-.pill.on{background:var(--gold2);color:#111}
-.pill.off{background:#2A2723;color:var(--muted)}
+.pill.on{background:var(--gold);color:#111}
+.pill.off{background:var(--line0);color:var(--muted)}
 .pill.ink{background:var(--ink);color:var(--gold2)}
 .pulse{width:7px;height:7px;border-radius:4px;background:#111;animation:pulsa 1.4s ease-in-out infinite}
 @keyframes pulsa{0%,100%{opacity:1}50%{opacity:.25}}
@@ -77,13 +97,13 @@ h1 em{font-style:italic;font-weight:600;color:var(--gold2)}
 .between{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .mark{width:28px;height:28px;flex-shrink:0;border-radius:14px;background:var(--ink);color:var(--gold2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
-.lbl{font-size:11px;font-weight:800;letter-spacing:1.2px;color:#6B5F52;text-transform:uppercase}
+.lbl{font-size:11px;font-weight:800;letter-spacing:1.2px;color:var(--beje-lbl);text-transform:uppercase}
 .wordmark{font-family:var(--display);font-weight:700;font-size:19px}
 .wordmark span{color:var(--gold2)}
 .textbtn{background:none;border:none;color:var(--dim);font-weight:800;font-size:12px;letter-spacing:1px;cursor:pointer;min-height:44px;padding:0 4px;text-transform:uppercase}
 
 /* nav */
-nav.tabs{flex-shrink:0;border-top:1px solid #2A2723;background:#151412;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+nav.tabs{flex-shrink:0;border-top:1px solid var(--line0);background:var(--nav);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
   padding-bottom:max(8px, env(safe-area-inset-bottom,0px));padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
 nav.tabs a{height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-decoration:none;color:var(--dim);font-size:11px;font-weight:800}
 nav.tabs a[aria-current="page"]{color:var(--gold2)}
@@ -120,7 +140,7 @@ nav.tabs a[aria-current="page"]{color:var(--gold2)}
 /* cena 3: relatório + vídeo */
 .mock{position:absolute;border-radius:12px;box-shadow:0 14px 30px rgba(0,0,0,.55)}
 .rep{width:140px;height:156px;left:12%;top:4px;background:var(--beje);padding:14px;display:flex;flex-direction:column;gap:7px;transform:rotate(-5deg)}
-.rep .l{height:6px;border-radius:3px;background:#CFC4B3}
+.rep .l{height:6px;border-radius:3px;background:var(--beje-line)}
 .rep .t{font-family:var(--display);font-weight:700;color:var(--ink);font-size:14px}
 .rep .bars{display:flex;align-items:flex-end;gap:6px;height:54px;margin-top:4px}
 .rep .bars i{flex:1;background:var(--cobre);border-radius:2px}
@@ -129,7 +149,7 @@ nav.tabs a[aria-current="page"]{color:var(--gold2)}
 .vid .lt{position:absolute;left:8px;bottom:7px;font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--gold2)}
 /* cena 4: sessão */
 .call{width:100%;max-width:300px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.tile{height:76px;border-radius:12px;background:#1A1917;border:1px solid var(--line2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--muted)}
+.tile{height:76px;border-radius:12px;background:var(--card);border:1px solid var(--line2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--muted)}
 .tile .av{width:34px;height:34px;border-radius:17px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:700}
 .bub{grid-column:1 / -1;background:var(--beje);color:var(--ink);border-radius:14px 14px 14px 4px;padding:8px 12px;font-size:12px;font-weight:600;line-height:1.35}
 /* cena 5: evolução */
@@ -171,7 +191,7 @@ nav.tabs a[aria-current="page"]{color:var(--gold2)}
 .count.tick{animation:slam .5s cubic-bezier(.2,1.6,.4,1)}
 @keyframes slam{0%{transform:scale(1.8);opacity:0}100%{transform:scale(1);opacity:1}}
 .opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.opt{height:52px;border-radius:12px;border:1px solid var(--line2);background:#24221F;color:var(--fg);font-family:var(--display);font-weight:700;font-size:22px;cursor:pointer}
+.opt{height:52px;border-radius:12px;border:1px solid var(--line2);background:var(--card2);color:var(--fg);font-family:var(--display);font-weight:700;font-size:22px;cursor:pointer}
 .opt.certa{background:var(--gold);color:#111;border-color:var(--gold)}
 .opt.errada{border-color:var(--red);color:var(--red)}
 .opt[disabled]{cursor:default}
@@ -183,7 +203,7 @@ nav.tabs a[aria-current="page"]{color:var(--gold2)}
 .chip{height:36px;padding:0 14px;border-radius:99px;font-size:13px;font-weight:800;cursor:pointer;background:var(--card);color:var(--muted);border:1px solid var(--line2)}
 .chip[aria-pressed="true"]{background:var(--gold);color:#111;border-color:var(--gold)}
 .item{display:flex;gap:14px;align-items:center;padding:14px;animation:entra .35s ease-out both}
-.date{width:56px;height:56px;flex-shrink:0;border-radius:12px;background:#24221F;border:1px solid var(--line2);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.date{width:56px;height:56px;flex-shrink:0;border-radius:12px;background:var(--card2);border:1px solid var(--line2);display:flex;flex-direction:column;align-items:center;justify-content:center}
 .date b{font-family:var(--display);font-size:20px;line-height:1}
 .date small{font-size:10px;font-weight:800;letter-spacing:1px;color:var(--gold)}
 /* video */
@@ -214,22 +234,22 @@ nav.tabs a[aria-current="page"]{color:var(--gold2)}
 .slot.done{background:var(--gold);color:#111}
 .slot.now{border:2px solid var(--gold2);color:var(--gold2)}
 .slot.free{border:2px dashed var(--line2);color:var(--dim)}
-.meter{height:6px;border-radius:3px;background:#CFC4B3;overflow:hidden}
+.meter{height:6px;border-radius:3px;background:var(--beje-line);overflow:hidden}
 .meter div{height:6px;background:var(--cobre);transition:width .6s ease}
 .slot{transition:background .3s,border-color .3s,color .3s;text-align:center;line-height:1.3}
 .slot.next{border:2px solid var(--gold2);color:var(--gold2)}
 .legenda{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--dim);font-weight:800}
 .legenda span{display:flex;align-items:center;gap:6px}
 .legenda i{width:12px;height:12px;border-radius:3px;box-sizing:border-box;display:inline-block}
-.hist{margin-top:12px;padding-top:10px;border-top:1px solid #CFC4B3;display:flex;flex-direction:column;gap:6px;font-size:13px;color:#4A433B;font-variant-numeric:tabular-nums}
+.hist{margin-top:12px;padding-top:10px;border-top:1px solid var(--beje-line);display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--beje-muted);font-variant-numeric:tabular-nums}
 .demo{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px dashed var(--line2);border-radius:12px;padding:8px 10px}
 .demo-lbl{font-size:10px;font-weight:800;letter-spacing:1.4px;color:var(--dim);text-transform:uppercase}
 .demo .iconbtn{font-size:20px;font-weight:800}
-.pill.ok{background:#2A2723;color:var(--gold2)}
+.pill.ok{background:var(--line0);color:var(--gold2)}
 .toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%);background:var(--beje);color:var(--ink);font-weight:800;font-size:13px;padding:10px 16px;border-radius:99px;box-shadow:0 8px 24px rgba(0,0,0,.4);white-space:nowrap;z-index:5}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .ou{display:flex;align-items:center;gap:12px;color:var(--dim);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px}
-.ou::before,.ou::after{content:"";flex:1;height:1px;background:#2A2723}
+.ou::before,.ou::after{content:"";flex:1;height:1px;background:var(--line0)}
 .pw{position:relative}
 .pw .input{padding-right:64px}
 .olho{position:absolute;right:4px;top:4px;height:44px;min-width:52px;border:none;background:none;color:var(--gold2);font-weight:800;font-size:13px;cursor:pointer}
@@ -251,32 +271,32 @@ nav.tabs a[aria-current="page"]{color:var(--gold2)}
 .lock span{font-size:12px;line-height:1.45}
 .plano{display:flex;flex-direction:column;gap:6px;margin-top:10px}
 .pl-tit{font-size:11px;font-weight:800;letter-spacing:1.4px;color:var(--gold);text-transform:uppercase;margin-top:6px}
-.pl-item{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:12px;background:#24221F;cursor:pointer;font-size:14px;font-weight:600}
+.pl-item{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:12px;background:var(--card2);cursor:pointer;font-size:14px;font-weight:600}
 .pl-item input{width:20px;height:20px;accent-color:#C9A453;flex-shrink:0}
 .pl-item:has(input:checked) span{color:var(--dim);text-decoration:line-through}
-.vcomp{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 12px;border-radius:12px;background:#24221F;border:1px solid var(--line2);color:var(--fg);cursor:pointer;width:100%}
+.vcomp{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 12px;border-radius:12px;background:var(--card2);border:1px solid var(--line2);color:var(--fg);cursor:pointer;width:100%}
 .vcomp b{display:block;font-size:14px}
 .vcomp small{display:block;font-size:12px;color:var(--dim);margin-top:2px}
 .vplay{width:32px;height:32px;border-radius:16px;background:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .novo{font-size:10px;font-weight:800;letter-spacing:1px;color:#111;background:var(--gold2);border-radius:99px;padding:3px 8px;text-transform:uppercase}
 .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
-.stats div{background:#24221F;border-radius:12px;padding:12px}
+.stats div{background:var(--card2);border-radius:12px;padding:12px}
 .stats b{display:block;font-family:var(--display);font-size:26px;color:var(--gold2);font-variant-numeric:tabular-nums}
 .stats span{font-size:12px;color:var(--muted);font-weight:600}
 .evo2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:end;height:130px;margin-top:12px}
 .evo2 div{display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
-.evo2 b{width:100%;border-radius:6px 6px 2px 2px;background:#3A3631}
+.evo2 b{width:100%;border-radius:6px 6px 2px 2px;background:var(--line2)}
 .evo2 b.ult{background:linear-gradient(#E2C27A,#8C6A22)}
 .evo2 em{font-style:normal;font-family:var(--display);font-weight:700;font-size:15px}
 .evo2 span{font-size:11px;font-weight:800;color:var(--dim)}
-.erro{margin:0;font-size:13px;line-height:1.45;color:#F0A296;background:rgba(212,91,76,.12);border:1px solid rgba(212,91,76,.5);border-radius:12px;padding:10px 12px}
+.erro{margin:0;font-size:13px;line-height:1.45;color:var(--erro);background:rgba(212,91,76,.12);border:1px solid rgba(212,91,76,.5);border-radius:12px;padding:10px 12px}
 .thread{display:flex;flex-direction:column;gap:10px}
 .msg{max-width:86%;border-radius:16px;padding:10px 14px;font-size:14px;line-height:1.45}
 .msg small{display:block;font-size:11px;margin-top:6px;opacity:.7}
 .msg .sobre{display:block;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px;opacity:.75}
 .msg.eu{align-self:flex-end;background:var(--gold);color:#111;border-bottom-right-radius:4px}
 .msg.ele{align-self:flex-start;background:var(--beje);color:var(--ink);border-bottom-left-radius:4px}
-.composer{display:flex;flex-direction:column;gap:10px;margin-top:auto;padding-top:8px;border-top:1px solid #2A2723}
+.composer{display:flex;flex-direction:column;gap:10px;margin-top:auto;padding-top:8px;border-top:1px solid var(--line0)}
 textarea.input{height:auto;padding:12px 16px;resize:none;line-height:1.4}
 .demo-faixa{position:absolute;left:0;right:0;top:0;z-index:7;display:flex;align-items:center;gap:8px;padding:6px 10px;padding-top:calc(6px + env(safe-area-inset-top,0px));background:#E8E0D3;color:#1B1815;font-size:11px;font-weight:800;letter-spacing:.4px}
 .demo-faixa > span{text-transform:uppercase;letter-spacing:1.4px;color:#8A4F24}
@@ -292,13 +312,14 @@ body.em-demo .screen .scroll{padding-top:56px}
   .phone{max-width:none;height:100%;min-height:0;border-radius:0;border:none;box-shadow:none;display:grid;grid-template-columns:240px minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
   .screen{grid-row:1;grid-column:1 / -1;min-height:0}
   .phone:has(#tabs:not([hidden])) .screen{grid-column:2}
-  nav.tabs{grid-row:1;grid-column:1;display:flex;flex-direction:column;gap:4px;border-top:none;border-right:1px solid #2A2723;padding:28px 14px;background:#141312}
+  nav.tabs{grid-row:1;grid-column:1;display:flex;flex-direction:column;gap:4px;border-top:none;border-right:1px solid var(--line0);padding:28px 14px;background:var(--side)}
   nav.tabs a{flex-direction:row;justify-content:flex-start;height:48px;padding:0 14px;gap:12px;font-size:14px;border-radius:12px}
-  nav.tabs a:hover{background:#1A1917;color:var(--fg)}
-  nav.tabs a[aria-current="page"]{background:#1F1D1A}
+  nav.tabs a:hover{background:var(--card);color:var(--fg)}
+  nav.tabs a[aria-current="page"]{background:var(--sel)}
   .side-brand{display:flex;align-items:center;gap:10px;padding:0 10px 22px;font-family:var(--display);font-weight:700;font-size:20px;color:var(--fg)}
   .side-brand b{color:var(--gold2)}
-  .side-brand img{border-radius:18px}
+  .side-brand .sb-em{width:36px;height:36px;border-radius:18px;border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:14px}
+  .side-brand .sb-em span{color:var(--gold2)}
   .scroll{width:100%;max-width:820px;margin:0 auto;padding:40px 48px 48px}
   h1{font-size:36px}
   /* início e análise em duas colunas */
@@ -327,9 +348,54 @@ body.em-demo .screen .scroll{padding-top:56px}
 .dl{display:flex;align-items:center;gap:10px;min-height:60px;padding:10px 12px;border-radius:14px;background:var(--card);border:1px solid var(--line);color:var(--fg);text-decoration:none}
 .dl b{display:block;font-size:14px}
 .dl small{display:block;font-size:11px;color:var(--muted);margin-top:2px;line-height:1.3}
-.dl-ic{width:36px;height:36px;border-radius:10px;background:#24221F;color:var(--gold2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dl-ic{width:36px;height:36px;border-radius:10px;background:var(--card2);color:var(--gold2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .dl.exp{opacity:.55}
-.note.exp{color:#F0A296}
+.note.exp{color:var(--erro)}
+.tema-btn .ico-lua{display:none}
+.tema-btn.claro .ico-sol{display:none}.tema-btn.claro .ico-lua{display:block}
+.ini-perfil{display:inline-block;margin-top:6px;font-size:13px;font-weight:700;color:var(--muted);text-decoration:none}
+.ini-perfil:hover{color:var(--gold2)}
+.nov{display:flex;flex-direction:column;gap:6px}
+.nov-it{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 10px;margin:0 -6px;border-radius:12px;color:var(--fg);text-decoration:none;animation:entra .4s ease-out both}
+.nov-it:nth-of-type(2){animation-delay:.08s}.nov-it:nth-of-type(3){animation-delay:.16s}
+.nov-it:hover{background:var(--card2)}
+.nov-ic{width:34px;height:34px;border-radius:17px;background:var(--card2);color:var(--gold2);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+.nov-tx{flex:1;min-width:0}.nov-tx b{display:block;font-size:14px}.nov-tx small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.nov-seta{color:var(--gold2);font-weight:800;transition:transform .2s}.nov-it:hover .nov-seta{transform:translateX(3px)}
+.cp-step{display:flex;flex-direction:column;gap:16px;animation:entra .35s ease-out}
+.cp-f{display:flex;flex-direction:column;gap:6px}
+.cp-l{font-size:12px;font-weight:800;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase}
+.opc{font-weight:600;text-transform:none;letter-spacing:0;color:var(--dim)}
+.idade{font-size:13px;font-weight:800;color:var(--gold2);min-height:18px}
+.alt-row{display:flex;align-items:center;justify-content:space-between}
+.alt-v{font-size:14px;color:var(--muted);font-weight:700}.alt-v b{font-family:var(--display);font-size:44px;line-height:1;color:var(--fg);font-variant-numeric:tabular-nums}
+.alt-btns{display:flex;gap:8px}.alt-btns .iconbtn{font-size:20px;font-weight:800}
+input[type=range]{width:100%;accent-color:var(--gold);height:32px}
+.campo-mini{position:relative;width:100%;max-width:360px;align-self:center;aspect-ratio:4/5;border-radius:16px;background:#0C0C0B;border:1px solid #2E2A25;overflow:hidden}
+.campo-mini::before{content:"";position:absolute;inset:14px;border:1px solid rgba(201,164,83,.25);border-radius:4px;background:linear-gradient(transparent calc(50% - .5px),rgba(201,164,83,.25) calc(50% - .5px),rgba(201,164,83,.25) calc(50% + .5px),transparent calc(50% + .5px))}
+.campo-mini::after{content:"";position:absolute;left:50%;top:50%;width:70px;height:70px;transform:translate(-50%,-50%);border:1px solid rgba(201,164,83,.25);border-radius:50%}
+.pos-btn{position:absolute;z-index:1;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:5px;min-width:72px;min-height:48px;background:none;border:none;color:#B8B2A4;font:800 11px var(--body);cursor:pointer;letter-spacing:.3px}
+.pos-btn i{width:18px;height:18px;border-radius:9px;background:#8F897C;transition:transform .2s,background .2s,box-shadow .2s}
+.pos-btn:hover i{transform:scale(1.15)}
+.pos-btn[aria-pressed="true"]{color:#E2C27A}
+.pos-btn[aria-pressed="true"] i{background:#C9A453;transform:scale(1.25);box-shadow:0 0 0 7px rgba(226,194,122,.22)}
+.pos-sel{text-align:center;font-weight:800;color:var(--gold2);min-height:20px}
+.cp-menor{display:flex;flex-direction:column}
+.cp-ok{align-items:stretch;min-height:60vh}
+.ok-big{width:96px;height:96px;border-radius:48px;background:var(--gold);color:#111;font-size:46px;font-weight:800;display:flex;align-items:center;justify-content:center;align-self:center;margin-top:24px;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
+.cp-resumo{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.cp-resumo span{font-size:12px;font-weight:800;border-radius:99px;padding:6px 12px;background:var(--card2);color:var(--fg)}
+.pf-top{display:flex;align-items:center;gap:16px}
+.pf-av{width:68px;height:68px;border-radius:34px;background:var(--gold);color:#111;font:700 24px var(--display);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pf-grid div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.pf-grid b{display:block;font-family:var(--display);font-size:20px}
+.pf-grid span{font-size:11px;font-weight:800;letter-spacing:1px;color:var(--dim);text-transform:uppercase}
+.pf-grid .larga{grid-column:1 / -1}
+.seg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;background:var(--card2);border-radius:12px;padding:4px}
+.seg3 button{min-height:42px;border:none;border-radius:9px;background:transparent;color:var(--muted);font:800 13px var(--body);cursor:pointer}
+.seg3 button[aria-pressed="true"]{background:var(--gold);color:#111}
 .note{font-size:12px;color:var(--dim);text-align:center;line-height:1.5}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001s!important;animation-delay:0s!important;animation-iteration-count:1!important;transition:none!important}}
 </style>
@@ -347,6 +413,7 @@ body.em-demo .screen .scroll{padding-top:56px}
         <div class="wordmark" style="font-size:20px">Field<span>IQ</span></div>
       </div>
       <button class="inst-pill" id="instalar-top" type="button" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Instalar app</button>
+      <button class="iconbtn tema-btn" type="button" data-tema-toggle aria-label="Mudar para modo claro"><svg class="ico-sol" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="ico-lua" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
     </div>
 
     <div class="intro-text">
@@ -557,19 +624,109 @@ body.em-demo .screen .scroll{padding-top:56px}
   </div>
 </div>
 
+<!-- 1d COMPLETAR PERFIL (1.º login) -->
+<section class="screen" id="s-completar" data-screen="completar" hidden>
+  <div class="scroll" style="gap:16px">
+    <div class="between"><span class="demo-lbl" id="cp-passo">Passo 1 de 3</span><button class="textbtn" id="cp-voltar" type="button" hidden>← Voltar</button></div>
+    <div class="capbar3" id="cp-barra"><span class="on"></span><span></span><span></span></div>
+
+    <div class="cp-step" id="cp-1">
+      <div><div class="eyebrow">O teu perfil</div><h1>Vamos conhecer-te, <em class="cp-nome-h">jogador</em>.</h1><p class="sub" style="margin:8px 0 0">Leva 1 minuto. Ajuda o analista a preparar a tua análise.</p></div>
+      <div class="cp-f"><label class="cp-l" for="cp-nome">Nome</label><input class="input" id="cp-nome" autocomplete="name" placeholder="O teu nome"></div>
+      <div class="cp-f"><label class="cp-l" for="cp-nasc">Data de nascimento</label><input class="input" id="cp-nasc" type="date"><span class="idade" id="cp-idade" aria-live="polite"></span></div>
+      <div class="cp-f"><label class="cp-l" for="cp-alt">Altura</label>
+        <div class="alt-row"><span class="alt-v"><b id="cp-alt-v">170</b> cm</span><div class="alt-btns"><button class="iconbtn" type="button" data-alt="-1" aria-label="Menos 1 cm">−</button><button class="iconbtn" type="button" data-alt="1" aria-label="Mais 1 cm">+</button></div></div>
+        <input id="cp-alt" type="range" min="130" max="210" value="170" aria-describedby="cp-alt-v"></div>
+      <div class="cp-f"><span class="cp-l" id="cp-pe-l">Pé preferido</span><div class="chips" role="group" aria-labelledby="cp-pe-l"><button class="chip" type="button" data-pe="Direito" aria-pressed="false">Direito</button><button class="chip" type="button" data-pe="Esquerdo" aria-pressed="false">Esquerdo</button><button class="chip" type="button" data-pe="Os dois" aria-pressed="false">Os dois</button></div></div>
+      <p class="erro" id="cp-e1" role="alert" hidden></p>
+      <button class="btn gold" type="button" data-cp-next="2">Continuar</button>
+    </div>
+
+    <div class="cp-step" id="cp-2" hidden>
+      <div><div class="eyebrow">Em campo</div><h1>Onde <em>jogas</em>?</h1><p class="sub" style="margin:8px 0 0">Toca na tua posição.</p></div>
+      <div class="campo-mini" role="group" aria-label="Escolher posição"><button class="pos-btn" type="button" data-pos="Avançado" aria-pressed="false" style="left:50%;top:13%"><i></i>Avançado</button><button class="pos-btn" type="button" data-pos="Extremo" aria-pressed="false" style="left:18%;top:26%"><i></i>Extremo</button><button class="pos-btn" type="button" data-pos="Interior" aria-pressed="false" style="left:72%;top:38%"><i></i>Interior</button><button class="pos-btn" type="button" data-pos="Médio" aria-pressed="false" style="left:40%;top:55%"><i></i>Médio</button><button class="pos-btn" type="button" data-pos="Lateral" aria-pressed="false" style="left:16%;top:72%"><i></i>Lateral</button><button class="pos-btn" type="button" data-pos="Defesa central" aria-pressed="false" style="left:58%;top:82%"><i></i>Defesa central</button></div>
+      <div class="pos-sel" id="cp-pos-v" aria-live="polite">Ainda não escolheste</div>
+      <div class="cp-f"><label class="cp-l" for="cp-clube">Clube</label><input class="input" id="cp-clube" placeholder="Ex.: GD Exemplo"></div>
+      <div class="cp-f"><span class="cp-l" id="cp-esc-l">Escalão</span><div class="chips" role="group" aria-labelledby="cp-esc-l"><button class="chip" type="button" data-esc="Sub-13" aria-pressed="false">Sub-13</button><button class="chip" type="button" data-esc="Sub-15" aria-pressed="false">Sub-15</button><button class="chip" type="button" data-esc="Sub-17" aria-pressed="false">Sub-17</button><button class="chip" type="button" data-esc="Sub-19" aria-pressed="false">Sub-19</button><button class="chip" type="button" data-esc="Sénior" aria-pressed="false">Sénior</button></div></div>
+      <div class="cp-f"><label class="cp-l" for="cp-num">Número da camisola <span class="opc">(opcional)</span></label><input class="input" id="cp-num" type="number" min="1" max="99" inputmode="numeric" placeholder="Ex.: 8" style="max-width:140px"></div>
+      <p class="erro" id="cp-e2" role="alert" hidden></p>
+      <button class="btn gold" type="button" data-cp-next="3">Continuar</button>
+    </div>
+
+    <div class="cp-step" id="cp-3" hidden>
+      <div><div class="eyebrow">Objetivo</div><h1>O que queres <em>conseguir</em>?</h1><p class="sub" style="margin:8px 0 0">Escolhe o mais importante para ti esta época.</p></div>
+      <div class="chips" role="group" aria-label="Objetivo principal"><button class="chip" type="button" data-obj="Ser titular" aria-pressed="false">Ser titular</button><button class="chip" type="button" data-obj="Subir de escalão" aria-pressed="false">Subir de escalão</button><button class="chip" type="button" data-obj="Chegar a um clube maior" aria-pressed="false">Chegar a um clube maior</button><button class="chip" type="button" data-obj="Decidir melhor em jogo" aria-pressed="false">Decidir melhor em jogo</button><button class="chip" type="button" data-obj="Voltar de lesão" aria-pressed="false">Voltar de lesão</button></div>
+      <div class="cp-f"><span class="cp-l" id="cp-orig-l">Como conheceste a FieldIQ?</span><div class="chips" role="group" aria-labelledby="cp-orig-l"><button class="chip" type="button" data-orig="Instagram" aria-pressed="false">Instagram</button><button class="chip" type="button" data-orig="Um colega" aria-pressed="false">Um colega</button><button class="chip" type="button" data-orig="Treinador ou clube" aria-pressed="false">Treinador ou clube</button><button class="chip" type="button" data-orig="Outro" aria-pressed="false">Outro</button></div></div>
+      <div class="card cp-menor" id="cp-menor" hidden>
+        <div class="eyebrow" style="letter-spacing:1.6px">Encarregado de educação</div>
+        <p class="sub" style="margin:6px 0 12px">Como tens menos de 18 anos, precisamos do contacto e da autorização de um encarregado de educação.</p>
+        <div class="cp-f"><label class="cp-l" for="cp-ee-nome">Nome</label><input class="input" id="cp-ee-nome" placeholder="Nome do encarregado"></div>
+        <div class="cp-f" style="margin-top:10px"><label class="cp-l" for="cp-ee-cont">Email ou telemóvel</label><input class="input" id="cp-ee-cont" placeholder="email@exemplo.pt ou 9xx xxx xxx"></div>
+        <label class="pl-item" style="margin-top:12px;align-items:flex-start;padding:12px"><input type="checkbox" id="cp-aut" style="margin-top:2px"><span style="font-size:13px">O encarregado de educação autoriza que a FieldIQ use as imagens dos jogos <strong>só para esta análise privada</strong>.</span></label>
+        <label class="pl-item" style="margin-top:8px;align-items:flex-start;padding:12px"><input type="checkbox" id="cp-redes" style="margin-top:2px"><span style="font-size:13px">Podem pedir-nos autorização para usar algum lance nas redes da FieldIQ, sem nome nem cara. <span class="opc">(opcional)</span></span></label>
+      </div>
+      <p class="erro" id="cp-e3" role="alert" hidden></p>
+      <button class="btn gold" type="button" id="cp-fim">Concluir perfil</button>
+    </div>
+
+    <div class="cp-step cp-ok" id="cp-4" hidden>
+      <div class="ok-big" aria-hidden="true">✓</div>
+      <h1 style="text-align:center">Perfil <em>pronto</em>!</h1>
+      <div class="cp-resumo" id="cp-resumo"></div>
+      <p class="sub" style="text-align:center;margin:0">O analista já tem o que precisa para preparar a tua análise.</p>
+      <button class="btn gold" type="button" id="cp-entrar" style="margin-top:auto">Entrar na app</button>
+    </div>
+  </div>
+</section>
+
+<!-- PERFIL -->
+<section class="screen" id="s-perfil" data-screen="perfil" hidden>
+  <div class="scroll">
+    <div class="pf-top">
+      <span class="pf-av" id="pf-av">TM</span>
+      <div style="min-width:0"><h1 style="margin:0" id="pf-nome">Tiago</h1><div class="sub" id="pf-sub">Médio · GD Exemplo</div></div>
+    </div>
+    <div class="pf-grid" id="pf-grid"></div>
+    <a class="btn ghost" href="#completar" id="pf-editar">Editar perfil</a>
+    <div class="card" id="pf-ee" hidden><div class="eyebrow" style="letter-spacing:1.6px">Encarregado de educação</div><div style="margin-top:8px;font-weight:800" id="pf-ee-nome"></div><div class="sub" id="pf-ee-cont"></div><div class="sub" id="pf-ee-aut" style="margin-top:6px"></div></div>
+    <div class="card">
+      <div class="eyebrow" style="letter-spacing:1.6px">Aparência</div>
+      <div class="seg3" role="group" aria-label="Aparência" style="margin-top:12px">
+        <button type="button" data-tema="auto" aria-pressed="false">Automático</button>
+        <button type="button" data-tema="claro" aria-pressed="false">Claro</button>
+        <button type="button" data-tema="escuro" aria-pressed="false">Escuro</button>
+      </div>
+      <p class="note" style="margin:10px 0 0">Automático segue o modo do teu telemóvel ou computador.</p>
+    </div>
+    <button class="btn ghost" type="button" id="pf-sair">Sair</button>
+    <p class="note" style="margin:0;text-align:center">Os teus dados só são vistos por ti e pelo analista.</p>
+  </div>
+</section>
+
 <!-- 2 INÍCIO -->
 <section class="screen" id="s-inicio" data-screen="inicio" hidden>
   <div class="scroll">
     <div class="between">
       <div class="wordmark">Field<span>IQ</span></div>
+      <div class="row" style="gap:8px">
+      <button class="iconbtn tema-btn" type="button" data-tema-toggle aria-label="Mudar para modo claro"><svg class="ico-sol" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="ico-lua" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
       <button class="iconbtn" aria-label="Notificações" data-toast="Sem notificações novas">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
         <span style="position:absolute;top:10px;right:11px;width:8px;height:8px;border-radius:4px;background:var(--gold2)"></span>
       </button>
+      </div>
     </div>
     <div>
       <div class="sub" id="hoje">Sábado, 14 de novembro</div>
-      <h1>Olá, <em>Tiago</em></h1>
+      <h1>Olá, <em id="ini-nome">Tiago</em></h1>
+      <a class="ini-perfil" href="#perfil" id="ini-perfil">Médio · GD Exemplo · Sub-15</a>
+    </div>
+
+    <div class="card nov">
+      <div class="between"><span class="eyebrow" style="letter-spacing:1.8px">Novidades</span><span class="pill on" id="nov-n">3 novas</span></div>
+      <a class="nov-it" href="#duvidas"><span class="nov-ic">?</span><span class="nov-tx"><b>O analista respondeu à tua dúvida</b><small>vs. União Norte · lance 07</small></span><span class="nov-seta" aria-hidden="true">→</span></a>
+      <a class="nov-it" href="#analise" data-min="2"><span class="nov-ic">▶</span><span class="nov-tx"><b>Novo vídeo da semana</b><small>Exemplo: olhar antes de receber</small></span><span class="nov-seta" aria-hidden="true">→</span></a>
+      <a class="nov-it" href="#estado"><span class="nov-ic">◷</span><span class="nov-tx"><b>A tua análise está a ser feita</b><small>vs. Atlético B · pronta até 17 nov</small></span><span class="nov-seta" aria-hidden="true">→</span></a>
     </div>
 
     <a class="card" href="#estado">
@@ -651,7 +808,7 @@ body.em-demo .screen .scroll{padding-top:56px}
       <div class="beje" style="padding:16px">
         <div class="eyebrow cobre" style="letter-spacing:1.6px">Próxima sessão</div>
         <div class="serif" style="margin-top:8px;font-size:20px">Por marcar</div>
-        <div style="font-size:12px;color:#4A433B">quando o relatório ficar pronto</div>
+        <div style="font-size:12px;color:var(--beje-muted)">quando o relatório ficar pronto</div>
       </div>
     </div>
 
@@ -716,7 +873,7 @@ body.em-demo .screen .scroll{padding-top:56px}
     </div>
     <p class="note" id="dl-validade" style="margin:0">Links de transferência disponíveis até 26 nov (exemplo).</p>
     <div class="card row" style="padding:12px 14px" hidden>
-      <div style="width:40px;height:40px;border-radius:10px;background:#24221F;display:flex;align-items:center;justify-content:center;color:var(--gold2)">
+      <div style="width:40px;height:40px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;color:var(--gold2)">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 14h8M8 17h5"/></svg>
       </div>
       <div style="flex:1"><div style="font-weight:800">Relatório individual</div><div style="font-size:12px;color:var(--muted)">PDF · 17 páginas</div></div>
@@ -843,7 +1000,7 @@ body.em-demo .screen .scroll{padding-top:56px}
       <div class="tl"><div class="rail"><span class="dot"></span></div><div class="txt"><div class="t later">Concluída</div><div class="s">Fica no teu histórico</div></div></div>
     </div>
     <div class="beje row" style="padding:14px 16px">
-      <div style="flex:1"><div style="font-weight:800" id="lbl-aviso">Avisa-me quando estiver pronto</div><div style="font-size:12px;color:#4A433B">Notificação no telemóvel</div></div>
+      <div style="flex:1"><div style="font-weight:800" id="lbl-aviso">Avisa-me quando estiver pronto</div><div style="font-size:12px;color:var(--beje-muted)">Notificação no telemóvel</div></div>
       <button class="switch" id="aviso" role="switch" aria-checked="true" aria-labelledby="lbl-aviso"><span></span></button>
     </div>
     <p class="note" style="margin-top:auto">Dúvidas sobre esta análise? <a href="#duvidas" style="font-weight:800;text-decoration:none">Envia-nos mensagem</a></p>
@@ -907,7 +1064,7 @@ body.em-demo .screen .scroll{padding-top:56px}
           <div><div class="eyebrow cobre" style="letter-spacing:1.6px">Sessão Pro · vs. Atlético B</div><div class="serif" style="font-size:22px;margin-top:4px">70 €</div></div>
           <span class="pill ink" id="ind-pill">Por pagar</span>
         </div>
-        <div style="font-size:13px;color:#4A433B;margin-top:8px" id="ind-txt">Podes pagar até ao dia da sessão.</div>
+        <div style="font-size:13px;color:var(--beje-muted);margin-top:8px" id="ind-txt">Podes pagar até ao dia da sessão.</div>
         <button class="btn ink" id="ind-btn" style="margin-top:12px;height:48px" type="button">Pagar 70 € · MB WAY ou Multibanco</button>
       </div>
       <div class="card between" style="padding:14px 16px">
@@ -922,11 +1079,11 @@ body.em-demo .screen .scroll{padding-top:56px}
 </section>
 
 <nav class="tabs" id="tabs" aria-label="Navegação principal" hidden>
-  <div class="side-brand"><img src="assets/icons/emblema-96.png" width="36" height="36" alt=""><span>Field<b>IQ</b></span></div>
+  <div class="side-brand"><span class="sb-em" aria-hidden="true">F<span>iQ</span></span><span>Field<b>IQ</b></span></div>
   <a href="#inicio" data-tab="inicio"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>Início</a>
   <a href="#analises" data-tab="analises"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg>Análises</a>
   <a href="#pack" data-tab="pack"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>Plano</a>
-  <a href="#entrada" data-tab="entrada"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Perfil</a>
+  <a href="#perfil" data-tab="perfil"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Perfil</a>
 </nav>
 
 <div class="demo-faixa" id="demo-faixa" hidden>
@@ -945,8 +1102,8 @@ body.em-demo .screen .scroll{padding-top:56px}
 <script>
 (function(){
   var vemDaRecuperacao = false;
-  var ecras = ['entrada','ativar','recuperar','inicio','analises','analise','duvidas','estado','pack'];
-  var tabDe = {inicio:'inicio',analises:'analises',analise:'analises',duvidas:'analises',estado:'inicio',pack:'pack'};
+  var ecras = ['entrada','ativar','recuperar','completar','perfil','inicio','analises','analise','duvidas','estado','pack'];
+  var tabDe = {inicio:'inicio',analises:'analises',analise:'analises',duvidas:'analises',estado:'inicio',pack:'pack',perfil:'perfil'};
   var intro = document.getElementById('intro');
 
   // capa: o que é a FieldIQ, em 5 cenas
@@ -1010,7 +1167,9 @@ body.em-demo .screen .scroll{padding-top:56px}
     if (ecras.indexOf(h) < 0) h = 'entrada';
     document.querySelectorAll('.screen').forEach(function(s){ s.hidden = s.dataset.screen !== h; });
     var tabs = document.getElementById('tabs');
-    tabs.hidden = (h === 'entrada' || h === 'ativar' || h === 'recuperar');
+    tabs.hidden = (h === 'entrada' || h === 'ativar' || h === 'recuperar' || h === 'completar');
+    if (h === 'completar' && typeof abrirCompletar === 'function') abrirCompletar();
+    if (h === 'perfil' && typeof mostrarPerfil === 'function') mostrarPerfil();
     tabs.querySelectorAll('a').forEach(function(a){
       if (a.dataset.tab === tabDe[h]) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
     });
@@ -1067,7 +1226,7 @@ body.em-demo .screen .scroll{padding-top:56px}
     document.getElementById('demo-faixa').hidden = !on;
   }
   document.getElementById('demo-entrar').addEventListener('click', function(){
-    poeDemo(true); entrarComo(CONTAS['tiago@exemplo.pt']);
+    poeDemo(true); entrarComo(CONTAS['tiago@exemplo.pt'], 'tiago@exemplo.pt');
     document.querySelectorAll('[data-dp]').forEach(function(x){ x.setAttribute('aria-pressed', x.dataset.dp === '2' ? 'true' : 'false'); });
   });
   document.querySelectorAll('[data-dp]').forEach(function(b){
@@ -1078,7 +1237,10 @@ body.em-demo .screen .scroll{padding-top:56px}
   });
   document.getElementById('demo-sair').addEventListener('click', function(){ poeDemo(false); location.hash = 'entrada'; });
   // contas de exemplo: email -> pack (1 Performance, 2 Pro, 3 Elite). A conta de gestão abre o painel.
-  var CONTAS = {'tiago@exemplo.pt':{pack:2,nome:'Tiago'}, 'rui@exemplo.pt':{pack:3,nome:'Rui'}, 'bruno@exemplo.pt':{pack:1,nome:'Bruno'}};
+  var CONTAS = {
+    'tiago@exemplo.pt':{pack:2,nome:'Tiago',perfil:{nome:'Tiago M.',nasc:'2011-03-14',alt:168,pe:'Direito',pos:'Médio',clube:'GD Exemplo',esc:'Sub-15',num:'8',obj:'Ser titular',orig:'Instagram',ee:{nome:'Ana M.',cont:'ana@exemplo.pt'},aut:true,redes:false}},
+    'rui@exemplo.pt':{pack:3,nome:'Rui',perfil:{nome:'Rui S.',nasc:'2004-07-02',alt:186,pe:'Esquerdo',pos:'Defesa central',clube:'Clube Exemplo FC',esc:'Sénior',num:'4',obj:'Chegar a um clube maior',orig:'Um colega'}},
+    'bruno@exemplo.pt':{pack:1,nome:'Bruno',perfil:null}};
   var GESTAO = ['fieldiqcm@gmail.com'];
   var packEscolhido = 0, contaAtual = CONTAS['tiago@exemplo.pt'];
   document.querySelectorAll('[data-lp]').forEach(function(b){
@@ -1088,10 +1250,13 @@ body.em-demo .screen .scroll{padding-top:56px}
       document.getElementById('login-erro').hidden = true;
     });
   });
-  function entrarComo(conta){
-    contaAtual = conta; poePack(conta.pack);
-    document.querySelectorAll('h1 em').forEach(function(el){ if (el.textContent === 'Tiago') el.textContent = conta.nome; });
-    location.hash = 'inicio';
+  var emailAtual = 'tiago@exemplo.pt';
+  function lerPerfil(em){ try { var v = localStorage.getItem('fiq-perfil:' + em); if (v) return JSON.parse(v); } catch(e){} return CONTAS[em] ? CONTAS[em].perfil : null; }
+  function entrarComo(conta, em){
+    contaAtual = conta; emailAtual = em || 'tiago@exemplo.pt'; poePack(conta.pack);
+    var pf = lerPerfil(emailAtual);
+    if (!pf){ location.hash = 'completar'; return; }
+    mostrarSaudacao(pf); location.hash = 'inicio';
   }
   document.getElementById('f-login').addEventListener('submit', function(e){
     e.preventDefault();
@@ -1103,7 +1268,7 @@ body.em-demo .screen .scroll{padding-top:56px}
     if (!conta){ falha('Não encontramos uma conta com este email. A app FieldIQ é só para clientes: a conta é criada pelo analista quando marcas a tua análise.'); return; }
     if (!packEscolhido){ falha('Escolhe o teu pack: Performance, Pro ou Elite.'); return; }
     if (packEscolhido !== conta.pack){ falha('Este email não tem o pack ' + nomesPack[packEscolhido] + '. Confirma o pack que marcaste ou fala com o analista.'); return; }
-    erro.hidden = true; guardarConta(em); poeDemo(false); entrarComo(conta);
+    erro.hidden = true; guardarConta(em); poeDemo(false); entrarComo(conta, em);
   });
   document.getElementById('email').addEventListener('input', function(){ document.getElementById('login-erro').hidden = true; });
   document.querySelectorAll('[data-olho]').forEach(function(b){
@@ -1135,9 +1300,9 @@ body.em-demo .screen .scroll{padding-top:56px}
   document.getElementById('np2').addEventListener('input', validar);
   document.getElementById('at-guardar').addEventListener('click', function(){ toast('Palavra-passe guardada'); passoAtivar(3); });
   document.getElementById('at-bio').addEventListener('click', function(){
-    verificar(bioNome + ' ativado', function(){ location.hash = 'inicio'; });
+    verificar(bioNome + ' ativado', function(){ location.hash = 'completar'; });
   });
-  document.getElementById('at-saltar').addEventListener('click', function(){ location.hash = 'inicio'; });
+  document.getElementById('at-saltar').addEventListener('click', function(){ location.hash = 'completar'; });
 
   // Recuperar palavra-passe
   document.getElementById('f-rec').addEventListener('submit', function(e){
@@ -1347,6 +1512,120 @@ body.em-demo .screen .scroll{padding-top:56px}
       else nota.textContent = 'Descarrega o vídeo e o relatório para os guardares.';
     }
   })();
+
+  // ===== Tema: automático / claro / escuro =====
+  function temaPref(){ try { return localStorage.getItem('fiq-tema') || 'escuro'; } catch(e){ return 'escuro'; } }
+  function temaEfetivo(){ var a = document.documentElement.getAttribute('data-theme'); if (a) return a; return window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; }
+  function aplicaTema(pref){
+    try { localStorage.setItem('fiq-tema', pref); } catch(e){}
+    var r = document.documentElement;
+    if (pref === 'auto') r.removeAttribute('data-theme'); else r.setAttribute('data-theme', pref === 'claro' ? 'light' : 'dark');
+    var claro = temaEfetivo() === 'light';
+    document.querySelectorAll('[data-tema-toggle]').forEach(function(b){ b.classList.toggle('claro', claro); b.setAttribute('aria-label', claro ? 'Mudar para modo escuro' : 'Mudar para modo claro'); });
+    document.querySelectorAll('[data-tema]').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.tema === pref ? 'true' : 'false'); });
+    var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', claro ? '#F6F2EA' : '#111111');
+  }
+  document.querySelectorAll('[data-tema-toggle]').forEach(function(b){ b.addEventListener('click', function(){ aplicaTema(temaEfetivo() === 'dark' ? 'claro' : 'escuro'); toast(temaEfetivo() === 'light' ? 'Modo claro' : 'Modo escuro'); }); });
+  document.querySelectorAll('[data-tema]').forEach(function(b){ b.addEventListener('click', function(){ aplicaTema(b.dataset.tema); }); });
+  if (window.matchMedia){ var mq = matchMedia('(prefers-color-scheme: light)'); var cb = function(){ if (temaPref() === 'auto') aplicaTema('auto'); }; if (mq.addEventListener) mq.addEventListener('change', cb); else if (mq.addListener) mq.addListener(cb); }
+  aplicaTema(temaPref());
+
+  // ===== Perfil do jogador =====
+  var MESES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  function idadeDe(n){ if (!n) return null; var d = new Date(n + 'T12:00:00'); if (isNaN(d)) return null; var h = new Date(), a = h.getFullYear() - d.getFullYear(); if (h.getMonth() < d.getMonth() || (h.getMonth() === d.getMonth() && h.getDate() < d.getDate())) a--; return a; }
+  function iniciais(n){ return String(n||'?').trim().split(/\s+/).map(function(x){ return x.charAt(0); }).join('').slice(0,2).toUpperCase(); }
+  function mostrarSaudacao(pf){
+    document.getElementById('ini-nome').textContent = String(pf.nome||'').split(' ')[0] || 'jogador';
+    var bits = [pf.pos, pf.clube, pf.esc].filter(Boolean);
+    document.getElementById('ini-perfil').textContent = bits.join(' · ');
+  }
+  var cp = {};
+  function cpEscolhe(attr, val){ cp[attr] = val; document.querySelectorAll('[data-' + attr + ']').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset[attr] === val ? 'true' : 'false'); }); }
+  ['pe','esc','obj','orig'].forEach(function(attr){ document.querySelectorAll('[data-' + attr + ']').forEach(function(b){ b.addEventListener('click', function(){ cpEscolhe(attr, b.dataset[attr]); }); }); });
+  document.querySelectorAll('[data-pos]').forEach(function(b){ b.addEventListener('click', function(){ cpEscolhe('pos', b.dataset.pos); document.getElementById('cp-pos-v').textContent = 'Posição: ' + b.dataset.pos; }); });
+  var alt = document.getElementById('cp-alt');
+  function mostraAlt(){ document.getElementById('cp-alt-v').textContent = alt.value; }
+  alt.addEventListener('input', mostraAlt);
+  document.querySelectorAll('[data-alt]').forEach(function(b){ b.addEventListener('click', function(){ alt.value = Math.min(210, Math.max(130, +alt.value + (+b.dataset.alt))); mostraAlt(); }); });
+  function atualizaIdade(){
+    var a = idadeDe(document.getElementById('cp-nasc').value), el = document.getElementById('cp-idade');
+    el.textContent = a === null ? '' : (a + ' anos' + (a < 18 ? ' · no fim pedimos os dados do encarregado de educação' : ''));
+    document.getElementById('cp-menor').hidden = !(a !== null && a < 18);
+  }
+  document.getElementById('cp-nasc').addEventListener('input', atualizaIdade);
+  document.getElementById('cp-nome').addEventListener('input', function(){ document.querySelectorAll('.cp-nome-h').forEach(function(e){ e.textContent = (document.getElementById('cp-nome').value.split(' ')[0] || 'jogador'); }); });
+  var cpPasso = 1;
+  function passoCp(n){
+    cpPasso = n;
+    [1,2,3,4].forEach(function(i){ document.getElementById('cp-' + i).hidden = i !== n; });
+    document.getElementById('cp-passo').textContent = n <= 3 ? 'Passo ' + n + ' de 3' : 'Concluído';
+    document.querySelectorAll('#cp-barra span').forEach(function(sp, i){ sp.className = i < n ? 'on' : ''; });
+    document.getElementById('cp-voltar').hidden = !(n === 2 || n === 3);
+    var sc = document.querySelector('#s-completar .scroll'); if (sc) sc.scrollTop = 0;
+  }
+  function erroCp(n, t){ var e = document.getElementById('cp-e' + n); e.textContent = t; e.hidden = !t; }
+  function abrirCompletar(){
+    var pf = lerPerfil(emailAtual) || {}; cp = {};
+    document.getElementById('cp-nome').value = pf.nome || (contaAtual && contaAtual.nome) || '';
+    document.querySelectorAll('.cp-nome-h').forEach(function(e){ e.textContent = (document.getElementById('cp-nome').value.split(' ')[0] || 'jogador'); });
+    document.getElementById('cp-nasc').value = pf.nasc || '';
+    alt.value = pf.alt || 170; mostraAlt();
+    ['pe','esc','obj','orig','pos'].forEach(function(k){ cpEscolhe(k, pf[k] || ''); });
+    document.getElementById('cp-pos-v').textContent = pf.pos ? 'Posição: ' + pf.pos : 'Ainda não escolheste';
+    document.getElementById('cp-clube').value = pf.clube || '';
+    document.getElementById('cp-num').value = pf.num || '';
+    document.getElementById('cp-ee-nome').value = (pf.ee && pf.ee.nome) || '';
+    document.getElementById('cp-ee-cont').value = (pf.ee && pf.ee.cont) || '';
+    document.getElementById('cp-aut').checked = !!pf.aut; document.getElementById('cp-redes').checked = !!pf.redes;
+    atualizaIdade(); [1,2,3].forEach(function(i){ erroCp(i, ''); }); passoCp(1);
+  }
+  document.getElementById('cp-voltar').addEventListener('click', function(){ if (cpPasso > 1) passoCp(cpPasso - 1); });
+  document.querySelector('[data-cp-next="2"]').addEventListener('click', function(){
+    var nome = document.getElementById('cp-nome').value.trim(), a = idadeDe(document.getElementById('cp-nasc').value);
+    if (!nome) return erroCp(1, 'Escreve o teu nome.');
+    if (a === null || a < 6 || a > 50) return erroCp(1, 'Escolhe a tua data de nascimento.');
+    if (!cp.pe) return erroCp(1, 'Escolhe o teu pé preferido.');
+    erroCp(1, ''); passoCp(2);
+  });
+  document.querySelector('[data-cp-next="3"]').addEventListener('click', function(){
+    if (!cp.pos) return erroCp(2, 'Toca na tua posição no campo.');
+    if (!document.getElementById('cp-clube').value.trim()) return erroCp(2, 'Escreve o nome do teu clube.');
+    if (!cp.esc) return erroCp(2, 'Escolhe o teu escalão.');
+    erroCp(2, ''); passoCp(3);
+  });
+  document.getElementById('cp-fim').addEventListener('click', function(){
+    var nasc = document.getElementById('cp-nasc').value, a = idadeDe(nasc), menor = a !== null && a < 18;
+    if (!cp.obj) return erroCp(3, 'Escolhe o teu objetivo principal.');
+    var ee = {nome: document.getElementById('cp-ee-nome').value.trim(), cont: document.getElementById('cp-ee-cont').value.trim()};
+    if (menor && (!ee.nome || !ee.cont)) return erroCp(3, 'Falta o nome e o contacto do encarregado de educação.');
+    if (menor && !document.getElementById('cp-aut').checked) return erroCp(3, 'Falta a autorização do encarregado de educação.');
+    erroCp(3, '');
+    var pf = {nome: document.getElementById('cp-nome').value.trim(), nasc: nasc, alt: +alt.value, pe: cp.pe, pos: cp.pos, clube: document.getElementById('cp-clube').value.trim(), esc: cp.esc, num: document.getElementById('cp-num').value.trim(), obj: cp.obj, orig: cp.orig || '', ee: menor ? ee : null, aut: menor ? document.getElementById('cp-aut').checked : null, redes: document.getElementById('cp-redes').checked};
+    try { localStorage.setItem('fiq-perfil:' + emailAtual, JSON.stringify(pf)); } catch(e){}
+    if (CONTAS[emailAtual]) CONTAS[emailAtual].perfil = pf;
+    mostrarSaudacao(pf);
+    var res = document.getElementById('cp-resumo'); res.innerHTML = '';
+    [pf.pos, pf.clube, pf.esc, a + ' anos', pf.alt + ' cm', 'Pé ' + pf.pe.toLowerCase()].forEach(function(t){ var sp = document.createElement('span'); sp.textContent = t; res.appendChild(sp); });
+    passoCp(4);
+  });
+  document.getElementById('cp-entrar').addEventListener('click', function(){ location.hash = 'inicio'; });
+  function mostrarPerfil(){
+    var pf = lerPerfil(emailAtual) || {}, a = idadeDe(pf.nasc);
+    document.getElementById('pf-av').textContent = iniciais(pf.nome);
+    document.getElementById('pf-nome').textContent = pf.nome || 'Jogador';
+    document.getElementById('pf-sub').textContent = [pf.pos, pf.clube].filter(Boolean).join(' · ');
+    var g = document.getElementById('pf-grid'); g.innerHTML = '';
+    [['Idade', a !== null ? a + ' anos' : '—'], ['Altura', pf.alt ? pf.alt + ' cm' : '—'], ['Pé', pf.pe || '—'], ['Escalão', pf.esc || '—'], ['Camisola', pf.num ? 'Nº ' + pf.num : '—'], ['Pack', nomesPack[contaAtual ? contaAtual.pack : 2]], ['Objetivo', pf.obj || '—', true]].forEach(function(x){
+      var d = document.createElement('div'); if (x[2]) d.className = 'larga';
+      var sp = document.createElement('span'); sp.textContent = x[0]; var b = document.createElement('b'); b.textContent = x[1];
+      d.appendChild(sp); d.appendChild(b); g.appendChild(d);
+    });
+    var ee = document.getElementById('pf-ee');
+    if (pf.ee){ ee.hidden = false; document.getElementById('pf-ee-nome').textContent = pf.ee.nome; document.getElementById('pf-ee-cont').textContent = pf.ee.cont; document.getElementById('pf-ee-aut').textContent = pf.aut ? '✓ Autorização de imagem dada (só para a análise)' : 'Autorização de imagem em falta'; }
+    else ee.hidden = true;
+    aplicaTema(temaPref());
+  }
+  document.getElementById('pf-sair').addEventListener('click', function(){ poeDemo(false); location.hash = 'entrada'; toast('Sessão terminada'); });
 
   // interruptor
   var sw = document.getElementById('aviso');
