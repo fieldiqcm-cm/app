@@ -417,8 +417,10 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
 /* ===== cartão de jogador ===== */
 .pcard-wrap{perspective:1200px}
 .pcard{--m1:#E2C27A;--m2:#8C6A22;--m3:#C9A453;display:block;width:100%;height:268px;padding:2px;border:none;border-radius:22px;cursor:pointer;background:linear-gradient(135deg,var(--m2),var(--m1) 45%,var(--m2) 60%,var(--m1));text-align:left;color:#F2EEE2;font:inherit;box-shadow:0 16px 40px rgba(0,0,0,.35)}
-.pcard.bronze{--m1:#E0A372;--m2:#6B3A1C;--m3:#C98A5A}
-.pcard.platina{--m1:#EEF1F3;--m2:#5E666D;--m3:#C7CDD2}
+/* a carta é sempre dourada; só o selo do pack muda: latão (Performance), prata (Pro), ouro (Elite) */
+.pcard.latao .pc-metal{background:linear-gradient(90deg,#6E5520,#B89545 55%,#D8BC6E);color:#1B1508}
+.pcard.prata .pc-metal{background:linear-gradient(90deg,#6F767C,#C9CED2 55%,#F2F4F5);color:#15181A}
+.pcard.ouro .pc-metal{background:linear-gradient(90deg,#8C6A22,#E2C27A 55%,#F5DE9C);color:#1B1508}
 .pc-in{position:relative;display:block;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.3,1.3,.5,1)}
 .pcard.virado .pc-in{transform:rotateY(180deg)}
 .pc-face{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;padding:16px 18px;border-radius:20px;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;
@@ -1031,7 +1033,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     <div class="pcard-wrap">
       <div class="pcard ouro" id="pcard">
         <div class="pc-face pc-frente">
-          <span class="pc-top"><span class="pc-marca">FIELD<b>IQ</b></span><span class="pc-metal" id="pc-metal">OURO · PRO</span></span>
+          <span class="pc-top"><span class="pc-marca">FIELD<b>IQ</b></span><span class="pc-metal" id="pc-metal">PRATA · PRO</span></span>
           <span class="pc-mid">
             <span class="pc-num"><b id="pc-num">8</b><small id="pc-pos">MED</small></span>
             <span class="pc-foto" id="pc-foto" hidden></span><span class="pc-id"><b id="pc-nome">Tiago M.</b><small id="pc-clube">GD Exemplo · Sub-15</small></span>
@@ -2235,7 +2237,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     'rui@exemplo.pt': {at:[['Decisão',81],['Posição',86],['Receção',70],['Pressão',79],['Passe',77]], ant:[76,80,68,74,72]}
   };
   var ABREV = {'Defesa central':'DC','Lateral':'LAT','Médio':'MED','Interior':'INT','Extremo':'EXT','Avançado':'AV'};
-  var METAL = {1:['bronze','BRONZE · PERFORMANCE'],2:['ouro','OURO · PRO'],3:['platina','PLATINA · ELITE']};
+  var METAL = {1:['latao','LATÃO · PERFORMANCE'],2:['prata','PRATA · PRO'],3:['ouro','OURO · ELITE']};
   function radarSVG(at, ant, cor){
     var N = at.length, cx = 120, cy = 100, R = 70, pts = function(vals, k){ return vals.map(function(v, i){ var a = -Math.PI/2 + i*2*Math.PI/N, r = R*v/100*k; return (cx + r*Math.cos(a)).toFixed(1) + ',' + (cy + r*Math.sin(a)).toFixed(1); }).join(' '); };
     var g = '';
