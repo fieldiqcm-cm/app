@@ -578,12 +578,45 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
 @media (min-width:900px){
   .rs-wrap{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}
   .rs-dica{display:none}
-  #s-analise .an-resumo{grid-column:1 / -1}
   .hero,.hero-in{min-height:300px}
   #s-inicio .hero,#s-inicio .estado-tira{grid-column:1 / -1}
   .hero-campo{height:100%;width:62%;left:auto}
   .hero::after{background:linear-gradient(90deg,rgba(12,12,11,.95) 40%,rgba(12,12,11,.2) 75%)}
   .hero-nome{font-size:30px}
+}
+
+/* ===== análise em separadores (17/11) ===== */
+.an-tabs-wrap{display:flex;flex-direction:column;gap:14px;min-width:0}
+.an-tabs{position:sticky;top:0;z-index:4;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:16px;background:var(--card);border:1px solid var(--line);box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.an-tabs button{height:44px;border:0;border-radius:12px;background:transparent;color:var(--muted);font:800 12.5px var(--body);white-space:nowrap;padding:0 4px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:background .2s,color .2s}
+.an-tabs button[aria-selected="true"]{background:var(--gold);color:#111}
+.at-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--red);color:#fff;font-size:10px;line-height:18px}
+.an-tabs button[aria-selected="true"] .at-n{background:#111;color:var(--gold2)}
+.at-cad{display:inline-flex;opacity:.7}
+.at-cad svg{width:13px;height:13px}
+.at-painel{display:flex;flex-direction:column;gap:14px;animation:atEntra .28s ease-out}
+@keyframes atEntra{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.lock-grande{padding:18px;border-style:solid;background:var(--card)}
+.lock-grande b{font-size:15px}
+.pl-barra{height:8px;border-radius:4px;background:var(--line2);overflow:hidden;margin-top:10px}
+.pl-barra i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px;transition:width .5s cubic-bezier(.2,1.4,.4,1)}
+.pl-item{transition:transform .15s}
+.pl-item:active{transform:scale(.98)}
+.pl-item:has(input:checked){background:color-mix(in srgb,var(--gold) 14%,var(--card2))}
+.pl-feito{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--gold);color:#111;font-weight:800;animation:atEntra .3s ease-out}
+.fab-duv{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:6;display:inline-flex;align-items:center;gap:8px;height:52px;padding:0 18px 0 8px;border-radius:26px;background:var(--gold);color:#111;font-weight:800;font-size:14px;text-decoration:none;box-shadow:0 10px 28px rgba(0,0,0,.45)}
+.fab-ic{width:36px;height:36px;border-radius:50%;background:#111;color:var(--gold2);display:flex;align-items:center;justify-content:center;font-size:18px}
+.fab-n{min-width:20px;height:20px;border-radius:10px;background:var(--red);color:#fff;font-size:11px;line-height:20px;text-align:center;padding:0 6px}
+#s-analise .scroll{padding-bottom:96px}
+.toast{bottom:156px}
+@media (min-width:900px){ .toast{bottom:96px} }
+@media (min-width:900px){
+  #s-analise .an-tabs-wrap{grid-column:1 / -1}
+  #s-analise .an-tabs{max-width:560px}
+  #at-semana,#at-numeros{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+  #at-semana[hidden],#at-numeros[hidden]{display:none}
+  #at-semana .lock-grande,#at-numeros .lock-grande{grid-column:1 / -1}
+  .fab-duv{bottom:28px;right:32px}
 }
 </style>
 </head>
@@ -1084,8 +1117,15 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></svg>
       </button>
     </div>
+    <div class="an-tabs-wrap">
+      <div class="an-tabs" role="tablist" aria-label="Partes da análise">
+        <button type="button" role="tab" id="at-b-resumo" aria-controls="at-resumo" aria-selected="true" data-at="resumo">Resumo</button>
+        <button type="button" role="tab" id="at-b-semana" aria-controls="at-semana" aria-selected="false" data-at="semana">Esta semana<span class="at-n" data-min="2">1</span><span class="at-cad" data-lock="2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span></button>
+        <button type="button" role="tab" id="at-b-numeros" aria-controls="at-numeros" aria-selected="false" data-at="numeros">Números<span class="at-cad" data-lock="3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span></button>
+      </div>
+      <div class="at-painel" id="at-resumo" role="tabpanel" aria-labelledby="at-b-resumo">
     <div class="an-resumo">
-      <div class="between" style="margin-bottom:10px"><span class="eyebrow" style="letter-spacing:1.8px">Resumo do jogo</span><span class="rs-dica">Desliza →</span></div>
+      <div class="between" style="margin-bottom:10px"><span class="eyebrow" style="letter-spacing:1.8px">Os 3 pontos do jogo</span><span class="rs-dica">Desliza →</span></div>
       <div class="rs-wrap" id="rs-wrap">
         <div class="rs bom"><span class="rs-ic">✓</span><span class="rs-lbl">Fazes bem</span><b>Receção orientada</b><p>Quando olhas antes, o primeiro toque já te leva para a frente.</p></div>
         <div class="rs perde"><span class="rs-ic">✕</span><span class="rs-lbl">Onde perdes</span><b>Reação à perda</b><p>Depois de perderes a bola ficas parado. Os 3 segundos seguintes contam.</p></div>
@@ -1101,16 +1141,12 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     </div>
 
 
-    <a class="card row" href="#duvidas" style="padding:14px 16px">
-      <span class="mark" style="background:var(--gold);color:#111">?</span>
-      <span style="flex:1"><b style="display:block">Tens dúvidas sobre este jogo?</b><span style="font-size:12px;color:var(--muted)">Pergunta ao analista sobre um lance ou o relatório.</span></span>
-      <span class="pill on" id="duv-badge">1 resposta</span>
-    </a>
-
+      </div>
+      <div class="at-painel" id="at-semana" role="tabpanel" aria-labelledby="at-b-semana" hidden>
     <!-- PRO e ELITE: plano da semana -->
     <div class="card" data-min="2">
       <div class="between"><span class="eyebrow" style="letter-spacing:1.6px">Plano da semana</span><span class="sub" style="margin:0" id="pl-cont">0 de 4</span></div>
-      <div class="sub" style="margin-top:6px">Até ao próximo jogo. Marca quando sentires que trabalhaste.</div>
+      <div class="pl-barra" aria-hidden="true"><i id="pl-bar"></i></div><div class="sub" style="margin-top:6px">Até ao próximo jogo. Toca em cada ponto quando o trabalhares.</div>
       <div class="plano">
         <div class="pl-tit">Manter</div>
         <label class="pl-item"><input type="checkbox" id="pl1"><span>Receção orientada para a frente</span></label>
@@ -1120,19 +1156,20 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
         <label class="pl-item"><input type="checkbox" id="pl4"><span>Reação nos 3 segundos após a perda</span></label>
       </div>
     </div>
-    <div class="lock" data-lock="2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div><b>Plano da semana</b><span>O que manter e o que melhorar até ao próximo jogo. Disponível no Pro e no Elite.</span></div></div>
 
     <!-- PRO e ELITE: vídeos complementares -->
     <div class="card" data-min="2">
-      <div class="between"><span class="eyebrow" style="letter-spacing:1.6px">Esta semana</span><span class="pill on">1 novo</span></div>
+      <div class="between"><span class="eyebrow" style="letter-spacing:1.6px">Vídeos extra do analista</span><span class="pill on">1 novo</span></div>
       <div class="sub" style="margin-top:6px">Vídeos que o analista junta antes da próxima sessão.</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
         <button class="vcomp" type="button" data-toast="Aqui abre o vídeo complementar"><span class="vplay"><svg width="12" height="12" viewBox="0 0 24 24" fill="#111" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span style="flex:1;text-align:left"><b>Exemplo: olhar antes de receber</b><small>Médio profissional · 0:48 · ontem</small></span><span class="novo">Novo</span></button>
         <button class="vcomp" type="button" data-toast="Aqui abre o vídeo complementar"><span class="vplay"><svg width="12" height="12" viewBox="0 0 24 24" fill="#111" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span style="flex:1;text-align:left"><b>O teu lance 07, comentado</b><small>0:35 · 10 nov</small></span></button>
       </div>
     </div>
-    <div class="lock" data-lock="2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div><b>Vídeos complementares</b><span>Clips extra do analista durante a semana. Disponível no Pro e no Elite.</span></div></div>
 
+    <div class="lock lock-grande" data-lock="2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div><b>Esta semana, com o Pro ou o Elite</b><span>O plano do que manter e melhorar até ao próximo jogo, e vídeos extra que o analista junta durante a semana.</span></div></div>
+      </div>
+      <div class="at-painel" id="at-numeros" role="tabpanel" aria-labelledby="at-b-numeros" hidden>
     <!-- ELITE: estatísticas -->
     <div class="card" data-min="3">
       <span class="eyebrow" style="letter-spacing:1.6px">Estatísticas do jogo</span>
@@ -1143,7 +1180,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
         <div><b>78</b><span>Tomada de decisão</span></div>
       </div>
     </div>
-    <div class="lock" data-lock="3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div><b>Estatísticas do jogo</b><span>Os teus números de cada jogo. Disponível no Elite.</span></div></div>
 
     <!-- ELITE: evolução -->
     <div class="card" data-min="3">
@@ -1154,7 +1190,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
         <div><em>78</em><b style="height:80%" class="ult"></b><span>26 out</span></div>
       </div>
     </div>
-    <div class="lock" data-lock="3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div><b>A tua evolução</b><span>Gráficos jogo a jogo. Disponível no Elite.</span></div></div>
 
     <!-- ELITE: plano individual -->
     <div class="beje" data-min="3" style="padding:16px">
@@ -1165,7 +1200,10 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
         <div class="row" style="gap:10px"><span class="mark" style="width:24px;height:24px;font-size:12px">3</span>Mais passes a queimar linhas</div>
       </div>
     </div>
-    <div class="lock" data-lock="3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div><b>Plano individual</b><span>Objetivos a médio prazo, falados contigo. Disponível no Elite.</span></div></div>
+    <div class="lock lock-grande" data-lock="3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div><b>Os teus números, no Elite</b><span>Estatísticas de cada jogo, a tua evolução jogo a jogo e um plano individual para os próximos 2 meses.</span></div></div>
+      </div>
+    </div>
+    <a class="fab-duv" href="#duvidas" aria-label="Perguntar ao analista sobre este jogo"><span class="fab-ic">?</span><span class="fab-tx">Perguntar ao analista</span><b class="fab-n" id="duv-badge">1</b></a>
   </div>
 </section>
 
@@ -1723,12 +1761,27 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     document.querySelectorAll('[data-pack]').forEach(function(b){ b.setAttribute('aria-pressed', +b.dataset.pack === n ? 'true' : 'false'); });
   }
   document.querySelectorAll('[data-pack]').forEach(function(b){ b.addEventListener('click', function(){ poePack(+b.dataset.pack); }); });
-  function contaPlano(){
-    var n = document.querySelectorAll('.plano input:checked').length;
-    document.getElementById('pl-cont').textContent = n + ' de 4';
-    if (n === 4){ toast('Plano da semana cumprido'); if (typeof darXP === 'function') darXP(40, 'Semana cumprida', 'plano'); }
+  function contaPlano(ev){
+    var ins = document.querySelectorAll('.plano input'), n = document.querySelectorAll('.plano input:checked').length, tot = ins.length;
+    document.getElementById('pl-cont').textContent = n + ' de ' + tot;
+    document.getElementById('pl-bar').style.width = (tot ? n / tot * 100 : 0) + '%';
+    try { localStorage.setItem('fiq-plano', JSON.stringify([].map.call(ins, function(x){ return x.checked; }))); } catch(e){}
+    var pl = document.querySelector('.plano'), f = document.getElementById('pl-feito');
+    if (n === tot && !f){ f = document.createElement('div'); f.className = 'pl-feito'; f.id = 'pl-feito'; f.textContent = '★ Semana cumprida. Bom jogo!'; pl.appendChild(f); if (ev){ vibra(); toast('Plano da semana cumprido'); } }
+    else if (n < tot && f) f.remove();
+    if (ev && ev.target.checked) vibra();
   }
+  (function(){ try { var g = JSON.parse(localStorage.getItem('fiq-plano') || '[]'); document.querySelectorAll('.plano input').forEach(function(x, i){ x.checked = !!g[i]; }); } catch(e){} })();
   document.querySelectorAll('.plano input').forEach(function(i){ i.addEventListener('change', contaPlano); });
+  contaPlano();
+  // separadores da análise: Resumo · Esta semana · Números
+  function abreSep(nome){
+    document.querySelectorAll('.an-tabs [data-at]').forEach(function(b){ b.setAttribute('aria-selected', b.dataset.at === nome ? 'true' : 'false'); });
+    document.querySelectorAll('.at-painel').forEach(function(p){ p.hidden = p.id !== 'at-' + nome; });
+    if (nome === 'semana'){ var n = document.querySelector('.at-n'); if (n) n.style.visibility = 'hidden'; }
+  }
+  document.querySelectorAll('.an-tabs [data-at]').forEach(function(b){ b.addEventListener('click', function(){ abreSep(b.dataset.at); vibra(); var t = document.querySelector('.an-tabs'); if (t.getBoundingClientRect().top < 0) t.scrollIntoView({block: 'start'}); }); });
+  window.addEventListener('hashchange', function(){ if (location.hash === '#analise') abreSep('resumo'); });
   poePack(2);
   mostrarConta();
 
