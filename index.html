@@ -343,6 +343,9 @@ body.em-demo .screen .scroll{padding-top:56px}
 }
 .video-wrap{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;border-radius:16px;overflow:hidden;background:#0B0B0A}
 .video-wrap .video{height:100%}
+.yt-capa{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.video .play,.video .dur{z-index:1}
+.video.com-capa::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.45));pointer-events:none}
 .video-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .dls{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 .dl-acoes{display:flex;gap:6px;margin-left:auto;flex:none}
@@ -1922,6 +1925,16 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
       document.getElementById('an-data').textContent = (dados && dados.data) || def.data;
       id = dados ? ytId(dados.yt) : '';
       document.getElementById('yt-wrap').innerHTML = YT_HTML; agora = -1;
+      // capa: a miniatura do próprio vídeo (a capa da sessão que puseste no YouTube)
+      if (id){
+        var vb = document.getElementById('yt-btn'), bd = vb.querySelector('.board'), im = document.createElement('img');
+        im.className = 'yt-capa'; im.alt = ''; im.decoding = 'async';
+        im.onerror = function(){ if (/maxresdefault/.test(im.src)) im.src = 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg'; else { im.remove(); if (bd) bd.style.display = ''; vb.classList.remove('com-capa'); } };
+        im.onload = function(){ if (im.naturalWidth <= 120 && /maxresdefault/.test(im.src)) im.src = 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg'; };
+        im.src = 'https://i.ytimg.com/vi/' + id + '/maxresdefault.jpg';
+        if (bd) bd.style.display = 'none'; vb.insertBefore(im, vb.firstChild); vb.classList.add('com-capa');
+        var du = vb.querySelector('.dur'); if (du) du.textContent = (dados && dados.nome) ? dados.nome.split('·')[0].trim() + ' · os teus lances' : 'Os teus lances';
+      }
       CH_T = 'fiq-ver:' + k; CH_G = 'fiq-guardados:' + k;
       exp = !!(dados && dados.ate && new Date(dados.ate + 'T23:59:59') < hoje);
       var u = dados && dados.dl;
