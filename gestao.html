@@ -200,6 +200,9 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
 .textlink{background:none;border:0;color:var(--cobre,#8A4F24);font-weight:800;cursor:pointer;font-size:12px;padding:0}
 .atr-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .atr-cols .input{margin-bottom:8px}
+.atr-row{display:grid;grid-template-columns:minmax(0,1fr) 84px;gap:8px}
+.atr-row .atr-val{text-align:center;font-weight:800}
+.etq button.atr-on{background:var(--ink,#1B1815);color:var(--gold2,#E2C27A);border-color:var(--ink,#1B1815)}
 .atr-cols .input.foco{outline:2px solid var(--cobre,#8A4F24)}
 .etq{display:flex;flex-wrap:wrap;gap:6px}
 .etq button{border:1px solid var(--line2,#CFC4B3);background:var(--card,#fff);color:inherit;border-radius:99px;padding:6px 11px;font:700 12px var(--body,sans-serif);cursor:pointer}
@@ -368,7 +371,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   function guardarPS(c,v){ var o=lerPS(); if(v) o[c.email.toLowerCase()]=v; else delete o[c.email.toLowerCase()]; try{ localStorage.setItem('fiq-demo-proxsessao',JSON.stringify(o)); }catch(e){} }
   function guardarAtr(c){ try{ var o=JSON.parse(localStorage.getItem('fiq-demo-atr')||'{}'); if(c.atr) o[c.id]=c.atr; else delete o[c.id]; localStorage.setItem('fiq-demo-atr',JSON.stringify(o)); }catch(e){} }
   function marcaEtq(){ var us={}; V.querySelectorAll('.atr-in').forEach(function(x){ us[x.value.trim()]=1; }); V.querySelectorAll('[data-etq]').forEach(function(b){ b.classList.toggle('usada', !!us[b.dataset.etq]); }); }
-  function stashNotas(i,an,c){ var nn=atrLista(c), l=[]; document.querySelectorAll('[data-nota^="'+i+'|"]').forEach(function(inp){ var k=+inp.dataset.nota.split('|')[1], v=inp.value.trim(); if(v!=='') l.push([nn[k],Math.round(+v)]); }); an.notas=l; }
+  function stashNotas(i,an,c){ if(!document.querySelector('[data-nota^="'+i+'|"]')) return; var nn=atrLista(c), l=[]; document.querySelectorAll('[data-nota^="'+i+'|"]').forEach(function(inp){ var k=+inp.dataset.nota.split('|')[1], v=inp.value.trim(); if(v!=='') l.push([nn[k],Math.round(+v)]); }); an.notas=l; }
   function stashCampos(i,an){ [['nm','nome'],['jg','jogo'],['dt','data'],['yt','yt'],['dl','dl'],['ate','ate']].forEach(function(p){ var el=document.getElementById(p[0]+'-'+i); if(el) an[p[1]]=el.value.trim(); }); }
   function tempoNorm(v){ v=String(v||'').trim().replace(/[,.h]/g,':').replace(/[^0-9:]/g,''); if(!v) return ''; var p=v.split(':'), s; if(p.length===1) s=(+p[0]||0)*60; else if(p.length===2) s=(+p[0]||0)*60+(+p[1]||0); else s=(+p[0]||0)*3600+(+p[1]||0)*60+(+p[2]||0); if(!(s>=0)) return ''; var h=Math.floor(s/3600), m=Math.floor(s%3600/60), ss=s%60; return (h? h+':'+String(m).padStart(2,'0') : m)+':'+String(ss).padStart(2,'0'); }
   function tempoSeg(v){ v=tempoNorm(v); if(!v) return -1; var p=v.split(':').map(Number); return p.length===3? p[0]*3600+p[1]*60+p[2] : p[0]*60+p[1]; }
@@ -466,7 +469,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
         campoLink('yt',i,a.yt,'Vídeo · link do YouTube (não listado)','https://youtu.be/…')+
         campoLink('dl',i,a.dl,'Descarregar vídeo · link transfer.it, WeTransfer ou Drive','https://transfer.it/…')+
         pdfCampo(c,a,i)+
-        notasCampo(c,a,i)+
+        '<div class="it nt-aviso"><span>Notas da carta desta sessão: separador <strong>Pontos a avaliar</strong>.</span><button class="btn ghost small" type="button" data-atrsel="'+i+'" style="flex:none">Pôr notas</button></div>'+
         '<div class="campo"><label class="l" for="ate-'+i+'">Link para descarregar o vídeo válido até (opcional)</label><input class="input" type="date" id="ate-'+i+'" value="'+esc(a.ate||'')+'"></div>'+
         '<div class="mo-box"><div class="between"><span class="l" style="margin:0">Momentos do jogo · tempo no vídeo da sessão (opcional)</span></div>'+
           (a.momentos||[]).map(function(mo,j){ return '<div class="mo-row" data-mo="'+i+'">'+
@@ -526,13 +529,15 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     h+=card('sec-pack','Tipo e acesso','',pk);
     // pontos a avaliar (radar da carta)
     var at=atrDe(c), usados={}; at.of.concat(at.df).forEach(function(n){ usados[n]=1; });
+    var selA=Math.min(c._atrSel||0, Math.max(0,c.analises.length-1)), anS=c.analises[selA], mapaN={}; ((anS&&anS.notas)||[]).forEach(function(x){ mapaN[x[0]]=x[1]; });
+    function linhaAtr(n,k){ return '<div class="atr-row"><input class="input atr-in" id="atr-'+k+'" data-atrk="'+k+'" value="'+esc(n)+'" aria-label="Ponto '+(k+1)+'">'+(anS?'<input class="input atr-val" type="number" inputmode="numeric" min="0" max="100" id="atv-'+k+'" value="'+(mapaN[n]!=null?mapaN[n]:'')+'" placeholder="0–100" aria-label="Nota de '+esc(n)+'">':'')+'</div>'; }
     var ap='<div class="sub" style="margin:0">Os 8 pontos que aparecem no radar da carta de '+esc(nomeCurto(c))+'. Vêm da posição dele ('+esc(posDe(c))+'); podes trocar qualquer um só para este jogador.</div>'+
       '<div class="campo"><span class="l">Carregar os pontos de uma posição</span><div class="etq">'+Object.keys(POS_ATR).map(function(p){ return '<button type="button" data-atrpos="'+esc(p)+'">'+esc(p)+'</button>'; }).join('')+'</div></div>'+
-      '<div class="atr-cols"><div><div class="nt-tit">Ofensivo</div>'+at.of.map(function(n,k){ return '<input class="input atr-in" id="atr-'+k+'" data-atrk="'+k+'" value="'+esc(n)+'" aria-label="Ponto ofensivo '+(k+1)+'">'; }).join('')+'</div>'+
-      '<div><div class="nt-tit">Defensivo</div>'+at.df.map(function(n,k){ return '<input class="input atr-in" id="atr-'+(k+4)+'" data-atrk="'+(k+4)+'" value="'+esc(n)+'" aria-label="Ponto defensivo '+(k+1)+'">'; }).join('')+'</div></div>'+
+      (c.analises.length?'<div class="campo"><span class="l">Notas (0–100) da sessão</span><div class="etq">'+c.analises.map(function(an,ai){ return '<button type="button" data-atrsel="'+ai+'"'+(ai===selA?' class="atr-on"':'')+'>'+esc((an.nome||'Sessão').split('·')[0].trim())+(an.jogo?' · '+esc(an.jogo):'')+'</button>'; }).join('')+'</div></div>':'')+
+      '<div class="atr-cols"><div><div class="nt-tit">Ofensivo</div>'+at.of.map(function(n,k){ return linhaAtr(n,k); }).join('')+'</div>'+
+      '<div><div class="nt-tit">Defensivo</div>'+at.df.map(function(n,k){ return linhaAtr(n,k+4); }).join('')+'</div></div>'+
       '<div class="campo"><span class="l">Etiquetas · toca num campo acima e depois numa etiqueta para a pôr lá</span><div class="etq" id="etq-lista">'+ETIQUETAS.map(function(e){ return '<button type="button" data-etq="'+esc(e)+'"'+(usados[e]?' class="usada"':'')+'>'+esc(e)+'</button>'; }).join('')+'</div></div>'+
-      '<div class="it nt-aviso"><span><strong>As notas (0–100) de cada ponto metem-se em cada sessão:</strong> Análises → abre a sessão → "Notas da carta".</span><button class="btn ghost small" type="button" data-ir="sec-analises" style="flex:none">Ir às notas</button></div>'+
-      '<div class="row" style="flex-wrap:wrap;gap:8px"><button class="btn ink small" type="button" data-acao="guardar-atr">Guardar pontos</button><button class="btn ghost small" type="button" data-acao="repor-atr">Repor os da posição</button></div>';
+      '<div class="row" style="flex-wrap:wrap;gap:8px"><button class="btn ink small" type="button" data-acao="guardar-atr">Guardar pontos e notas</button><button class="btn ghost small" type="button" data-acao="repor-atr">Repor os da posição</button></div>';
     h+=card('sec-atr','Pontos a avaliar','',ap);
     return h;
   }
@@ -636,14 +641,15 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(t.dataset.rm && c){ var r=t.dataset.rm.split(':'); c[r[0]].splice(+r[1],1); render(); return; }
     if(t.dataset.np){ novoPack=t.dataset.np; document.querySelectorAll('[data-np]').forEach(function(x){x.setAttribute('aria-pressed',x===t);}); atualizaPreco(); return; }
     if(t.dataset.nf){ novoForm=t.dataset.nf; document.querySelectorAll('[data-nf]').forEach(function(x){x.setAttribute('aria-pressed',x===t);}); atualizaPreco(); return; }
+    if(t.dataset.atrsel!==undefined && c){ c._atrSel=+t.dataset.atrsel; secAtual='sec-atr'; render(); return; }
     if(t.dataset.atrpos && c){ var mp=atrModelo(t.dataset.atrpos); mp.of.concat(mp.df).forEach(function(n,k){ var el=document.getElementById('atr-'+k); if(el) el.value=n; }); marcaEtq(); toast('Pontos de '+t.dataset.atrpos+' carregados. Carrega em Guardar pontos.'); return; }
     if(t.dataset.etq && c){ var alvo=V.querySelector('.atr-in.foco')||V.querySelector('.atr-in'); if(alvo){ alvo.value=t.dataset.etq; var nk=+alvo.dataset.atrk+1, prox=document.getElementById('atr-'+(nk%8)); V.querySelectorAll('.atr-in').forEach(function(x){ x.classList.remove('foco'); }); if(prox){ prox.classList.add('foco'); } marcaEtq(); } return; }
     if(t.dataset.pdfrm!==undefined && c){ var ri=+t.dataset.pdfrm, ra=c.analises[ri]; pdfApagar(c.id+'|'+ra.id).catch(function(){}); ra.pdfNome=''; ra.pdfTam=0; document.getElementById('pdfc-'+ri).outerHTML=pdfCampo(c,ra,ri); toast('PDF tirado. Carrega em Guardar para atualizar o cliente.'); return; }
     if(t.dataset.moadd!==undefined && c){ var mi=+t.dataset.moadd, man=c.analises[mi]; ANABERTA[c.id+'|'+man.id]=1; stashCampos(mi,man); stashNotas(mi,man,c); man.momentos=lerMomentos(mi); man.momentos.push({v:'',t:'bom',a:'',d:''}); render(); var rs=document.querySelectorAll('[data-mo="'+mi+'"] .mo-v'); if(rs.length) rs[rs.length-1].focus(); return; }
     if(t.dataset.morm && c){ var mr=t.dataset.morm.split(':'), man2=c.analises[+mr[0]]; ANABERTA[c.id+'|'+man2.id]=1; stashCampos(+mr[0],man2); stashNotas(+mr[0],man2,c); man2.momentos=lerMomentos(+mr[0]); man2.momentos.splice(+mr[1],1); render(); return; }
     if(t.dataset.guardar!==undefined && c){ var gi=+t.dataset.guardar, an=c.analises[gi], erros=[];
-      var nNomes=atrLista(c), nErr=false; an.notas=[];
-      V.querySelectorAll('[data-nota^="'+gi+'|"]').forEach(function(inp){ var k=+inp.dataset.nota.split('|')[1], v=inp.value.trim(); if(v==='') return; v=Math.round(+v); if(!(v>=0&&v<=100)){ nErr=true; return; } an.notas.push([nNomes[k],v]); });
+      var nNomes=atrLista(c), nErr=false, nIns=V.querySelectorAll('[data-nota^="'+gi+'|"]'); if(nIns.length) an.notas=[];
+      nIns.forEach(function(inp){ var k=+inp.dataset.nota.split('|')[1], v=inp.value.trim(); if(v==='') return; v=Math.round(+v); if(!(v>=0&&v<=100)){ nErr=true; return; } an.notas.push([nNomes[k],v]); });
       if(nErr){ toast('As notas da carta vão de 0 a 100.'); return; }
       var momL=lerMomentos(gi).filter(function(m){ return m.a || m.v; });
       if(momL.some(function(m){ return m.a && tempoSeg(m.v)<0; })){ toast('Falta o tempo no vídeo num momento (ex.: 5:30).'); return; }
@@ -664,7 +670,12 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(a==='guardar-atr' && c){ var vs=[]; for(var ak=0;ak<8;ak++){ var ev=document.getElementById('atr-'+ak); vs.push(ev?ev.value.trim():''); }
       if(vs.some(function(x){return !x;})){ toast('Preenche os 8 pontos.'); return; }
       var antes=atrLista(c), mud=vs.filter(function(x,k){ return x!==antes[k]; }).length;
-      c.atr={of:vs.slice(0,4),df:vs.slice(4)}; guardarAtr(c); toast(mud?'Pontos guardados. Nos pontos novos, a evolução começa a contar a partir daqui.':'Pontos guardados.'); render(); return; }
+      var sA=c.analises[Math.min(c._atrSel||0,c.analises.length-1)], notasN=[], errN=false;
+      if(sA){ for(var vk=0;vk<8;vk++){ var iv=document.getElementById('atv-'+vk), tv=iv?iv.value.trim():''; if(tv==='') continue; tv=Math.round(+tv); if(!(tv>=0&&tv<=100)){ errN=true; break; } notasN.push([vs[vk],tv]); } }
+      if(errN){ toast('As notas vão de 0 a 100.'); return; }
+      c.atr={of:vs.slice(0,4),df:vs.slice(4)}; guardarAtr(c);
+      if(sA){ sA.notas=notasN; guardarDemo(c,sA); }
+      toast(mud?'Pontos e notas guardados. Nos pontos novos, a evolução começa a contar a partir daqui.':'Pontos e notas guardados. O jogador já vê na carta.'); render(); return; }
     if(a==='repor-atr' && c){ c.atr=null; guardarAtr(c); toast('Voltaram os pontos da posição ('+posDe(c)+').'); render(); return; }
     if(a==='reenviar') toast('Email de ativação reenviado para '+c.email);
     if(a==='suspender') toast('Esboço: aqui suspendes o acesso (pede confirmação).');
