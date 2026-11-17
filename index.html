@@ -899,56 +899,29 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     <div class="desafio" id="desafio">
       <div class="between">
         <span class="eyebrow" style="letter-spacing:1.8px">Desafio da semana</span>
-        <span class="pill off" id="q-serie">Série: 2</span>
+        <span class="pill off" id="q-serie">Série: 0</span>
       </div>
       <div class="serif" style="font-size:20px" id="q-titulo">Tens 3 segundos. <em style="font-style:italic;font-weight:600;color:var(--gold2)">Memoriza.</em></div>
       <div class="qboard" id="qboard">
         <svg viewBox="0 0 300 170" role="img" aria-label="Quadro do desafio: tu, três colegas A, B e C e adversários.">
           <rect x="6" y="6" width="288" height="158" rx="4" fill="none" stroke="#C9A453" stroke-opacity=".22"/>
           <line x1="6" y1="85" x2="294" y2="85" stroke="#C9A453" stroke-opacity=".22"/>
-          <g id="q-jogo">
-            <!-- A com pressão -->
-            <circle cx="62" cy="70" r="11" fill="#8F897C"/><text x="62" y="74" text-anchor="middle" fill="#111" font-family="Mulish" font-weight="800" font-size="11">A</text>
-            <circle cx="80" cy="56" r="8" fill="none" stroke="#D45B4C" stroke-width="2"/>
-            <!-- B com pressão -->
-            <circle cx="236" cy="62" r="11" fill="#8F897C"/><text x="236" y="66" text-anchor="middle" fill="#111" font-family="Mulish" font-weight="800" font-size="11">B</text>
-            <circle cx="220" cy="46" r="8" fill="none" stroke="#D45B4C" stroke-width="2"/>
-            <!-- C livre -->
-            <circle cx="160" cy="32" r="11" fill="#8F897C"/><text x="160" y="36" text-anchor="middle" fill="#111" font-family="Mulish" font-weight="800" font-size="11">C</text>
-            <!-- outros adversários -->
-            <circle cx="112" cy="104" r="8" fill="none" stroke="#D45B4C" stroke-width="2"/>
-            <circle cx="196" cy="110" r="8" fill="none" stroke="#D45B4C" stroke-width="2"/>
-          </g>
-          <!-- TU com bola -->
-          <circle cx="150" cy="136" r="11" fill="#C9A453"/>
-          <circle cx="161" cy="128" r="4" fill="#fff"/>
-          <text x="150" y="160" text-anchor="middle" fill="#E2C27A" font-family="Mulish" font-weight="800" font-size="9" letter-spacing="1.4">TU</text>
-          <!-- resposta -->
-          <g id="q-resposta" hidden>
-            <path d="M150 124 L160 46" stroke="#F2EEE2" stroke-width="1.6"/>
-            <circle cx="160" cy="32" r="16" fill="none" stroke="#E2C27A" stroke-width="2"/>
-            <rect x="182" y="22" width="44" height="16" rx="8" fill="#111" stroke="#C9A453"/><text class="qtag" x="204" y="33" text-anchor="middle" fill="#E2C27A">LIVRE</text>
-            <rect x="30" y="88" width="64" height="16" rx="8" fill="#111" stroke="#D45B4C"/><text class="qtag" x="62" y="99" text-anchor="middle" fill="#D45B4C">PRESSÃO</text>
-            <rect x="204" y="80" width="64" height="16" rx="8" fill="#111" stroke="#D45B4C"/><text class="qtag" x="236" y="91" text-anchor="middle" fill="#D45B4C">PRESSÃO</text>
-          </g>
+          <g id="q-jogo"></g>
+          <g id="q-resposta" visibility="hidden"></g>
         </svg>
         <span class="count" id="q-count" hidden>3</span>
         <div class="cover" id="q-capa">
-          <div style="font-size:13px;color:var(--muted);max-width:240px">Vais ver o quadro durante 3 segundos. Depois perguntamos-te uma coisa.</div>
+          <div style="font-size:13px;color:var(--muted);max-width:240px" id="q-capa-txt">Vais ver o quadro durante 3 segundos. Depois perguntamos-te uma coisa.</div>
           <button class="btn gold" id="q-start" type="button" style="width:auto;padding:0 22px;height:46px">Começar</button>
         </div>
         <div class="cover" id="q-pergunta" hidden>
-          <div class="serif" style="font-size:22px">Que colega estava <em style="font-style:italic;font-weight:600;color:var(--gold2)">livre</em>?</div>
+          <div class="serif" style="font-size:22px" id="q-perg-txt"></div>
         </div>
       </div>
-      <div class="opts" id="q-opts" hidden>
-        <button class="opt" data-op="A" type="button">A</button>
-        <button class="opt" data-op="B" type="button">B</button>
-        <button class="opt" data-op="C" type="button">C</button>
-      </div>
+      <div class="opts" id="q-opts" hidden></div>
       <div id="q-fim" hidden style="display:flex;flex-direction:column;gap:6px">
         <div style="font-weight:800" id="q-veredito">Boa! Era a C.</div>
-        <div style="font-size:13px;color:var(--muted);line-height:1.5">Olhar antes de receber deixa-te ver as soluções antes de a bola chegar. Sempre adaptado ao modelo da tua equipa.</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.5"><span id="q-explica"></span> Sempre adaptado ao modelo da tua equipa.</div>
         <button class="textbtn" id="q-repetir" type="button" style="align-self:flex-start;color:var(--gold2);padding:0">Repetir ↺</button>
       </div>
     </div>
@@ -1491,53 +1464,107 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     inp.addEventListener('input', function(){ if (inp.value && cods[i+1]) cods[i+1].focus(); });
   });
 
-  // ===== Desafio da semana =====
+  // ===== Desafio da semana (muda sozinho à segunda-feira: desafios.json) =====
+  var DESAFIO_BASE = {"semana": "2026-11-16", "tema": "Perceção · linha de passe livre", "segundos": 3, "pergunta": "Que colega estava *livre*?", "quadro": [{"t": "colega", "n": "A", "x": 62, "y": 70}, {"t": "adv", "x": 80, "y": 56}, {"t": "colega", "n": "B", "x": 236, "y": 62}, {"t": "adv", "x": 220, "y": 46}, {"t": "colega", "n": "C", "x": 160, "y": 32}, {"t": "adv", "x": 112, "y": 104}, {"t": "adv", "x": 196, "y": 110}, {"t": "tu", "x": 150, "y": 136, "bola": true}], "opcoes": ["A", "B", "C"], "certa": "C", "resposta": {"titulo": "Era a *C*.", "certo": "Boa! Viste a solução livre.", "errado": "Quase. A e B tinham pressão; a C estava livre.", "explica": "Olhar antes de receber deixa-te ver as soluções antes de a bola chegar.", "setas": [[150, 124, 160, 46]], "aneis": [[160, 32]], "etiquetas": [{"x": 204, "y": 30, "txt": "LIVRE", "cor": "ouro"}, {"x": 62, "y": 96, "txt": "PRESSÃO", "cor": "vermelho"}, {"x": 236, "y": 88, "txt": "PRESSÃO", "cor": "vermelho"}]}};
   var q = {
     capa: document.getElementById('q-capa'), perg: document.getElementById('q-pergunta'),
     count: document.getElementById('q-count'), opts: document.getElementById('q-opts'),
     fim: document.getElementById('q-fim'), resp: document.getElementById('q-resposta'),
-    titulo: document.getElementById('q-titulo'), veredito: document.getElementById('q-veredito'),
-    serie: document.getElementById('q-serie')
+    jogo: document.getElementById('q-jogo'), titulo: document.getElementById('q-titulo'),
+    veredito: document.getElementById('q-veredito'), serie: document.getElementById('q-serie'),
+    pergTxt: document.getElementById('q-perg-txt'), explica: document.getElementById('q-explica'),
+    capaTxt: document.getElementById('q-capa-txt')
   };
-  var serie = 2, timers = [];
+  var DES = DESAFIO_BASE, timers = [];
+  function emOuro(s){ return escD(s).replace(/\*(.+?)\*/g, '<em style="font-style:italic;font-weight:600;color:var(--gold2)">$1</em>'); }
+  function escD(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function num(v){ return +v || 0; }
+  function desenhaQuadro(d){
+    var h = '';
+    (d.quadro || []).forEach(function(p){
+      var x = num(p.x), y = num(p.y);
+      if (p.t === 'zona') h += '<rect x="'+x+'" y="'+y+'" width="'+num(p.w)+'" height="'+num(p.h)+'" rx="6" fill="#C9A453" fill-opacity=".06" stroke="#C9A453" stroke-opacity=".55" stroke-dasharray="4 4"/><text x="'+(x+num(p.w)/2)+'" y="'+(y+num(p.h)/2+5)+'" text-anchor="middle" fill="#E2C27A" font-family="Mulish" font-weight="800" font-size="14">'+escD(p.n)+'</text>';
+      else if (p.t === 'colega') h += '<circle cx="'+x+'" cy="'+y+'" r="11" fill="#8F897C"/>' + (p.n ? '<text x="'+x+'" y="'+(y+4)+'" text-anchor="middle" fill="#111" font-family="Mulish" font-weight="800" font-size="11">'+escD(p.n)+'</text>' : '');
+      else if (p.t === 'adv') h += '<circle cx="'+x+'" cy="'+y+'" r="8" fill="none" stroke="#D45B4C" stroke-width="2"/>' + (p.n ? '<text x="'+x+'" y="'+(y+4)+'" text-anchor="middle" fill="#D45B4C" font-family="Mulish" font-weight="800" font-size="9">'+escD(p.n)+'</text>' : '');
+      else if (p.t === 'bola') h += '<circle cx="'+x+'" cy="'+y+'" r="4" fill="#fff"/>';
+      else if (p.t === 'tu') h += '<circle cx="'+x+'" cy="'+y+'" r="11" fill="#C9A453"/>' + (p.bola ? '<circle cx="'+(x+11)+'" cy="'+(y-8)+'" r="4" fill="#fff"/>' : '') + '<text x="'+x+'" y="'+(y+24)+'" text-anchor="middle" fill="#E2C27A" font-family="Mulish" font-weight="800" font-size="9" letter-spacing="1.4">TU</text>';
+    });
+    q.jogo.innerHTML = h;
+    var r = d.resposta || {}, s = '';
+    (r.setas || []).forEach(function(a){ s += '<path d="M'+num(a[0])+' '+num(a[1])+' L'+num(a[2])+' '+num(a[3])+'" stroke="#F2EEE2" stroke-width="1.6" stroke-dasharray="'+(a[4] === 'conducao' ? '3 3' : 'none')+'"/>'; });
+    (r.aneis || []).forEach(function(a){ s += '<circle cx="'+num(a[0])+'" cy="'+num(a[1])+'" r="16" fill="none" stroke="#E2C27A" stroke-width="2"/>'; });
+    (r.etiquetas || []).forEach(function(e){
+      var cor = e.cor === 'vermelho' ? '#D45B4C' : '#E2C27A', w = Math.max(40, String(e.txt).length * 7 + 14), x = num(e.x), y = num(e.y);
+      s += '<rect x="'+(x - w/2)+'" y="'+(y - 8)+'" width="'+w+'" height="16" rx="8" fill="#111" stroke="'+cor+'"/><text class="qtag" x="'+x+'" y="'+(y + 3)+'" text-anchor="middle" fill="'+cor+'">'+escD(e.txt)+'</text>';
+    });
+    q.resp.innerHTML = s;
+    q.opts.style.gridTemplateColumns = 'repeat(' + Math.max(2, (d.opcoes || []).length) + ',minmax(0,1fr))';
+    q.opts.innerHTML = (d.opcoes || []).map(function(o){ return '<button class="opt" data-op="'+escD(o)+'" type="button">'+escD(o)+'</button>'; }).join('');
+    q.pergTxt.innerHTML = emOuro(d.pergunta || '');
+    q.explica.textContent = r.explica || '';
+    var sg = num(d.segundos) || 3;
+    q.capaTxt.textContent = 'Vais ver o quadro durante ' + sg + ' segundos. Depois perguntamos-te uma coisa.';
+  }
+  // série = semanas seguidas com o desafio certo à primeira (guardado neste aparelho)
+  function lerHist(){ try { return JSON.parse(localStorage.getItem('fiq-desafios') || '{}'); } catch(e){ return {}; } }
+  function calcSerie(){
+    var hist = lerHist(), ks = Object.keys(hist).sort().reverse(), n = 0;
+    for (var k = 0; k < ks.length; k++){ if (hist[ks[k]]) n++; else break; }
+    return n;
+  }
   function pararDesafio(){ timers.forEach(clearTimeout); timers = []; }
   function repor(){
     pararDesafio();
     q.capa.hidden = false; q.perg.hidden = true; q.count.hidden = true;
-    q.opts.hidden = true; q.fim.hidden = true; q.resp.hidden = true;
-    q.titulo.innerHTML = 'Tens 3 segundos. <em style="font-style:italic;font-weight:600;color:var(--gold2)">Memoriza.</em>';
+    q.opts.hidden = true; q.fim.hidden = true; q.resp.setAttribute('visibility','hidden');
+    q.titulo.innerHTML = 'Tens ' + (num(DES.segundos) || 3) + ' segundos. <em style="font-style:italic;font-weight:600;color:var(--gold2)">Memoriza.</em>';
     q.opts.querySelectorAll('.opt').forEach(function(b){ b.className = 'opt'; b.disabled = false; });
+    q.serie.textContent = 'Série: ' + calcSerie();
   }
   function tick(n){
     q.count.textContent = n; q.count.classList.remove('tick'); void q.count.offsetWidth; q.count.classList.add('tick');
   }
   document.getElementById('q-start').addEventListener('click', function(){
-    q.capa.hidden = true; q.count.hidden = false; tick(3);
-    timers.push(setTimeout(function(){ tick(2); }, 1000));
-    timers.push(setTimeout(function(){ tick(1); }, 2000));
+    var sg = num(DES.segundos) || 3;
+    q.capa.hidden = true; q.count.hidden = false; tick(sg);
+    for (var t = 1; t < sg; t++) (function(t){ timers.push(setTimeout(function(){ tick(sg - t); }, t * 1000)); })(t);
     timers.push(setTimeout(function(){
       q.count.hidden = true; q.perg.hidden = false; q.opts.hidden = false;
       q.titulo.textContent = 'O quadro desapareceu.';
-      q.opts.querySelector('.opt').focus();
-    }, 3000));
+      var b1 = q.opts.querySelector('.opt'); if (b1) b1.focus();
+    }, sg * 1000));
   });
-  q.opts.querySelectorAll('.opt').forEach(function(b){
-    b.addEventListener('click', function(){
-      var certo = b.dataset.op === 'C';
-      q.opts.querySelectorAll('.opt').forEach(function(x){
-        x.disabled = true;
-        if (x.dataset.op === 'C') x.classList.add('certa');
-      });
-      if (!certo) b.classList.add('errada');
-      serie = certo ? serie + 1 : 0;
-      if (certo && typeof darXP === 'function'){ darXP(20, 'Desafio certo'); if (serie >= 3) darXP(30, '3 desafios seguidos', 'desafio3'); }
-      q.serie.textContent = 'Série: ' + serie;
-      q.perg.hidden = true; q.resp.hidden = false; q.fim.hidden = false;
-      q.titulo.innerHTML = 'Era a <em style="font-style:italic;font-weight:600;color:var(--gold2)">C</em>.';
-      q.veredito.textContent = certo ? 'Boa! Viste a solução livre.' : 'Quase. A e B tinham pressão; a C estava livre.';
+  q.opts.addEventListener('click', function(ev){
+    var b = ev.target.closest('.opt'); if (!b || b.disabled) return;
+    var certo = b.dataset.op === String(DES.certa);
+    q.opts.querySelectorAll('.opt').forEach(function(x){
+      x.disabled = true;
+      if (x.dataset.op === String(DES.certa)) x.classList.add('certa');
     });
+    if (!certo) b.classList.add('errada');
+    var hist = lerHist();
+    if (!(DES.semana in hist)){ hist[DES.semana] = certo; try { localStorage.setItem('fiq-desafios', JSON.stringify(hist)); } catch(e){} }
+    q.serie.textContent = 'Série: ' + calcSerie();
+    var r = DES.resposta || {};
+    q.perg.hidden = true; q.resp.removeAttribute('visibility'); q.fim.hidden = false;
+    q.titulo.innerHTML = emOuro(r.titulo || ('Era a ' + DES.certa + '.'));
+    q.veredito.textContent = certo ? (r.certo || 'Boa!') : (r.errado || 'Quase.');
   });
   document.getElementById('q-repetir').addEventListener('click', repor);
+  function hojeISO(){ var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function escolheDesafio(lista){
+    var hoje = hojeISO(), atual = null;
+    (lista || []).forEach(function(d){ if (d && d.semana <= hoje && (!atual || d.semana > atual.semana)) atual = d; });
+    return atual;
+  }
+  function poeDesafio(d){ DES = d; desenhaQuadro(d); repor(); }
+  poeDesafio(DESAFIO_BASE);
+  if (window.fetch && /^https?:/.test(location.protocol)){
+    fetch('desafios.json', {cache: 'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      var d = j && escolheDesafio(j.desafios);
+      if (d && d.semana !== DES.semana) poeDesafio(d);
+    }).catch(function(){});
+  }
 
   // lista de análises
   var dados = [

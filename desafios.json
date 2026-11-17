@@ -1,0 +1,228 @@
+{
+  "nota": "Desafios semanais da FieldIQ. Cada um começa na segunda-feira indicada em 'semana' e fica até chegar o seguinte. Coordenadas num quadro de 300 x 170 (o 'tu' em baixo, a atacar para cima).",
+  "desafios": [
+    {
+      "semana": "2026-11-16",
+      "tema": "Perceção · linha de passe livre",
+      "segundos": 3,
+      "pergunta": "Que colega estava *livre*?",
+      "quadro": [
+        {
+          "t": "colega",
+          "n": "A",
+          "x": 62,
+          "y": 70
+        },
+        {
+          "t": "adv",
+          "x": 80,
+          "y": 56
+        },
+        {
+          "t": "colega",
+          "n": "B",
+          "x": 236,
+          "y": 62
+        },
+        {
+          "t": "adv",
+          "x": 220,
+          "y": 46
+        },
+        {
+          "t": "colega",
+          "n": "C",
+          "x": 160,
+          "y": 32
+        },
+        {
+          "t": "adv",
+          "x": 112,
+          "y": 104
+        },
+        {
+          "t": "adv",
+          "x": 196,
+          "y": 110
+        },
+        {
+          "t": "tu",
+          "x": 150,
+          "y": 136,
+          "bola": true
+        }
+      ],
+      "opcoes": [
+        "A",
+        "B",
+        "C"
+      ],
+      "certa": "C",
+      "resposta": {
+        "titulo": "Era a *C*.",
+        "certo": "Boa! Viste a solução livre.",
+        "errado": "Quase. A e B tinham pressão; a C estava livre.",
+        "explica": "Olhar antes de receber deixa-te ver as soluções antes de a bola chegar.",
+        "setas": [
+          [
+            150,
+            124,
+            160,
+            46
+          ]
+        ],
+        "aneis": [
+          [
+            160,
+            32
+          ]
+        ],
+        "etiquetas": [
+          {
+            "x": 204,
+            "y": 30,
+            "txt": "LIVRE",
+            "cor": "ouro"
+          },
+          {
+            "x": 62,
+            "y": 96,
+            "txt": "PRESSÃO",
+            "cor": "vermelho"
+          },
+          {
+            "x": 236,
+            "y": 88,
+            "txt": "PRESSÃO",
+            "cor": "vermelho"
+          }
+        ]
+      }
+    },
+    {
+      "semana": "2026-11-23",
+      "tema": "Perceção · espaço entre linhas",
+      "segundos": 3,
+      "pergunta": "Que zona estava *livre* para receberes entre linhas?",
+      "quadro": [
+        {
+          "t": "zona",
+          "n": "1",
+          "x": 28,
+          "y": 38,
+          "w": 72,
+          "h": 44
+        },
+        {
+          "t": "zona",
+          "n": "2",
+          "x": 114,
+          "y": 38,
+          "w": 72,
+          "h": 44
+        },
+        {
+          "t": "zona",
+          "n": "3",
+          "x": 200,
+          "y": 38,
+          "w": 72,
+          "h": 44
+        },
+        {
+          "t": "adv",
+          "x": 48,
+          "y": 52
+        },
+        {
+          "t": "adv",
+          "x": 84,
+          "y": 70
+        },
+        {
+          "t": "adv",
+          "x": 134,
+          "y": 66
+        },
+        {
+          "t": "adv",
+          "x": 168,
+          "y": 50
+        },
+        {
+          "t": "adv",
+          "x": 284,
+          "y": 22
+        },
+        {
+          "t": "adv",
+          "x": 214,
+          "y": 104
+        },
+        {
+          "t": "adv",
+          "x": 108,
+          "y": 112
+        },
+        {
+          "t": "colega",
+          "n": "",
+          "x": 60,
+          "y": 120
+        },
+        {
+          "t": "tu",
+          "x": 150,
+          "y": 138,
+          "bola": true
+        }
+      ],
+      "opcoes": [
+        "1",
+        "2",
+        "3"
+      ],
+      "certa": "3",
+      "resposta": {
+        "titulo": "Era a zona *3*.",
+        "certo": "Boa! Encontraste o espaço entre linhas.",
+        "errado": "Quase. As zonas 1 e 2 tinham adversários por perto; a 3 estava vazia.",
+        "explica": "Ver o espaço antes de a bola chegar dá-te tempo para receber já orientado.",
+        "setas": [
+          [
+            150,
+            126,
+            232,
+            66
+          ]
+        ],
+        "aneis": [
+          [
+            236,
+            60
+          ]
+        ],
+        "etiquetas": [
+          {
+            "x": 236,
+            "y": 92,
+            "txt": "ESPAÇO",
+            "cor": "ouro"
+          },
+          {
+            "x": 64,
+            "y": 92,
+            "txt": "FECHADA",
+            "cor": "vermelho"
+          },
+          {
+            "x": 150,
+            "y": 92,
+            "txt": "FECHADA",
+            "cor": "vermelho"
+          }
+        ]
+      }
+    }
+  ]
+}
