@@ -196,6 +196,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
 .nt-tit{font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--cobre,#8A4F24);margin:2px 0 6px}
 .nt-row{display:grid;grid-template-columns:minmax(0,1fr) 76px;align-items:center;gap:8px;font-size:13px;font-weight:700;margin-bottom:6px}
 .nt-row .input{height:40px;padding:0 10px;text-align:center;font-weight:800}
+.nt-aviso{background:rgba(201,164,83,.14);border-radius:12px;gap:10px;flex-wrap:wrap}
 .textlink{background:none;border:0;color:var(--cobre,#8A4F24);font-weight:800;cursor:pointer;font-size:12px;padding:0}
 .atr-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .atr-cols .input{margin-bottom:8px}
@@ -530,6 +531,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       '<div class="atr-cols"><div><div class="nt-tit">Ofensivo</div>'+at.of.map(function(n,k){ return '<input class="input atr-in" id="atr-'+k+'" data-atrk="'+k+'" value="'+esc(n)+'" aria-label="Ponto ofensivo '+(k+1)+'">'; }).join('')+'</div>'+
       '<div><div class="nt-tit">Defensivo</div>'+at.df.map(function(n,k){ return '<input class="input atr-in" id="atr-'+(k+4)+'" data-atrk="'+(k+4)+'" value="'+esc(n)+'" aria-label="Ponto defensivo '+(k+1)+'">'; }).join('')+'</div></div>'+
       '<div class="campo"><span class="l">Etiquetas · toca num campo acima e depois numa etiqueta para a pôr lá</span><div class="etq" id="etq-lista">'+ETIQUETAS.map(function(e){ return '<button type="button" data-etq="'+esc(e)+'"'+(usados[e]?' class="usada"':'')+'>'+esc(e)+'</button>'; }).join('')+'</div></div>'+
+      '<div class="it nt-aviso"><span><strong>As notas (0–100) de cada ponto metem-se em cada sessão:</strong> Análises → abre a sessão → "Notas da carta".</span><button class="btn ghost small" type="button" data-ir="sec-analises" style="flex:none">Ir às notas</button></div>'+
       '<div class="row" style="flex-wrap:wrap;gap:8px"><button class="btn ink small" type="button" data-acao="guardar-atr">Guardar pontos</button><button class="btn ghost small" type="button" data-acao="repor-atr">Repor os da posição</button></div>';
     h+=card('sec-atr','Pontos a avaliar','',ap);
     return h;
