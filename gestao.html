@@ -361,12 +361,13 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       h+='<a class="card cli" href="#cliente-'+c.id+'" data-nome="'+esc(nomeDe(c).toLowerCase())+'">'+avHtml(c,'')+'<span style="flex:1;min-width:0"><span class="nm">'+esc(nomeDe(c))+'</span><span class="ds" style="display:block">'+esc((function(){var pf=lerPerfil(c);return pf?[pf.pos,pf.clube].join(' · '):c.pos+' · perfil por completar';})())+' · '+(ePack(c)?'Pack '+c.pack+' · '+c.feitas+'/'+c.total:nivelAtual(c)+' · sessões individuais')+'</span></span><span class="pill '+e[1]+'">'+e[0]+'</span></a>'; });
     return h+'</div>';
   }
-  function lerPerfil(c){ try{ var v=localStorage.getItem('fiq-perfil:'+c.email); if(v) return JSON.parse(v); }catch(e){} return c.perfil||null; }
+  var FOTO_EX={'tiago':'assets/exemplo/tiago.jpg'};
+  function lerPerfil(c){ var pf=null; try{ var v=localStorage.getItem('fiq-perfil:'+c.email); if(v) pf=JSON.parse(v); }catch(e){} if(!pf) pf=c.perfil||null; if(pf&&!pf.foto&&FOTO_EX[c.id]&&!pf.semFoto) pf=Object.assign({},pf,{foto:FOTO_EX[c.id]}); return pf; }
   function idadeDe(n){ if(!n) return null; var d=new Date(n+'T12:00:00'); if(isNaN(d)) return null; var h=new Date(), a=h.getFullYear()-d.getFullYear(); if(h.getMonth()<d.getMonth()||(h.getMonth()===d.getMonth()&&h.getDate()<d.getDate())) a--; return a; }
   var secAtual='sec-analises', fichaDe=null;
   function nomeDe(c){ var pf=lerPerfil(c); return (pf&&pf.nome)||c.nome||c.email; }
   function nomeCurto(c){ var n=nomeDe(c); if(n.indexOf('@')>0) n=n.split('@')[0].replace(/[._-]+/g,' ').replace(/\b\w/g,function(l){return l.toUpperCase();}); return n; }
-  function avHtml(c,st){ var pf=lerPerfil(c); return '<span class="av"'+(st?' style="'+st+'"':'')+'>'+(pf&&pf.foto&&/^data:image\//.test(pf.foto)?'<img src="'+pf.foto+'" alt="">':iniDe(c))+'</span>'; }
+  function avHtml(c,st){ var pf=lerPerfil(c); return '<span class="av"'+(st?' style="'+st+'"':'')+'>'+(pf&&pf.foto&&/^(data:image\/|assets\/)/.test(pf.foto)?'<img src="'+pf.foto+'" alt="">':iniDe(c))+'</span>'; }
   function iniDe(c){ var n=nomeDe(c); if(n.indexOf('@')>0) n=n.split('@')[0].replace(/[._-]+/g,' '); return n.trim().split(/\s+/).map(function(x){return x.charAt(0);}).join('').slice(0,2).toUpperCase(); }
   function card(id,titulo,extra,corpo){ return '<section class="card sec" id="'+id+'" role="tabpanel"'+(id!==secAtual?' hidden':'')+'><div class="between"><h2>'+titulo+'</h2>'+(extra||'')+'</div>'+corpo+'</section>'; }
   function vCliente(c){

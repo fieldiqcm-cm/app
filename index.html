@@ -649,6 +649,8 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
 .pc-foto{width:64px;height:64px;border-radius:50%;overflow:hidden;flex:none;border:2px solid var(--m1,#E2C27A);box-shadow:0 0 0 3px rgba(0,0,0,.35);background:#222}
 .ola-foto{width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid var(--gold);flex:none;display:inline-block;vertical-align:middle}
 .ola-foto img{width:100%;height:100%;object-fit:cover;display:block}
+
+.hero-capa{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1}
 </style>
 </head>
 <body>
@@ -1518,7 +1520,8 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     });
   });
   var emailAtual = 'tiago@exemplo.pt';
-  function lerPerfil(em){ try { var v = localStorage.getItem('fiq-perfil:' + em); if (v) return JSON.parse(v); } catch(e){} return CONTAS[em] ? CONTAS[em].perfil : null; }
+  var FOTO_EX = {'tiago@exemplo.pt': 'assets/exemplo/tiago.jpg'};
+  function lerPerfil(em){ var pf = null; try { var v = localStorage.getItem('fiq-perfil:' + em); if (v) pf = JSON.parse(v); } catch(e){} if (!pf) pf = CONTAS[em] ? CONTAS[em].perfil : null; if (pf && !pf.foto && FOTO_EX[em] && !pf.semFoto){ pf = Object.assign({}, pf, {foto: FOTO_EX[em]}); } return pf; }
   function entrarComo(conta, em){
     contaAtual = conta; emailAtual = em || 'tiago@exemplo.pt'; poePack(conta.pack); renderPack();
     var pf = lerPerfil(emailAtual);
@@ -1923,6 +1926,12 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
       HERO_K = chaveConta();
       var p = lerPonte(HERO_K), def = AN_DEF[HERO_K] || AN_DEF['tiago|un'];
       hn.textContent = ((p && p.nome) || def.nome).split('·')[0].trim() + ' · ' + ((p && p.jogo) || def.jogo);
+      var hero = document.getElementById('hero'), velha = hero.querySelector('.hero-capa'), hid = p ? ytId(p.yt) : '', campo = hero.querySelector('.hero-campo');
+      if (velha) velha.remove(); if (campo) campo.style.display = '';
+      if (hid){ var hi = document.createElement('img'); hi.className = 'hero-capa'; hi.alt = '';
+        hi.onerror = function(){ if (/maxresdefault/.test(hi.src)) hi.src = 'https://i.ytimg.com/vi/' + hid + '/hqdefault.jpg'; else { hi.remove(); if (campo) campo.style.display = ''; } };
+        hi.onload = function(){ if (hi.naturalWidth <= 120 && /maxresdefault/.test(hi.src)) hi.src = 'https://i.ytimg.com/vi/' + hid + '/hqdefault.jpg'; };
+        hi.src = 'https://i.ytimg.com/vi/' + hid + '/maxresdefault.jpg'; hero.insertBefore(hi, hero.firstChild); if (campo) campo.style.display = 'none'; }
       document.getElementById('hero-data').textContent = (p && p.data) || def.data;
     }
     poeHero();
@@ -2149,7 +2158,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     if (menor && (!ee.nome || !ee.cont)) return erroCp(3, 'Falta o nome e o contacto do encarregado de educação.');
     if (menor && !document.getElementById('cp-aut').checked) return erroCp(3, 'Falta a autorização do encarregado de educação.');
     erroCp(3, '');
-    var pf = {nome: document.getElementById('cp-nome').value.trim(), nasc: nasc, alt: +alt.value, pe: cp.pe, pos: cp.pos, clube: document.getElementById('cp-clube').value.trim(), esc: cp.esc, num: document.getElementById('cp-num').value.trim(), obj: cp.obj, orig: cp.orig || '', ee: menor ? ee : null, aut: menor ? document.getElementById('cp-aut').checked : null, redes: document.getElementById('cp-redes').checked, foto: cpFoto || ''};
+    var pf = {nome: document.getElementById('cp-nome').value.trim(), nasc: nasc, alt: +alt.value, pe: cp.pe, pos: cp.pos, clube: document.getElementById('cp-clube').value.trim(), esc: cp.esc, num: document.getElementById('cp-num').value.trim(), obj: cp.obj, orig: cp.orig || '', ee: menor ? ee : null, aut: menor ? document.getElementById('cp-aut').checked : null, redes: document.getElementById('cp-redes').checked, foto: cpFoto || '', semFoto: !cpFoto};
     try { localStorage.setItem('fiq-perfil:' + emailAtual, JSON.stringify(pf)); } catch(e){}
     if (typeof darXP === 'function') setTimeout(function(){ darXP(50, 'Perfil completo', 'perfil'); }, 400);
     if (CONTAS[emailAtual]) CONTAS[emailAtual].perfil = pf;
