@@ -1,8 +1,8 @@
 /* FieldIQ — service worker
-   Sempre que mudares ficheiros da app, aumenta a VERSAO (ex.: 'fieldiq-v24').
+   Sempre que mudares ficheiros da app, aumenta a VERSAO (ex.: 'fieldiq-v25').
    Estratégia: tenta sempre a rede primeiro (as alterações aparecem logo);
    sem rede, usa a cópia guardada (a app abre na mesma). */
-const VERSAO = 'fieldiq-v24';
+const VERSAO = 'fieldiq-v25';
 const BASE = [
   './',
   './index.html',

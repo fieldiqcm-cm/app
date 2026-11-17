@@ -1092,9 +1092,9 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     </div>
 
     <div class="card mom" id="mom">
-      <div class="between" style="flex-wrap:wrap"><span class="eyebrow" style="letter-spacing:1.8px">Momentos do jogo</span>
+      <div class="between" style="flex-wrap:wrap"><span class="eyebrow" style="letter-spacing:1.8px">Momentos do vídeo</span>
         <div class="mini-seg" role="group" aria-label="Filtrar momentos"><button type="button" data-mf="todos" aria-pressed="true">Todos</button><button type="button" data-mf="bom" aria-pressed="false">Fazes bem</button><button type="button" data-mf="mel" aria-pressed="false">A melhorar</button></div></div>
-      <div class="mom-track" id="mom-track"><span class="mom-linha"></span><span class="mom-int"></span><span class="mom-t" style="left:0">0'</span><span class="mom-t" style="left:50%">45'</span><span class="mom-t" style="left:100%">90'</span></div>
+      <div class="mom-track" id="mom-track"><span class="mom-linha"></span><span class="mom-int"></span><span class="mom-t" style="left:0">0:00</span><span class="mom-t" id="mom-fim" style="left:100%"></span></div>
       <div class="mom-sel" id="mom-sel" aria-live="polite"></div>
     </div>
 
@@ -2099,38 +2099,40 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
 
   // Momentos do jogo
   var MOM = [
-    {m:7, t:'bom', a:'Receção orientada', d:'Olhaste antes de receber e rodaste logo para a frente.', s:15},
-    {m:18, t:'mel', a:'Reação à perda', d:'Depois de perderes a bola ficaste parado. Nos 3 segundos seguintes, pressiona logo.', s:62},
-    {m:31, t:'bom', a:'Passe a romper linhas', d:'Passe entre o médio e o central deles a encontrar o avançado.', s:110},
-    {m:44, t:'mel', a:'Olhar antes de receber', d:'Recebeste de costas sem olhar e tiveste de devolver a bola para trás.', s:165},
-    {m:63, t:'bom', a:'Apoio frontal', d:'Deste linha de passe ao colega com bola, de frente para o jogo.', s:240},
-    {m:78, t:'mel', a:'Posição sem bola', d:'Ficaste na mesma linha do adversário e o passe não te chegou.', s:330}
+    {s:15, t:'bom', a:'Receção orientada', d:'Olhaste antes de receber e rodaste logo para a frente.'},
+    {s:62, t:'mel', a:'Reação à perda', d:'Depois de perderes a bola ficaste parado. Nos 3 segundos seguintes, pressiona logo.'},
+    {s:110, t:'bom', a:'Passe a romper linhas', d:'Passe entre o médio e o central deles a encontrar o avançado.'},
+    {s:165, t:'mel', a:'Olhar antes de receber', d:'Recebeste de costas sem olhar e tiveste de devolver a bola para trás.'},
+    {s:240, t:'bom', a:'Apoio frontal', d:'Deste linha de passe ao colega com bola, de frente para o jogo.'},
+    {s:330, t:'mel', a:'Posição sem bola', d:'Ficaste na mesma linha do adversário e o passe não te chegou.'}
   ];
+  function momT(s){ s = Math.max(0, Math.floor(s)); var h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60; return (h ? h + ':' + String(m).padStart(2,'0') : m) + ':' + String(x).padStart(2,'0'); }
   (function(){
-    // momentos marcados pelo analista na gestão (os minutos que já vêm no relatório)
-    function seg(v){ v = String(v || '').trim(); if (!v) return -1; var p = v.split(':'); return p.length > 1 ? (+p[0] || 0) * 60 + (+p[1] || 0) : (+v || 0) * 60; }
+    // momentos marcados pelo analista na gestão: tempo no vídeo da sessão
+    function seg(v){ v = String(v || '').trim().replace(/[,.h]/g, ':'); if (!v) return -1; var p = v.split(':').map(function(n){ return +n || 0; }); return p.length === 3 ? p[0]*3600 + p[1]*60 + p[2] : p.length === 2 ? p[0]*60 + p[1] : p[0]*60; }
     try {
       var d = (JSON.parse(localStorage.getItem('fiq-demo-links') || '{}'))['tiago|un'];
-      if (d && Array.isArray(d.momentos)) MOM = d.momentos.map(function(x){ return {m: +x.m || 0, t: x.t === 'mel' ? 'mel' : 'bom', a: x.a || '', d: x.d || '', s: seg(x.v)}; });
+      if (d && Array.isArray(d.momentos)) MOM = d.momentos.map(function(x){ return {s: seg(x.v), t: x.t === 'mel' ? 'mel' : 'bom', a: x.a || '', d: x.d || ''}; }).filter(function(x){ return x.a && x.s >= 0; }).sort(function(p, q){ return p.s - q.s; });
     } catch(e){}
   })();
   var momSel = 0;
   function renderMomentos(filtro){
     var caixa = document.getElementById('mom'); caixa.hidden = !MOM.length; if (!MOM.length) return;
     if (momSel >= MOM.length) momSel = 0;
-    var tr = document.getElementById('mom-track');
+    var tr = document.getElementById('mom-track'), maxS = Math.max.apply(null, MOM.map(function(x){ return x.s; })) || 60, fimS = Math.ceil(maxS * 1.08 / 30) * 30;
+    document.getElementById('mom-fim').textContent = momT(fimS);
     tr.querySelectorAll('.mom-m').forEach(function(b){ b.remove(); });
     MOM.forEach(function(x, i){
       var b = document.createElement('button'); b.type = 'button'; b.className = 'mom-m ' + x.t + (filtro && filtro !== 'todos' && filtro !== x.t ? ' fora' : '');
-      b.style.left = (Math.min(x.m, 90)/90*100) + '%'; b.style.animationDelay = (i*70) + 'ms'; b.textContent = x.m + "'";
-      b.setAttribute('aria-label', x.m + ' minutos: ' + x.a); b.setAttribute('aria-pressed', i === momSel ? 'true' : 'false');
+      b.style.left = (x.s / fimS * 100) + '%'; b.style.animationDelay = (i*70) + 'ms'; b.textContent = i + 1;
+      b.setAttribute('aria-label', 'Lance ' + (i + 1) + ', aos ' + momT(x.s) + ' do vídeo: ' + x.a); b.setAttribute('aria-pressed', i === momSel ? 'true' : 'false');
       b.addEventListener('click', function(){ momSel = i; vibra(); renderMomentos(filtro); });
       tr.appendChild(b);
     });
     var x = MOM[momSel], sel = document.getElementById('mom-sel');
     sel.innerHTML = '<div class="ms-top"><span class="ms-min"></span><span class="pill ' + (x.t === 'bom' ? 'on' : 'off') + '">' + (x.t === 'bom' ? 'Fazes bem' : 'A melhorar') + '</span></div><b></b><p></p><button type="button">▶ Ver no vídeo</button>';
-    sel.querySelector('.ms-min').textContent = x.m + "'"; sel.querySelector('b').textContent = x.a; sel.querySelector('p').textContent = x.d;
-    var bv = sel.querySelector('button'); if (!(x.s >= 0)) bv.hidden = true;
+    sel.querySelector('.ms-min').textContent = momT(x.s); sel.querySelector('b').textContent = x.a; sel.querySelector('p').textContent = x.d;
+    var bv = sel.querySelector('button');
     bv.addEventListener('click', function(){ if (window.__fiqTocar) window.__fiqTocar(x.s); });
     sel.style.animation = 'none'; void sel.offsetWidth; sel.style.animation = '';
   }
