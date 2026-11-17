@@ -687,6 +687,14 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
   #s-inicio .scroll.mason{grid-auto-rows:8px;row-gap:0;align-items:start}
   #s-inicio .scroll.mason > *{margin-bottom:18px}
 }
+
+.foco-pack{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:var(--card2);text-decoration:none;color:var(--fg)}
+.foco-pack svg{width:44px;height:44px;flex:none}
+.foco-pack #fp-arc{transition:stroke-dashoffset 1s cubic-bezier(.2,1,.3,1)}
+.fp-tx{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.fp-tx b{font-size:15px;font-weight:800}
+.fp-tx small{font-size:12px;color:var(--muted);font-weight:700}
+.fp-seta{color:var(--gold2);font-weight:800}
 </style>
 </head>
 <body>
@@ -1056,7 +1064,11 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     <div class="card foco" id="foco">
       <div class="between"><span class="eyebrow" style="letter-spacing:1.8px">Antes da próxima sessão</span></div>
       <div class="foco-cont" id="foco-cont" aria-live="off"><div class="fc-b"><b id="fc-d">0</b><small>dias</small></div><div class="fc-b"><b id="fc-h">0</b><small>horas</small></div><div class="fc-b"><b id="fc-m">0</b><small>min</small></div></div>
-      <div class="sub" id="foco-quando" style="margin:0"></div>
+      <a class="foco-pack" href="#pack" id="foco-pack">
+        <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="18" fill="none" stroke="#3A3631" stroke-width="4"/><circle id="fp-arc" cx="22" cy="22" r="18" fill="none" stroke="#C9A453" stroke-width="4" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="50" transform="rotate(-90 22 22)"/></svg>
+        <span class="fp-tx"><b id="foco-quando">—</b><small id="fp-pack">Pack Pro · sessão 3 de 4</small></span>
+        <span class="fp-seta" aria-hidden="true">→</span>
+      </a>
       <div class="foco-tit">Revê isto antes da sessão</div>
       <div class="foco-lista" id="foco-lista"></div>
       <a class="foco-link" href="#analise" id="foco-link">Rever a análise →</a>
@@ -1096,22 +1108,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
         <div style="font-weight:800" id="q-veredito">Boa! Era a C.</div>
         <div style="font-size:13px;color:var(--muted);line-height:1.5"><span id="q-explica"></span> Sempre adaptado ao modelo da tua equipa.</div>
         <button class="textbtn" id="q-repetir" type="button" style="align-self:flex-start;color:var(--gold2);padding:0">Repetir ↺</button>
-      </div>
-    </div>
-
-    <div class="grid2">
-      <a class="card row" href="#pack" style="padding:14px;gap:10px">
-        <svg class="ringpack" viewBox="0 0 86 86" aria-hidden="true">
-          <circle cx="43" cy="43" r="36" fill="none" stroke="#3A3631" stroke-width="7"/>
-          <circle class="arc" cx="43" cy="43" r="36" fill="none" stroke="#C9A453" stroke-width="7" stroke-linecap="round" pathLength="1" transform="rotate(-90 43 43)"/>
-          <text x="43" y="50" text-anchor="middle" fill="#F2EEE2" font-family="Playfair Display,serif" font-weight="700" font-size="22">2/4</text>
-        </svg>
-        <div style="min-width:0"><div class="eyebrow" style="letter-spacing:1.4px">Pack <span class="nome-pack">Pro</span></div><div style="font-size:12px;color:var(--muted);margin-top:4px">sessões usadas</div></div>
-      </a>
-      <div class="beje" style="padding:16px">
-        <div class="eyebrow cobre" style="letter-spacing:1.6px">Próxima sessão</div>
-        <div class="serif" style="margin-top:8px;font-size:20px" id="ps-dia">Por marcar</div>
-        <div style="font-size:12px;color:var(--beje-muted)" id="ps-sub">o analista marca a data</div>
       </div>
     </div>
 
@@ -2342,7 +2338,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     var d = lerSessao(), q = document.getElementById('foco-quando'), cont = document.getElementById('foco-cont');
     var psd = document.getElementById('ps-dia'), pss = document.getElementById('ps-sub');
     if (!d || d < new Date()){
-      cont.style.display = 'none'; q.textContent = 'Por marcar. O analista marca a data e aparece aqui a contagem.';
+      cont.style.display = 'none'; q.textContent = 'Próxima sessão por marcar';
       if (psd){ psd.textContent = 'Por marcar'; pss.textContent = 'o analista marca a data'; }
     } else {
       cont.style.display = '';
@@ -2350,6 +2346,12 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
       if (psd){ psd.textContent = DIAS[d.getDay()] + ', ' + d.getDate() + ' ' + MESES[d.getMonth()]; pss.textContent = 'às ' + String(d.getHours()).padStart(2,'0') + 'h' + String(d.getMinutes()).padStart(2,'0'); }
     }
     var dif = d ? d - new Date() : 0;
+    // pack ao lado da data (antes era uma caixa à parte)
+    try {
+      var st = lerEstado(), arc = document.getElementById('fp-arc'), fp = document.getElementById('fp-pack');
+      if (st.formato === 'Pack 4'){ var tot = +st.total || 4, fe = +st.feitas || 0; fp.textContent = 'Pack ' + st.pack + ' · ' + fe + ' de ' + tot + ' sessões feitas' + (d && fe < tot ? ' · esta é a ' + (fe + 1) + '.ª' : ''); arc.setAttribute('stroke-dashoffset', String(100 - Math.round(fe / tot * 100))); }
+      else { var ns = (st.sessoes || []).length; fp.textContent = 'Sessões individuais · ' + ns + (ns === 1 ? ' feita' : ' feitas'); arc.setAttribute('stroke-dashoffset', '0'); }
+    } catch(e){}
     var dd = Math.max(0, Math.floor(dif/864e5)), hh = Math.max(0, Math.floor(dif/36e5) % 24), mm = Math.max(0, Math.floor(dif/6e4) % 60);
     document.getElementById('fc-d').textContent = dd; document.getElementById('fc-h').textContent = hh; document.getElementById('fc-m').textContent = String(mm).padStart(2,'0');
     var A = ATR[emailAtual], lista = document.getElementById('foco-lista');
