@@ -239,16 +239,25 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   // ===== Dados de exemplo (fictícios) =====
   var hoje = '14 nov';
   var clientes = [
-    {id:'tiago', nome:'Tiago M.', ini:'TM', pos:'Médio', menor:true, email:'tiago@exemplo.pt', pack:'Pro', formato:'Pack 4', feitas:2, total:4, preco:250, pagamentos:[{d:'12 out',v:125,m:'MB WAY'}], acesso:'Hoje, 10h15', perfil:{nome:'Tiago M.',nasc:'2011-03-14',alt:168,pe:'Direito',pos:'Médio',clube:'GD Exemplo',esc:'Sub-15',num:'8',obj:'Ser titular',orig:'Instagram',ee:{nome:'Ana M.',cont:'ana@exemplo.pt'},aut:true,redes:false},
+    {id:'tiago', nome:'Tiago M.', ini:'TM', pos:'Médio', menor:true, email:'tiago@exemplo.pt', pack:'Pro', formato:'Pack 4', feitas:1, total:4, preco:250, pagamentos:[{d:'12 out',v:125,m:'MB WAY'}], acesso:'Hoje, 10h15', perfil:{nome:'Tiago M.',nasc:'2011-03-14',alt:168,pe:'Direito',pos:'Médio',clube:'GD Exemplo',esc:'Sub-15',num:'8',obj:'Ser titular',orig:'Instagram',ee:{nome:'Ana M.',cont:'ana@exemplo.pt'},aut:true,redes:false},
       analises:[{id:'ab',nome:'Sessão 3 · Tiago M.',jogo:'vs. Atlético B',data:'9 nov',estado:'Em análise',yt:'',dl:'',pdf:'',ate:''},{id:'un',nome:'Sessão 2 · Tiago M.',jogo:'vs. União Norte',data:'26 out',estado:'Concluída',pdfNome:'Relatorio_Sessao2_TiagoM.pdf',pdfTam:4203,momentos:[{v:'0:15',t:'bom',a:'Receção orientada',d:'Olhaste antes de receber e rodaste logo para a frente.'},{v:'1:02',t:'mel',a:'Reação à perda',d:'Depois de perderes a bola ficaste parado. Nos 3 segundos seguintes, pressiona logo.'},{v:'1:50',t:'bom',a:'Passe a romper linhas',d:'Passe entre o médio e o central deles a encontrar o avançado.'},{v:'2:45',t:'mel',a:'Olhar antes de receber',d:'Recebeste de costas sem olhar e tiveste de devolver a bola para trás.'}],yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''},{id:'ds',nome:'Sessão 1 · Tiago M.',jogo:'vs. Desportivo Sul',data:'12 out',estado:'Concluída',yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''}],
       manter:['Receção orientada para a frente','Apoio frontal ao colega com bola'], melhorar:['Olhar antes de receber (2 vezes)','Reação nos 3 segundos após a perda'],
       comp:[{n:'Exemplo: olhar antes de receber',d:'13 nov'},{n:'O teu lance 07, comentado',d:'10 nov'}], stats:{passes:'',duelos:'',rec:'',dec:''}},
     {id:'rui', nome:'Rui S.', ini:'RS', pos:'Defesa central', menor:false, email:'rui@exemplo.pt', pack:'Elite', formato:'Individual', feitas:1, total:1, preco:110, pagamentos:[{d:'3 nov',v:110,m:'Multibanco'}], acesso:'Ontem, 22h40', perfil:{nome:'Rui S.',nasc:'2004-07-02',alt:186,pe:'Esquerdo',pos:'Defesa central',clube:'Clube Exemplo FC',esc:'Sénior',num:'4',obj:'Chegar a um clube maior',orig:'Um colega'},
-      analises:[{id:'sn',nome:'Sessão 2 · Rui S.',jogo:'vs. Sporting Norte',data:'2 nov',estado:'Concluída',nivel:'Elite',preco:110,pago:110,pagoInfo:'Pago · Multibanco',yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''},{id:'ro',nome:'Sessão 1 · Rui S.',jogo:'vs. Oriental',data:'19 out',estado:'Concluída',nivel:'Pro',preco:70,pago:70,pagoInfo:'Pago · MB WAY',yt:'',dl:'',pdf:'',ate:''}],
+      analises:[{id:'sn',nome:'Sessão 1 · Rui S.',jogo:'vs. Sporting Norte',data:'2 nov',estado:'Concluída',nivel:'Elite',preco:110,pago:110,pagoInfo:'Pago · Multibanco',yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''},{id:'ro',nome:'Sessão 1 · Rui S.',jogo:'vs. Oriental',data:'19 out',estado:'Concluída',nivel:'Pro',preco:70,pago:70,pagoInfo:'Pago · MB WAY',yt:'',dl:'',pdf:'',ate:''}],
       manter:['Controlo da profundidade'], melhorar:['Primeiro passe a romper linhas'], comp:[], stats:{passes:'88%',duelos:'9/12',rec:'11',dec:'81'}},
     {id:'bruno', nome:'Bruno L.', ini:'BL', pos:'Extremo', menor:true, email:'bruno@exemplo.pt', pack:'Performance', formato:'Individual', feitas:0, total:1, preco:45, pagamentos:[], acesso:'Ainda não ativou a conta',
       analises:[{id:'lf',nome:'Sessão 1 · Bruno L.',jogo:'vs. Leões FC',data:'8 nov',estado:'Recebido',nivel:'Performance',preco:45,pago:0,pagoInfo:'Por pagar',yt:'',dl:'',pdf:'',ate:''}], manter:[], melhorar:[], comp:[], stats:{passes:'',duelos:'',rec:'',dec:''}}
   ];
+  // Exemplo: uma só análise por jogador. O que já foi guardado neste aparelho volta a aparecer na gestão.
+  (function(){
+    var o={}; try{ o=JSON.parse(localStorage.getItem('fiq-demo-links')||'{}'); }catch(e){}
+    clientes.forEach(function(c){
+      c.analises.forEach(function(a){ var p=o[c.id+'|'+a.id]; if(p){ ['estado','yt','dl','ate','nome','jogo','data','pdfNome','pdfTam','momentos'].forEach(function(k){ if(p[k]!==undefined) a[k]=p[k]; }); a._guardada=true; } });
+      var guardadas=c.analises.filter(function(a){ return a._guardada; });
+      c.analises=[guardadas[0] || c.analises[c.id==='tiago'?1:0]];
+    });
+  })();
   var conversas = [
     {cli:'tiago', jogo:'vs. União Norte', lida:false, msgs:[
       {de:'cli', sb:'Vídeo · lance 07', t:'No lance 07 devia ter passado por dentro em vez de abrir na ala?', q:'27 out, 21h10'},

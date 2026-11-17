@@ -925,7 +925,6 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
         <span class="hero-acoes"><span class="hero-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#111" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span id="hero-btn-txt">Ver o vídeo</span></span><span class="hero-cont" id="hero-cont" hidden></span></span>
       </span>
     </a>
-    <a class="estado-tira" href="#estado"><span class="pulse"></span><span><b>Sessão 3 em análise</b> · vs. Atlético B · pronta até 17 nov</span><span class="et-seta">→</span></a>
 
     <div class="pcard-wrap">
       <button class="pcard ouro" id="pcard" type="button" aria-label="Cartão de jogador. Toca para virar e ver a evolução.">
@@ -1610,19 +1609,29 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
   }
 
   // lista de análises
+  function chaveConta(){
+    var em = (typeof emailAtual === 'string' && emailAtual) ? emailAtual.toLowerCase() : 'tiago@exemplo.pt';
+    if (em.indexOf('rui@') === 0) return 'rui|sn';
+    if (em.indexOf('bruno@') === 0) return 'bruno|lf';
+    var o = {}; try { o = JSON.parse(localStorage.getItem('fiq-demo-links') || '{}'); } catch(e){}
+    var ks = ['tiago|ab', 'tiago|un', 'tiago|ds'];
+    for (var i = 0; i < ks.length; i++) if (o[ks[i]]) return ks[i];
+    return 'tiago|un';
+  }
   var dados = [
     {k:'tiago|ab',dia:'9',mes:'NOV',jogo:'vs. Atlético B',nivel:'Pro',det:'Sessão 3',estado:'Em análise',on:true,link:'#estado'},
     {k:'tiago|un',dia:'26',mes:'OUT',jogo:'vs. União Norte',nivel:'Pro',det:'Sessão 2',estado:'Concluída',link:'#analise'},
     {k:'tiago|ds',dia:'12',mes:'OUT',jogo:'vs. Desportivo Sul',nivel:'Pro',det:'Sessão 1',estado:'Concluída',link:'#analise'},
-    {k:'tiago|ac',dia:'28',mes:'SET',jogo:'vs. Académico FC',nivel:'Performance',det:'relatório + vídeo',estado:'Concluída',link:'#analise'}
+    {k:'rui|sn',dia:'2',mes:'NOV',jogo:'vs. Sporting Norte',nivel:'Elite',det:'Sessão 1',estado:'Concluída',link:'#analise'},
+    {k:'bruno|lf',dia:'8',mes:'NOV',jogo:'vs. Leões FC',nivel:'Performance',det:'Sessão 1',estado:'Recebido',on:true,link:'#estado'}
   ];
   function desenhar(f){
     var el = document.getElementById('lista'); el.innerHTML = '';
-    var l = dados.filter(function(a){ return f === 'Todas' || a.nivel === f; });
+    var kc = chaveConta(), l = dados.filter(function(a){ return a.k === kc && (f === 'Todas' || a.nivel === f); });
     l.forEach(function(a, i){
       // o que o analista guardou na gestão (neste aparelho) manda: estado, nome e conteúdo
       var p = null; try { p = (JSON.parse(localStorage.getItem('fiq-demo-links') || '{}'))[a.k] || null; } catch(e){}
-      if (p){ a = Object.assign({}, a); if (p.estado) { a.estado = p.estado; a.on = p.estado !== 'Concluída'; } if (p.jogo) a.jogo = p.jogo; if (p.nome) a.det = p.nome.split('·')[0].trim(); if (p.estado === 'Concluída' || p.yt || p.pdfNome) a.link = '#analise'; }
+      if (p){ a = Object.assign({}, a); if (p.estado) { a.estado = p.estado; a.on = p.estado !== 'Concluída'; } if (p.jogo) a.jogo = p.jogo; if (p.data){ var dp = String(p.data).trim().split(/[\s\/]+/); if (dp[0]) a.dia = dp[0]; if (dp[1]) a.mes = isNaN(+dp[1]) ? dp[1].slice(0,3).toUpperCase() : ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'][(+dp[1]-1+12)%12]; } if (p.nome) a.det = p.nome.split('·')[0].trim(); if (p.estado === 'Concluída' || p.yt || p.pdfNome) a.link = '#analise'; }
       var c = document.createElement('a'); c.className = 'card item'; c.href = a.link; c.dataset.k = a.k;
       c.addEventListener('click', function(){ if (window.__fiqAbrirAn) window.__fiqAbrirAn(this.dataset.k); });
       c.style.animationDelay = (i * 70) + 'ms';
@@ -1645,8 +1654,8 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
   // ===== O meu plano: só leitura (quem muda é a gestão) =====
   function $(id){ return document.getElementById(id); }
   var EST_INI = {
-    'tiago@exemplo.pt': {formato:'Pack 4', pack:'Pro', feitas:2, total:4, preco:250, pagamentos:[{d:'12 out',v:125,m:'MB WAY'}], sessoes:[{nome:'Sessão 3',jogo:'vs. Atlético B',data:'9 nov'},{nome:'Sessão 2',jogo:'vs. União Norte',data:'26 out'},{nome:'Sessão 1',jogo:'vs. Desportivo Sul',data:'12 out'}]},
-    'rui@exemplo.pt': {formato:'Individual', pack:'Elite', sessoes:[{nome:'Sessão 2',jogo:'vs. Sporting Norte',data:'2 nov',nivel:'Elite',preco:110,pago:110,pagoInfo:'Pago · Multibanco'},{nome:'Sessão 1',jogo:'vs. Oriental',data:'19 out',nivel:'Pro',preco:70,pago:70,pagoInfo:'Pago · MB WAY'}]},
+    'tiago@exemplo.pt': {formato:'Pack 4', pack:'Pro', feitas:1, total:4, preco:250, pagamentos:[{d:'12 out',v:125,m:'MB WAY'}], sessoes:[{nome:'Sessão 2',jogo:'vs. União Norte',data:'26 out'}]},
+    'rui@exemplo.pt': {formato:'Individual', pack:'Elite', sessoes:[{nome:'Sessão 1',jogo:'vs. Sporting Norte',data:'2 nov',nivel:'Elite',preco:110,pago:110,pagoInfo:'Pago · Multibanco'}]},
     'bruno@exemplo.pt': {formato:'Individual', pack:'Performance', sessoes:[{nome:'Sessão 1',jogo:'vs. Leões FC',data:'8 nov',nivel:'Performance',preco:45,pago:0,pagoInfo:'Por pagar'}]}
   };
   function lerEstado(){
@@ -1751,7 +1760,8 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
       'tiago|ab': {nome:'Sessão 3 · Tiago M.', jogo:'vs. Atlético B', data:'9 novembro'},
       'tiago|un': {nome:'Sessão 2 · Tiago M.', jogo:'vs. União Norte', data:'26 outubro'},
       'tiago|ds': {nome:'Sessão 1 · Tiago M.', jogo:'vs. Desportivo Sul', data:'12 outubro'},
-      'tiago|ac': {nome:'Análise · Tiago M.', jogo:'vs. Académico FC', data:'28 setembro'}
+      'rui|sn': {nome:'Sessão 1 · Rui S.', jogo:'vs. Sporting Norte', data:'2 novembro'},
+      'bruno|lf': {nome:'Sessão 1 · Bruno L.', jogo:'vs. Leões FC', data:'8 novembro'}
     };
     function lerPonte(k){ try { return (JSON.parse(localStorage.getItem('fiq-demo-links') || '{}'))[k] || null; } catch(e){ return null; } }
     var YT_HTML = document.getElementById('yt-wrap').innerHTML;
@@ -1818,9 +1828,8 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     var hn = document.getElementById('hero-nome'), HERO_K = 'tiago|un';
     function poeHero(){
       if (!hn) return;
-      HERO_K = 'tiago|un';
-      ['tiago|ab','tiago|un','tiago|ds'].some(function(k){ var p = lerPonte(k); if (p && (p.estado === 'Concluída' || p.yt || p.pdfNome)){ HERO_K = k; return true; } return false; });
-      var p = lerPonte(HERO_K), def = AN_DEF[HERO_K];
+      HERO_K = chaveConta();
+      var p = lerPonte(HERO_K), def = AN_DEF[HERO_K] || AN_DEF['tiago|un'];
       hn.textContent = ((p && p.nome) || def.nome).split('·')[0].trim() + ' · ' + ((p && p.jogo) || def.jogo);
       document.getElementById('hero-data').textContent = (p && p.data) || def.data;
     }
@@ -1934,10 +1943,9 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     window.__fiqPonte = lerPonte;
     window.addEventListener('hashchange', function(){
       if (location.hash !== '#analise') return;
-      var k = 'tiago|un'; try { k = sessionStorage.getItem('fiq-an') || k; } catch(e){}
-      carregar(k);
+      carregar(chaveConta());
     });
-    carregar('tiago|un');
+    carregar(chaveConta());
   })();
 
   // ===== Tema: automático / claro / escuro =====
