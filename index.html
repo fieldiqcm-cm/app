@@ -2283,6 +2283,8 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     if (media) g += '<polygon points="' + poly(media) + '" fill="none" stroke="#F2EEE2" stroke-width="1.6" stroke-dasharray="5 4" opacity=".8"/>';
     g += '<polygon points="' + poly(sel) + '" fill="' + cor + '" fill-opacity=".30" stroke="' + cor + '" stroke-width="2.4"/>';
     sel.forEach(function(v, i){ if (v == null) return; var q = p(i, v); g += '<circle cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="' + (i === cartaEixo ? 5.5 : 3.5) + '" fill="' + cor + '"/>'; });
+    // números junto a cada ponto (referência para o jogador)
+    sel.forEach(function(v, i){ if (v == null) return; var q = p(i, Math.min(100, v) + 13); g += '<text x="' + q[0].toFixed(1) + '" y="' + (q[1] + 4).toFixed(1) + '" text-anchor="middle" font-family="Playfair Display,Georgia,serif" font-weight="700" font-size="' + (i === cartaEixo ? 14 : 12) + '" fill="' + cor + '" stroke="#111" stroke-width="3" paint-order="stroke" style="pointer-events:none">' + v + '</text>'; });
     return '<svg viewBox="0 0 400 320" role="img" aria-label="Radar dos teus pontos">' + g + '</svg>';
   }
   function renderCartao(){
@@ -2308,7 +2310,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     rad.innerHTML = radarCarta(eixos, selV, comMedia ? media : null, cor);
     leg.innerHTML = '<span><i style="background:' + cor + '"></i>' + ses[cartaSel].n + (ses[cartaSel].d ? ' · ' + escH(ses[cartaSel].d) : '') + '</span>' + (comMedia ? '<span><i style="border:1.5px dashed #F2EEE2"></i>Média das ' + ses.length + ' sessões</span>' : '');
     if (cartaEixo >= 0 && cartaEixo < eixos.length) val.innerHTML = escH(eixos[cartaEixo]) + ' · <b>' + (selV[cartaEixo] == null ? '—' : selV[cartaEixo]) + '</b>' + (comMedia && media[cartaEixo] != null ? ' <span style="opacity:.7">(média ' + media[cartaEixo] + ')</span>' : '');
-    else val.textContent = 'Toca num ponto do radar para ver a nota.';
+    else val.textContent = comMedia ? 'Toca num ponto para ver a média.' : '';
     var s = '';
     if (elite && ses.length > 1){
       var best = null; eixos.forEach(function(nm, i){ var a0 = valDe(ses[0], nm), a1 = valDe(ses[ult], nm); if (a0 != null && a1 != null && (!best || a1 - a0 > best[1])) best = [nm, a1 - a0]; });
