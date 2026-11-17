@@ -681,6 +681,12 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
 .pc-sub:empty{display:none}
 .pc-sub b{color:var(--m1)}
 .pc-vazio2{padding:22px 8px;text-align:center;color:#B8B2A4;font-size:13px;line-height:1.5;position:relative;z-index:1}
+
+/* ===== Início no computador: caixas encaixadas, sem buracos (17/11) ===== */
+@media (min-width:900px){
+  #s-inicio .scroll.mason{grid-auto-rows:8px;row-gap:0;align-items:start}
+  #s-inicio .scroll.mason > *{margin-bottom:18px}
+}
 </style>
 </head>
 <body>
@@ -2446,6 +2452,22 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     b.addEventListener('click', function(e){ e.preventDefault(); toast(b.dataset.toast); });
   });
 
+
+  // Início no computador: encaixa as caixas em duas colunas (tipo mosaico) para não ficarem buracos
+  (function(){
+    var sc = document.querySelector('#s-inicio .scroll'), mq = window.matchMedia('(min-width: 900px)'), pend = 0;
+    function arruma(){
+      pend = 0;
+      if (!mq.matches || document.getElementById('s-inicio').hidden){ sc.classList.remove('mason'); [].forEach.call(sc.children, function(el){ el.style.gridRowEnd = ''; }); return; }
+      sc.classList.add('mason');
+      [].forEach.call(sc.children, function(el){ if (el.offsetParent === null){ el.style.gridRowEnd = ''; return; } el.style.gridRowEnd = 'span ' + Math.ceil((el.getBoundingClientRect().height + 18) / 8); });
+    }
+    function pede(){ if (!pend) pend = requestAnimationFrame(arruma); }
+    if (window.ResizeObserver){ var ro = new ResizeObserver(pede); [].forEach.call(sc.children, function(el){ ro.observe(el); }); }
+    window.addEventListener('resize', pede); window.addEventListener('hashchange', function(){ setTimeout(pede, 30); });
+    if (mq.addEventListener) mq.addEventListener('change', pede);
+    setTimeout(pede, 50);
+  })();
   // ===== PWA: instalação e atualizações =====
   var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   var btnInst = document.getElementById('instalar'), btnTop = document.getElementById('instalar-top'), pedido = null;
