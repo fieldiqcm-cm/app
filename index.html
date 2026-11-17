@@ -353,7 +353,11 @@ body.em-demo .screen .scroll{padding-top:56px}
 .pdfv-top b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
 .pdfv-x{width:40px;height:40px;border-radius:50%;border:1px solid #3A3631;background:transparent;color:#F2EEE2;font-size:22px;cursor:pointer;flex:none}
 .pdfv-pags{flex:1;overflow:auto;padding:14px 12px calc(24px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:12px;-webkit-overflow-scrolling:touch}
-.pdfv-pags canvas{width:100%;max-width:860px;height:auto;background:#fff;border-radius:4px;box-shadow:0 6px 24px rgba(0,0,0,.45)}
+.pdfv-pags canvas{width:100%;max-width:860px;height:auto;background:#fff;border-radius:4px;box-shadow:0 6px 24px rgba(0,0,0,.45);cursor:zoom-in;flex:none}
+.pdfv-pags.zoom{align-items:flex-start}
+.pdfv-pags.zoom canvas{width:220%;max-width:none;cursor:zoom-out}
+.pdfv-dica{font-size:12px;color:#8F897C;text-align:center;flex:none}
+@media (min-width:900px){ .pdfv-pags.zoom canvas{width:160%} }
 .pdfv-msg{margin:auto;text-align:center;color:#B8B2A4;font-size:14px;max-width:300px;line-height:1.5}
 .dl{display:flex;align-items:center;gap:10px;min-height:60px;padding:10px 12px;border-radius:14px;background:var(--card);border:1px solid var(--line);color:var(--fg);text-decoration:none}
 .dl b{display:block;font-size:14px}
@@ -1875,11 +1879,13 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
         return r[0].arrayBuffer().then(function(buf){ return r[1].getDocument({data: buf}).promise; });
       }).then(function(doc){
         pags.innerHTML = '';
-        var larg = Math.min(860, pags.clientWidth - 24), dpr = Math.min(2, window.devicePixelRatio || 1), cadeia = Promise.resolve();
+        var larg = Math.min(860, pags.clientWidth - 24), dpr = Math.min(2, window.devicePixelRatio || 1) * 2.2, cadeia = Promise.resolve();
+        var dica = document.createElement('p'); dica.className = 'pdfv-dica'; dica.textContent = 'Toca numa página para ampliar.'; pags.appendChild(dica);
         for (var n = 1; n <= doc.numPages; n++) (function(n){
           cadeia = cadeia.then(function(){ return doc.getPage(n); }).then(function(p){
             var v0 = p.getViewport({scale: 1}), esc = larg / v0.width * dpr, v = p.getViewport({scale: esc});
             var cv = document.createElement('canvas'); cv.width = Math.floor(v.width); cv.height = Math.floor(v.height); cv.setAttribute('aria-label', 'Página ' + n);
+            cv.addEventListener('click', function(){ var z = !pags.classList.contains('zoom'); pags.classList.toggle('zoom', z); dica.textContent = z ? 'Toca de novo para voltar ao tamanho normal.' : 'Toca numa página para ampliar.'; cv.scrollIntoView({block: 'start'}); });
             pags.appendChild(cv);
             return p.render({canvas: cv, canvasContext: cv.getContext('2d'), viewport: v}).promise;
           });
