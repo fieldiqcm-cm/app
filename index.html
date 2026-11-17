@@ -637,6 +637,18 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
 .rs::before{width:90px;height:90px;right:-24px;top:-24px}
 .rs b{font-size:19px}
 @media (min-width:900px){ .rs{grid-template-columns:1fr;row-gap:8px} .rs .rs-ic{grid-row:auto} }
+
+/* ===== foto de perfil ===== */
+.cp-foto{display:flex;align-items:center;gap:16px}
+.cp-foto-c{position:relative;width:92px;height:92px;border-radius:50%;flex:none;cursor:pointer;background:var(--card2);border:2px dashed var(--gold);display:flex;align-items:center;justify-content:center;color:var(--gold2)}
+.cp-foto-c img{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover}
+.cp-foto-c.tem{border-style:solid}
+.cp-foto-mais{position:absolute;right:-2px;bottom:-2px;width:30px;height:30px;border-radius:50%;background:var(--gold);color:#111;font:800 20px/30px var(--body);text-align:center;border:3px solid var(--app)}
+.pf-av{overflow:hidden;position:relative}
+.pf-av img,.pc-foto img{width:100%;height:100%;object-fit:cover;display:block}
+.pc-foto{width:64px;height:64px;border-radius:50%;overflow:hidden;flex:none;border:2px solid var(--m1,#E2C27A);box-shadow:0 0 0 3px rgba(0,0,0,.35);background:#222}
+.ola-foto{width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid var(--gold);flex:none;display:inline-block;vertical-align:middle}
+.ola-foto img{width:100%;height:100%;object-fit:cover;display:block}
 </style>
 </head>
 <body>
@@ -871,6 +883,11 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
 
     <div class="cp-step" id="cp-1">
       <div><div class="eyebrow">O teu perfil</div><h1>Vamos conhecer-te, <em class="cp-nome-h">jogador</em>.</h1><p class="sub" style="margin:8px 0 0">Leva 1 minuto. Ajuda o analista a preparar a tua análise.</p></div>
+      <div class="cp-foto">
+        <label class="cp-foto-c" for="cp-foto-in" id="cp-foto-c" aria-label="Escolher a tua foto de perfil"><span class="cp-foto-ph"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><img id="cp-foto-img" alt="" hidden><span class="cp-foto-mais" aria-hidden="true">+</span></label>
+        <div><b style="display:block">Foto de perfil</b><span class="sub" style="margin:0">De frente, com boa luz. Aparece no teu perfil e na tua carta.</span><button class="textbtn" type="button" id="cp-foto-tirar" hidden style="padding:0;color:var(--gold2)">Remover foto</button></div>
+        <input type="file" id="cp-foto-in" accept="image/*" hidden>
+      </div>
       <div class="cp-f"><label class="cp-l" for="cp-nome">Nome</label><input class="input" id="cp-nome" autocomplete="name" placeholder="O teu nome"></div>
       <div class="cp-f"><label class="cp-l" for="cp-nasc">Data de nascimento</label><input class="input" id="cp-nasc" type="date"><span class="idade" id="cp-idade" aria-live="polite"></span></div>
       <div class="cp-f"><label class="cp-l" for="cp-alt">Altura</label>
@@ -988,7 +1005,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
             <span class="pc-top"><span class="pc-marca">FIELD<b>IQ</b></span><span class="pc-metal" id="pc-metal">OURO · PRO</span></span>
             <span class="pc-mid">
               <span class="pc-num"><b id="pc-num">8</b><small id="pc-pos">MED</small></span>
-              <span class="pc-id"><b id="pc-nome">Tiago M.</b><small id="pc-clube">GD Exemplo · Sub-15</small></span>
+              <span class="pc-foto" id="pc-foto" hidden></span><span class="pc-id"><b id="pc-nome">Tiago M.</b><small id="pc-clube">GD Exemplo · Sub-15</small></span>
             </span>
             <span class="pc-atr" id="pc-atr"></span>
             <span class="pc-dica">Toca para virar ↻</span>
@@ -2084,9 +2101,20 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     document.getElementById('cp-voltar').hidden = !(n === 2 || n === 3);
     var sc = document.querySelector('#s-completar .scroll'); if (sc) sc.scrollTop = 0;
   }
+  // foto de perfil: reduzida no próprio aparelho para 480 px (fica leve)
+  var cpFoto = '';
+  function mostraCpFoto(){ var img = document.getElementById('cp-foto-img'), c = document.getElementById('cp-foto-c'); img.hidden = !cpFoto; if (cpFoto) img.src = cpFoto; else img.removeAttribute('src'); c.classList.toggle('tem', !!cpFoto); document.getElementById('cp-foto-tirar').hidden = !cpFoto; }
+  function reduzFoto(f){ return new Promise(function(res, rej){ var r = new FileReader(); r.onload = function(){ var im = new Image(); im.onload = function(){ var L = 480, s = Math.min(im.width, im.height), cv = document.createElement('canvas'); cv.width = cv.height = Math.min(L, s); var cx = cv.getContext('2d'); cx.drawImage(im, (im.width - s)/2, (im.height - s)/2.6, s, s, 0, 0, cv.width, cv.height); res(cv.toDataURL('image/jpeg', .85)); }; im.onerror = rej; im.src = r.result; }; r.onerror = rej; r.readAsDataURL(f); }); }
+  document.getElementById('cp-foto-in').addEventListener('change', function(){
+    var f = this.files && this.files[0]; this.value = ''; if (!f) return;
+    if (!/^image\//.test(f.type)){ toast('Escolhe uma imagem (foto).'); return; }
+    reduzFoto(f).then(function(u){ cpFoto = u; mostraCpFoto(); vibra(); }).catch(function(){ toast('Não foi possível abrir esta foto. Tenta outra.'); });
+  });
+  document.getElementById('cp-foto-tirar').addEventListener('click', function(){ cpFoto = ''; mostraCpFoto(); });
+  function poeAvatar(el, pf){ if (!el) return; var nome = (pf && pf.nome) || ''; el.innerHTML = ''; if (pf && pf.foto){ var im = document.createElement('img'); im.src = pf.foto; im.alt = 'Foto de ' + nome; el.appendChild(im); } else el.textContent = iniciais(nome); }
   function erroCp(n, t){ var e = document.getElementById('cp-e' + n); e.textContent = t; e.hidden = !t; }
   function abrirCompletar(){
-    var pf = lerPerfil(emailAtual) || {}; cp = {};
+    var pf = lerPerfil(emailAtual) || {}; cp = {}; cpFoto = pf.foto || ''; mostraCpFoto();
     document.getElementById('cp-nome').value = pf.nome || (contaAtual && contaAtual.nome) || '';
     document.querySelectorAll('.cp-nome-h').forEach(function(e){ e.textContent = (document.getElementById('cp-nome').value.split(' ')[0] || 'jogador'); });
     document.getElementById('cp-nasc').value = pf.nasc || '';
@@ -2121,7 +2149,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     if (menor && (!ee.nome || !ee.cont)) return erroCp(3, 'Falta o nome e o contacto do encarregado de educação.');
     if (menor && !document.getElementById('cp-aut').checked) return erroCp(3, 'Falta a autorização do encarregado de educação.');
     erroCp(3, '');
-    var pf = {nome: document.getElementById('cp-nome').value.trim(), nasc: nasc, alt: +alt.value, pe: cp.pe, pos: cp.pos, clube: document.getElementById('cp-clube').value.trim(), esc: cp.esc, num: document.getElementById('cp-num').value.trim(), obj: cp.obj, orig: cp.orig || '', ee: menor ? ee : null, aut: menor ? document.getElementById('cp-aut').checked : null, redes: document.getElementById('cp-redes').checked};
+    var pf = {nome: document.getElementById('cp-nome').value.trim(), nasc: nasc, alt: +alt.value, pe: cp.pe, pos: cp.pos, clube: document.getElementById('cp-clube').value.trim(), esc: cp.esc, num: document.getElementById('cp-num').value.trim(), obj: cp.obj, orig: cp.orig || '', ee: menor ? ee : null, aut: menor ? document.getElementById('cp-aut').checked : null, redes: document.getElementById('cp-redes').checked, foto: cpFoto || ''};
     try { localStorage.setItem('fiq-perfil:' + emailAtual, JSON.stringify(pf)); } catch(e){}
     if (typeof darXP === 'function') setTimeout(function(){ darXP(50, 'Perfil completo', 'perfil'); }, 400);
     if (CONTAS[emailAtual]) CONTAS[emailAtual].perfil = pf;
@@ -2133,7 +2161,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
   document.getElementById('cp-entrar').addEventListener('click', function(){ location.hash = 'inicio'; });
   function mostrarPerfil(){
     var pf = lerPerfil(emailAtual) || {}, a = idadeDe(pf.nasc);
-    document.getElementById('pf-av').textContent = iniciais(pf.nome);
+    poeAvatar(document.getElementById('pf-av'), pf);
     document.getElementById('pf-nome').textContent = pf.nome || 'Jogador';
     document.getElementById('pf-sub').textContent = [pf.pos, pf.clube].filter(Boolean).join(' · ');
     var g = document.getElementById('pf-grid'); g.innerHTML = '';
@@ -2175,6 +2203,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     document.getElementById('pc-num').textContent = pf.num || '—';
     document.getElementById('pc-pos').textContent = ABREV[pf.pos] || '';
     document.getElementById('pc-nome').textContent = pf.nome || 'Jogador';
+    var pcf = document.getElementById('pc-foto'); pcf.hidden = !pf.foto; if (pf.foto){ pcf.innerHTML = ''; var pim = document.createElement('img'); pim.src = pf.foto; pim.alt = ''; pcf.appendChild(pim); }
     document.getElementById('pc-clube').textContent = [pf.clube, pf.esc].filter(Boolean).join(' · ');
     var A = ATR[emailAtual], box = document.getElementById('pc-atr');
     if (!A){ box.innerHTML = '<span class="pc-vazio">Os teus atributos aparecem aqui depois da primeira análise.</span>'; }

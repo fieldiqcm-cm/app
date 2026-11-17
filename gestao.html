@@ -98,7 +98,8 @@ label.l{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.6px}
 .campo{display:flex;flex-direction:column;gap:6px}
 .lista{display:flex;flex-direction:column;gap:8px}
 .cli{display:flex;align-items:center;gap:12px;padding:12px 14px}
-.av{width:42px;height:42px;border-radius:21px;background:var(--ink);color:var(--gold2);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.av{overflow:hidden;width:42px;height:42px;border-radius:21px;background:var(--ink);color:var(--gold2);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
 .cli .nm{font-weight:800}
 .cli .ds{font-size:12px;color:var(--muted);margin-top:2px}
 .dot{width:9px;height:9px;border-radius:5px;background:var(--bad);flex-shrink:0}
@@ -346,7 +347,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       '<h2>A fazer</h2><div class="lista">';
     pr.forEach(function(v){ var c=cli(v.cli); h+='<a class="card cli" href="#conversa-'+conversas.indexOf(v)+'"><span class="dot"></span><span style="flex:1"><span class="nm">Responder a '+esc(nomeDe(c))+'</span><span class="ds" style="display:block">"'+esc(v.msgs[v.msgs.length-1].t)+'"</span></span></a>'; });
     curso.forEach(function(x){ var falt=[]; if(!x.a.yt) falt.push('vídeo (YouTube)'); if(!x.a.pdfNome&&!x.a.pdf) falt.push('relatório (PDF)');
-      h+='<a class="card cli" href="#cliente-'+x.c.id+'"><span class="av" style="width:34px;height:34px;font-size:12px">'+iniDe(x.c)+'</span><span style="flex:1"><span class="nm">'+esc(x.a.nome||x.a.jogo)+'</span><span class="ds" style="display:block">'+x.a.estado+(falt.length?' · falta pôr o link do '+falt.join(' e do '):'')+'</span></span></a>'; });
+      h+='<a class="card cli" href="#cliente-'+x.c.id+'">'+avHtml(x.c,'width:34px;height:34px;font-size:12px')+'<span style="flex:1"><span class="nm">'+esc(x.a.nome||x.a.jogo)+'</span><span class="ds" style="display:block">'+x.a.estado+(falt.length?' · falta pôr o link do '+falt.join(' e do '):'')+'</span></span></a>'; });
     clientes.filter(function(c){return !lerPerfil(c);}).forEach(function(c){ h+='<a class="card cli" href="#cliente-'+c.id+'"><span class="pill p-warn">Perfil</span><span style="flex:1"><span class="nm">'+esc(nomeDe(c))+' ainda não completou o perfil</span><span class="ds" style="display:block">'+esc(c.acesso)+'</span></span></a>'; });
     emFalta.forEach(function(c){ h+='<a class="card cli" href="#cliente-'+c.id+'"><span class="pill '+estPag(c)[1]+'">'+falta(c)+' €</span><span style="flex:1"><span class="nm">Pagamento · '+esc(nomeDe(c))+'</span><span class="ds" style="display:block">'+c.pack+' · '+c.formato+'</span></span></a>'; });
     h+='</div><button class="btn ghost small" type="button" data-acao="sair" style="align-self:flex-start">Sair da gestão</button><div class="demo">Esboço: daqui a uns segundos chega uma notificação de exemplo, como aparece no telemóvel quando um cliente te escreve.</div>';
@@ -357,7 +358,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       '<label class="l" for="procura" style="position:absolute;left:-9999px">Procurar cliente</label><input class="input" id="procura" type="search" placeholder="Procurar por nome">'+
       '<div class="lista" id="lista-cli">';
     clientes.forEach(function(c){ var e=estPag(c);
-      h+='<a class="card cli" href="#cliente-'+c.id+'" data-nome="'+esc(nomeDe(c).toLowerCase())+'"><span class="av">'+iniDe(c)+'</span><span style="flex:1;min-width:0"><span class="nm">'+esc(nomeDe(c))+'</span><span class="ds" style="display:block">'+esc((function(){var pf=lerPerfil(c);return pf?[pf.pos,pf.clube].join(' · '):c.pos+' · perfil por completar';})())+' · '+(ePack(c)?'Pack '+c.pack+' · '+c.feitas+'/'+c.total:nivelAtual(c)+' · sessões individuais')+'</span></span><span class="pill '+e[1]+'">'+e[0]+'</span></a>'; });
+      h+='<a class="card cli" href="#cliente-'+c.id+'" data-nome="'+esc(nomeDe(c).toLowerCase())+'">'+avHtml(c,'')+'<span style="flex:1;min-width:0"><span class="nm">'+esc(nomeDe(c))+'</span><span class="ds" style="display:block">'+esc((function(){var pf=lerPerfil(c);return pf?[pf.pos,pf.clube].join(' · '):c.pos+' · perfil por completar';})())+' · '+(ePack(c)?'Pack '+c.pack+' · '+c.feitas+'/'+c.total:nivelAtual(c)+' · sessões individuais')+'</span></span><span class="pill '+e[1]+'">'+e[0]+'</span></a>'; });
     return h+'</div>';
   }
   function lerPerfil(c){ try{ var v=localStorage.getItem('fiq-perfil:'+c.email); if(v) return JSON.parse(v); }catch(e){} return c.perfil||null; }
@@ -365,13 +366,14 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   var secAtual='sec-analises', fichaDe=null;
   function nomeDe(c){ var pf=lerPerfil(c); return (pf&&pf.nome)||c.nome||c.email; }
   function nomeCurto(c){ var n=nomeDe(c); if(n.indexOf('@')>0) n=n.split('@')[0].replace(/[._-]+/g,' ').replace(/\b\w/g,function(l){return l.toUpperCase();}); return n; }
+  function avHtml(c,st){ var pf=lerPerfil(c); return '<span class="av"'+(st?' style="'+st+'"':'')+'>'+(pf&&pf.foto&&/^data:image\//.test(pf.foto)?'<img src="'+pf.foto+'" alt="">':iniDe(c))+'</span>'; }
   function iniDe(c){ var n=nomeDe(c); if(n.indexOf('@')>0) n=n.split('@')[0].replace(/[._-]+/g,' '); return n.trim().split(/\s+/).map(function(x){return x.charAt(0);}).join('').slice(0,2).toUpperCase(); }
   function card(id,titulo,extra,corpo){ return '<section class="card sec" id="'+id+'" role="tabpanel"'+(id!==secAtual?' hidden':'')+'><div class="between"><h2>'+titulo+'</h2>'+(extra||'')+'</div>'+corpo+'</section>'; }
   function vCliente(c){
     if(fichaDe!==c.id){ fichaDe=c.id; secAtual='sec-analises'; }
     var e=estPag(c), nPack={Performance:1,Pro:2,Elite:3}[nivelAtual(c)], pf=lerPerfil(c), idade=pf?idadeDe(pf.nasc):null;
     var abertas=c.analises.filter(function(a){return a.estado!=='Concluída';}).length;
-    var h='<div class="row"><a class="iconbtn" href="#clientes" aria-label="Voltar aos clientes">'+ICONE_VOLTAR+'</a><span class="av">'+iniDe(c)+'</span><div style="min-width:0"><div style="font-family:var(--display);font-weight:700;font-size:22px">'+esc(nomeDe(c))+'</div><div class="sub">'+esc(pf?[pf.pos,pf.clube,pf.esc].filter(Boolean).join(' · '):c.pos)+'</div></div></div>'+
+    var h='<div class="row"><a class="iconbtn" href="#clientes" aria-label="Voltar aos clientes">'+ICONE_VOLTAR+'</a>'+avHtml(c,'')+'<div style="min-width:0"><div style="font-family:var(--display);font-weight:700;font-size:22px">'+esc(nomeDe(c))+'</div><div class="sub">'+esc(pf?[pf.pos,pf.clube,pf.esc].filter(Boolean).join(' · '):c.pos)+'</div></div></div>'+
       // resumo rápido
       '<div class="resumo"><span class="pill p-ink">'+(ePack(c)?'Pack de 4 · '+c.pack:'Última: '+nivelAtual(c))+'</span><span class="pill p-soft">'+(ePack(c)?c.feitas+'/'+c.total+' sessões':c.analises.length+(c.analises.length===1?' sessão individual':' sessões individuais'))+'</span><span class="pill '+e[1]+'">'+e[0]+(falta(c)>0?' · falta '+falta(c)+' €':'')+'</span><span class="pill p-soft">Último acesso: '+esc(c.acesso)+'</span></div>'+
       '<div class="secnav" role="tablist" aria-label="Assuntos do cliente">'+[['sec-perfil','Perfil',pf?'':'!'],['sec-analises','Análises',abertas?String(abertas):''],['sec-sessoes','Sessões e pagamento',falta(c)>0?'€':''],['sec-semana','Semana',''],['sec-pack','Tipo e acesso','']].map(function(x){return '<button type="button" role="tab" data-ir="'+x[0]+'" aria-selected="'+(x[0]===secAtual)+'">'+x[1]+(x[2]?'<span class="tab-n">'+x[2]+'</span>':'')+'</button>';}).join('')+'<button type="button" class="ver-como" data-acao="ver-como">Ver como o cliente</button></div>';
@@ -460,7 +462,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     var h='<div><div class="eyebrow">'+porResponder().length+' por responder</div><h1>Dúvidas</h1></div><div class="lista">';
     conversas.slice().sort(function(a,b){ return (b.msgs[b.msgs.length-1].de==='cli')-(a.msgs[a.msgs.length-1].de==='cli'); }).forEach(function(v){
       var c=cli(v.cli), u=v.msgs[v.msgs.length-1], aberta=u.de==='cli';
-      h+='<a class="card cli" href="#conversa-'+conversas.indexOf(v)+'">'+(aberta?'<span class="dot"></span>':'')+'<span class="av">'+iniDe(c)+'</span><span style="flex:1;min-width:0"><span class="nm">'+esc(nomeDe(c))+' · '+esc(v.jogo)+'</span><span class="ds" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(u.de==='eu'?'Tu: ':'')+esc(u.t)+'</span></span><span class="pill '+(aberta?'p-bad':'p-ok')+'">'+(aberta?'Responder':'Respondida')+'</span></a>';
+      h+='<a class="card cli" href="#conversa-'+conversas.indexOf(v)+'">'+(aberta?'<span class="dot"></span>':'')+avHtml(c,'')+'<span style="flex:1;min-width:0"><span class="nm">'+esc(nomeDe(c))+' · '+esc(v.jogo)+'</span><span class="ds" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(u.de==='eu'?'Tu: ':'')+esc(u.t)+'</span></span><span class="pill '+(aberta?'p-bad':'p-ok')+'">'+(aberta?'Responder':'Respondida')+'</span></a>';
     });
     return h+'</div>';
   }
