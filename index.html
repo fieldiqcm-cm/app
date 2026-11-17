@@ -1847,14 +1847,33 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     var m = document.createElement('div'); m.className = 'msg eu';
     var agora = new Date(), hh = String(agora.getHours()).padStart(2,'0') + 'h' + String(agora.getMinutes()).padStart(2,'0');
     m.innerHTML = '<span class="sobre"></span><span class="tx"></span><small>Hoje, ' + hh + ' · Enviada</small>';
-    m.querySelector('.sobre').textContent = sobre;
-    m.querySelector('.tx').textContent = txt;
-    document.getElementById('thread').appendChild(m);
-    t.value = '';
-    toast('Enviada. O analista recebeu um aviso.'); if (typeof darXP === 'function') darXP(15, 'Pergunta ao analista', 'duvida');
-    setTimeout(function(){ m.querySelector('small').textContent = 'Hoje, ' + hh + ' · Vista pelo analista'; }, 2500);
+    var o = lerDuvC(), id = idDuv(); (o[id] = o[id] || []).push({de:'cli', sb:sobre, t:txt, q:'Hoje, ' + hh, ts:Date.now()}); gravaDuvC(o);
+    t.value = ''; desenhaDuv();
+    toast('Enviada. O analista recebeu um aviso.');
     var sc = document.querySelector('#s-duvidas .scroll'); sc.scrollTop = sc.scrollHeight;
   });
+  // mensagens novas (tuas e do analista) partilhadas com a gestão neste aparelho, até haver servidor
+  function idDuv(){ var em = (typeof emailAtual === 'string' && emailAtual) ? emailAtual.toLowerCase() : 'tiago@exemplo.pt'; return em.split('@')[0]; }
+  function lerDuvC(){ try { return JSON.parse(localStorage.getItem('fiq-demo-duvidas') || '{}'); } catch(e){ return {}; } }
+  function gravaDuvC(o){ try { localStorage.setItem('fiq-demo-duvidas', JSON.stringify(o)); } catch(e){} }
+  function desenhaDuv(){
+    var th = document.getElementById('thread'); th.querySelectorAll('.msg.extra').forEach(function(x){ x.remove(); });
+    (lerDuvC()[idDuv()] || []).forEach(function(x, i, l){
+      var m = document.createElement('div'); m.className = 'msg extra ' + (x.de === 'cli' ? 'eu' : 'ele');
+      m.innerHTML = '<span class="sobre"></span><span class="tx"></span><small></small>';
+      m.querySelector('.sobre').textContent = x.de === 'cli' ? (x.sb || 'Geral') : 'Analista';
+      m.querySelector('.tx').textContent = x.t;
+      var resp = x.de === 'cli' && l.slice(i + 1).some(function(y){ return y.de !== 'cli'; });
+      m.querySelector('small').textContent = (x.q || '') + (x.de === 'cli' ? (resp ? ' · Respondida' : ' · Enviada') : '');
+      th.appendChild(m);
+    });
+  }
+  window.addEventListener('hashchange', function(){ if (location.hash === '#duvidas'){ desenhaDuv(); var sc = document.querySelector('#s-duvidas .scroll'); setTimeout(function(){ sc.scrollTop = sc.scrollHeight; }, 50); } });
+  window.addEventListener('storage', function(e){
+    if (e.key !== 'fiq-demo-duvidas') return; desenhaDuv();
+    var l = lerDuvC()[idDuv()] || [], u = l[l.length - 1]; if (u && u.de !== 'cli') toast('O analista respondeu à tua dúvida.');
+  });
+  desenhaDuv();
 
   // ===== Vídeo (YouTube não listado) e links de transferência =====
   (function(){

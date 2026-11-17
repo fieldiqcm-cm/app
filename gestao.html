@@ -274,6 +274,23 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       {de:'cli', sb:'Relatório', t:'Na página 6, o controlo da profundidade conta só quando a equipa está a defender baixo?', q:'4 nov, 19h02'},
       {de:'eu', sb:'Tu', t:'Não, conta também com o bloco alto. Mostro-te dois exemplos na próxima sessão.', q:'5 nov, 08h50'}]}
   ];
+  // Dúvidas: as mensagens novas (do jogador e as tuas respostas) passam pela "ponte" do aparelho até haver servidor
+  conversas.forEach(function(v){ v.base=v.msgs.slice(); });
+  function lerDuv(){ try{ return JSON.parse(localStorage.getItem('fiq-demo-duvidas')||'{}'); }catch(e){ return {}; } }
+  function gravaDuv(o){ try{ localStorage.setItem('fiq-demo-duvidas', JSON.stringify(o)); }catch(e){} }
+  function syncDuvidas(){
+    var o=lerDuv();
+    Object.keys(o).forEach(function(id){
+      var v=conversas.filter(function(x){ return x.cli===id; })[0];
+      if(!v){ v={cli:id, jogo:'Dúvidas', lida:false, msgs:[], base:[]}; conversas.push(v); }
+      v.msgs=v.base.concat(o[id]||[]);
+    });
+  }
+  window.addEventListener('storage', function(e){
+    if(e.key!=='fiq-demo-duvidas') return;
+    var antes=porResponder().length; syncDuvidas(); render();
+    if(porResponder().length>antes){ var v=porResponder()[0], c=cli(v.cli); toast('Nova dúvida de '+(c?nomeDe(c):'um cliente')+'.'); }
+  });
   var ESTADOS = ['Recebido','Em análise','Pronto','Sessão marcada','Concluída'];
   var POSICOES = ['Defesa central','Lateral','Médio','Interior','Extremo','Avançado'];
 
@@ -508,6 +525,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   var logado=false; try { logado = sessionStorage.getItem('fiq-gestao') === '1'; } catch(x){}
   function guardarEstados(){ try{ var o={}; clientes.forEach(function(c){ if(!c.email) return; o[c.email.toLowerCase()]={formato:c.formato,pack:c.pack,feitas:c.feitas,total:c.total,preco:c.preco,pagamentos:c.pagamentos||[],sessoes:(c.analises||[]).map(function(a){ return {nome:a.nome,jogo:a.jogo,data:a.data,nivel:a.nivel||c.pack,preco:+a.preco||0,pago:+a.pago||0,pagoInfo:a.pagoInfo||''}; })}; }); localStorage.setItem('fiq-demo-estado',JSON.stringify(o)); }catch(e){} }
   function render(){
+    syncDuvidas();
     guardarEstados();
     var h=(location.hash||'').replace('#','');
     if(!logado && h!=='login'){ h='login'; }
@@ -617,7 +635,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(f.dataset.add && c){ var inp=f.querySelector('input'), tx=inp.value.trim(); if(tx){ c[f.dataset.add].push(tx); toast('Ponto adicionado ao plano da semana.'); render(); } return; }
     if(f.id==='f-resp'){ var i=+location.hash.slice(10), tx2=document.getElementById('resp').value.trim(); if(!tx2) return;
       var agora=new Date(), hh=String(agora.getHours()).padStart(2,'0')+'h'+String(agora.getMinutes()).padStart(2,'0');
-      conversas[i].msgs.push({de:'eu',sb:'Tu',t:tx2,q:'Hoje, '+hh}); toast('Resposta enviada. O cliente recebe um aviso.'); render(); return; }
+      var od=lerDuv(), idc=conversas[i].cli; (od[idc]=od[idc]||[]).push({de:'eu',sb:'Analista',t:tx2,q:'Hoje, '+hh,ts:Date.now()}); gravaDuv(od); toast('Resposta enviada. O cliente recebe um aviso.'); render(); return; }
     if(f.id==='f-novo'){ var em=document.getElementById('n-email').value.trim().toLowerCase(); if(!em||em.indexOf('@')<1){ toast('Escreve um email válido.'); return; }
       var id='c'+Date.now().toString(36);
       clientes.unshift({id:id,nome:'',ini:'',pos:'',email:em,tel:document.getElementById('n-tel').value.trim(),pack:novoPack,formato:novoForm,feitas:0,total:novoForm==='Pack 4'?4:1,preco:+document.getElementById('n-preco').value||0,pagamentos:[],acesso:'Ainda não ativou a conta',perfil:null,analises:[],manter:[],melhorar:[],comp:[],stats:{passes:'',duelos:'',rec:'',dec:''}});
