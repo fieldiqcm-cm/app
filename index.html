@@ -618,6 +618,25 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
   #at-semana .lock-grande,#at-numeros .lock-grande{grid-column:1 / -1}
   .fab-duv{bottom:28px;right:32px}
 }
+
+/* ===== telemóvel: menu em cima e 3 pontos em lista (17/11) ===== */
+@media (max-width:899px){
+  nav.tabs{order:-1;border-top:none;border-bottom:1px solid var(--line0);padding-bottom:0;padding-top:env(safe-area-inset-top,0px);position:relative;z-index:5}
+  nav.tabs a{height:52px;flex-direction:row;gap:6px;font-size:12px;position:relative}
+  nav.tabs a svg{width:18px;height:18px}
+  nav.tabs a[aria-current="page"]::after{content:"";position:absolute;left:22%;right:22%;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--gold)}
+  body.em-demo nav.tabs{padding-top:calc(50px + env(safe-area-inset-top,0px))}
+  body.em-demo .phone:has(#tabs:not([hidden])) .screen .scroll{padding-top:20px}
+  .fab-duv{bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+  #s-analise .scroll{padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+}
+.rs-wrap{flex-direction:column;overflow:visible;scroll-snap-type:none}
+.rs{flex:none;display:grid;grid-template-columns:40px minmax(0,1fr);column-gap:14px;row-gap:3px;min-height:0;padding:16px;align-items:start}
+.rs .rs-ic{grid-row:1 / span 3;align-self:start}
+.rs::before{width:90px;height:90px;right:-24px;top:-24px}
+.rs b{font-size:19px}
+@media (min-width:900px){ .rs{grid-template-columns:1fr;row-gap:8px} .rs .rs-ic{grid-row:auto} }
 </style>
 </head>
 <body>
@@ -1125,7 +1144,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
       </div>
       <div class="at-painel" id="at-resumo" role="tabpanel" aria-labelledby="at-b-resumo">
     <div class="an-resumo">
-      <div class="between" style="margin-bottom:10px"><span class="eyebrow" style="letter-spacing:1.8px">Os 3 pontos do jogo</span><span class="rs-dica">Desliza →</span></div>
+      <div class="between" style="margin-bottom:10px"><span class="eyebrow" style="letter-spacing:1.8px">Os 3 pontos do jogo</span></div>
       <div class="rs-wrap" id="rs-wrap">
         <div class="rs bom"><span class="rs-ic">✓</span><span class="rs-lbl">Fazes bem</span><b>Receção orientada</b><p>Quando olhas antes, o primeiro toque já te leva para a frente.</p></div>
         <div class="rs perde"><span class="rs-ic">✕</span><span class="rs-lbl">Onde perdes</span><b>Reação à perda</b><p>Depois de perderes a bola ficas parado. Os 3 segundos seguintes contam.</p></div>
