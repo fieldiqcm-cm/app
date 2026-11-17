@@ -1,8 +1,8 @@
 /* FieldIQ — service worker
-   Sempre que mudares ficheiros da app, aumenta a VERSAO (ex.: 'fieldiq-v33').
+   Sempre que mudares ficheiros da app, aumenta a VERSAO (ex.: 'fieldiq-v34').
    Estratégia: tenta sempre a rede primeiro (as alterações aparecem logo);
    sem rede, usa a cópia guardada (a app abre na mesma). */
-const VERSAO = 'fieldiq-v33';
+const VERSAO = 'fieldiq-v34';
 const BASE = [
   './',
   './index.html',
@@ -36,7 +36,7 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
   e.respondWith(
-    fetch(req)
+    fetch(req.mode === 'navigate' || /\.(html|json|js|webmanifest)(\?|$)/.test(new URL(req.url).pathname) ? new Request(req, {cache: 'no-cache'}) : req)
       .then((res) => {
         if (res && res.ok) {
           const copia = res.clone();
