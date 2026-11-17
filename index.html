@@ -659,6 +659,26 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
 .phone{background:radial-gradient(circle at 88% -12%, rgba(201,164,83,.30), transparent 48%), radial-gradient(circle at -5% 115%, rgba(138,79,36,.28), transparent 45%), #0D0C0B}
 @media (prefers-color-scheme: light){ :root:not([data-theme="dark"]) .phone{background:radial-gradient(circle at 88% -12%, rgba(201,164,83,.32), transparent 50%), radial-gradient(circle at -5% 115%, rgba(138,79,36,.16), transparent 45%), #EBE2D2} }
 :root[data-theme="light"] .phone{background:radial-gradient(circle at 88% -12%, rgba(201,164,83,.32), transparent 50%), radial-gradient(circle at -5% 115%, rgba(138,79,36,.16), transparent 45%), #EBE2D2}
+
+/* ===== carta do jogador com radar por sessões (17/11) ===== */
+.pcard{height:auto;cursor:default}
+.pcard .pc-face{position:relative;inset:auto;backface-visibility:visible;-webkit-backface-visibility:visible;gap:12px}
+.pc-chips{display:flex;gap:6px;flex-wrap:wrap;position:relative;z-index:1}
+.pc-chips button{flex:1 1 52px;height:36px;border:0;border-radius:10px;background:#1E1C19;color:#B8B2A4;font:800 13px var(--body);cursor:pointer}
+.pc-chips button[aria-pressed="true"]{background:var(--m1);color:#111}
+.pc-rad{position:relative;z-index:1}
+.pc-rad svg{display:block;width:100%;height:auto;max-height:340px}
+.pc-rad .eixo{cursor:pointer}
+.pc-rad polygon,.pc-rad svg > circle{pointer-events:none}
+.pc-rad .eixo:hover text,.pc-rad .eixo.on text{fill:var(--m1)}
+.pc-leg2{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:12px;font-weight:700;color:#D9D3C5;position:relative;z-index:1}
+.pc-leg2 i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px}
+.pc-val{min-height:18px;text-align:center;font-size:13px;color:#B8B2A4;position:relative;z-index:1}
+.pc-val b{color:var(--m1);font:700 17px var(--display)}
+.pc-sub{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.04);font-size:13px;color:#D9D3C5;position:relative;z-index:1}
+.pc-sub:empty{display:none}
+.pc-sub b{color:var(--m1)}
+.pc-vazio2{padding:22px 8px;text-align:center;color:#B8B2A4;font-size:13px;line-height:1.5;position:relative;z-index:1}
 </style>
 </head>
 <body>
@@ -1009,32 +1029,27 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     </a>
 
     <div class="pcard-wrap">
-      <button class="pcard ouro" id="pcard" type="button" aria-label="Cartão de jogador. Toca para virar e ver a evolução.">
-        <span class="pc-in">
-          <span class="pc-face pc-frente">
-            <span class="pc-top"><span class="pc-marca">FIELD<b>IQ</b></span><span class="pc-metal" id="pc-metal">OURO · PRO</span></span>
-            <span class="pc-mid">
-              <span class="pc-num"><b id="pc-num">8</b><small id="pc-pos">MED</small></span>
-              <span class="pc-foto" id="pc-foto" hidden></span><span class="pc-id"><b id="pc-nome">Tiago M.</b><small id="pc-clube">GD Exemplo · Sub-15</small></span>
-            </span>
-            <span class="pc-atr" id="pc-atr"></span>
-            <span class="pc-dica">Toca para virar ↻</span>
+      <div class="pcard ouro" id="pcard">
+        <div class="pc-face pc-frente">
+          <span class="pc-top"><span class="pc-marca">FIELD<b>IQ</b></span><span class="pc-metal" id="pc-metal">OURO · PRO</span></span>
+          <span class="pc-mid">
+            <span class="pc-num"><b id="pc-num">8</b><small id="pc-pos">MED</small></span>
+            <span class="pc-foto" id="pc-foto" hidden></span><span class="pc-id"><b id="pc-nome">Tiago M.</b><small id="pc-clube">GD Exemplo · Sub-15</small></span>
           </span>
-          <span class="pc-face pc-verso">
-            <span class="pc-top"><span class="pc-marca">EVOLUÇÃO</span><span class="pc-metal">ÚLTIMOS 2 JOGOS</span></span>
-            <span class="pc-radar" id="pc-radar"></span>
-            <span class="pc-leg" id="pc-leg"></span>
-          </span>
-        </span>
-      </button>
+          <div class="pc-chips" id="pc-chips" role="group" aria-label="Escolher a sessão"></div>
+          <div class="pc-rad" id="pc-rad"></div>
+          <div class="pc-leg2" id="pc-leg2"></div>
+          <div class="pc-val" id="pc-val" aria-live="polite"></div>
+          <div class="pc-sub" id="pc-sub"></div>
+        </div>
+      </div>
     </div>
 
     <div class="card foco" id="foco">
-      <div class="between"><span class="eyebrow" style="letter-spacing:1.8px">Antes do próximo jogo</span><button class="textbtn" id="foco-mudar" type="button">Mudar data</button></div>
-      <div class="foco-cont" aria-live="off"><div class="fc-b"><b id="fc-d">0</b><small>dias</small></div><div class="fc-b"><b id="fc-h">0</b><small>horas</small></div><div class="fc-b"><b id="fc-m">0</b><small>min</small></div></div>
+      <div class="between"><span class="eyebrow" style="letter-spacing:1.8px">Antes da próxima sessão</span></div>
+      <div class="foco-cont" id="foco-cont" aria-live="off"><div class="fc-b"><b id="fc-d">0</b><small>dias</small></div><div class="fc-b"><b id="fc-h">0</b><small>horas</small></div><div class="fc-b"><b id="fc-m">0</b><small>min</small></div></div>
       <div class="sub" id="foco-quando" style="margin:0"></div>
-      <div class="foco-edit" id="foco-edit" hidden><label class="cp-l" for="foco-dt">Data e hora do próximo jogo</label><input class="input" id="foco-dt" type="datetime-local"><button class="btn gold" id="foco-ok" type="button" style="height:44px">Guardar</button></div>
-      <div class="foco-tit">Revê isto antes de jogar</div>
+      <div class="foco-tit">Revê isto antes da sessão</div>
       <div class="foco-lista" id="foco-lista"></div>
       <a class="foco-link" href="#analise" id="foco-link">Rever a análise →</a>
     </div>
@@ -1087,8 +1102,8 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
       </a>
       <div class="beje" style="padding:16px">
         <div class="eyebrow cobre" style="letter-spacing:1.6px">Próxima sessão</div>
-        <div class="serif" style="margin-top:8px;font-size:20px">Por marcar</div>
-        <div style="font-size:12px;color:var(--beje-muted)">quando o relatório ficar pronto</div>
+        <div class="serif" style="margin-top:8px;font-size:20px" id="ps-dia">Por marcar</div>
+        <div style="font-size:12px;color:var(--beje-muted)" id="ps-sub">o analista marca a data</div>
       </div>
     </div>
 
@@ -2232,41 +2247,99 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     g += '<polygon points="' + pts(at.map(function(x){return x[1];}), 1) + '" fill="' + cor + '" fill-opacity=".28" stroke="' + cor + '" stroke-width="2"/>';
     return '<svg viewBox="0 0 240 200" aria-hidden="true">' + g + '</svg>';
   }
+  // sessões com notas (vindas da gestão); se ainda não há, exemplo
+  var CARTA_EX = {
+    'tiago@exemplo.pt': [
+      {n:'Sessão 1', d:'12 out', notas:[['Receção orientada',74],['Passe a romper linhas',70],['Rotação/orientação',66],['Chegada à área',60],['Pressão',61],['Cobertura',69],['Duelos',66],['Equilíbrio',72]]},
+      {n:'Sessão 2', d:'26 out', notas:[['Receção orientada',76],['Passe a romper linhas',72],['Rotação/orientação',69],['Chegada à área',62],['Pressão',62],['Cobertura',71],['Duelos',68],['Equilíbrio',75]]},
+      {n:'Sessão 3', d:'9 nov', notas:[['Receção orientada',81],['Passe a romper linhas',75],['Rotação/orientação',72],['Chegada à área',66],['Pressão',64],['Cobertura',73],['Duelos',70],['Equilíbrio',78]]}],
+    'rui@exemplo.pt': [
+      {n:'Sessão 1', d:'2 nov', notas:[['Receção orientada',80],['Condução de bola',70],['Diversidade de passe / verticalização',85],['Afundar / criar distâncias',70],['Controlo de profundidade',75],['Duelos defensivos',75],['Fecho de baliza',75],['Equilíbrio defensivo',80]]}]
+  };
+  var CHAVES_EX = {'tiago@exemplo.pt':['tiago|ds','tiago|un','tiago|ab'], 'rui@exemplo.pt':['rui|sn'], 'bruno@exemplo.pt':['bruno|lf']};
+  function sessoesCarta(){
+    var o = {}; try { o = JSON.parse(localStorage.getItem('fiq-demo-links') || '{}'); } catch(e){}
+    var l = [];
+    (CHAVES_EX[emailAtual] || []).forEach(function(k){ var p = o[k]; if (p && p.notas && p.notas.length) l.push({n:'', d:p.data || '', notas:p.notas}); });
+    if (!l.length) l = (CARTA_EX[emailAtual] || []).map(function(s){ return {n:s.n, d:s.d, notas:s.notas}; });
+    l.forEach(function(s, i){ s.n = 'Sessão ' + (i + 1); });
+    return l;
+  }
+  var cartaSel = -1, cartaEixo = -1;
+  function quebra(t){ var w = String(t).replace(/\s*\/\s*/g, '/ ').split(' '), ls = [''], max = 13; w.forEach(function(p){ var u = ls[ls.length - 1]; if ((u + ' ' + p).trim().length > max && u) ls.push(p); else ls[ls.length - 1] = (u + ' ' + p).trim(); }); return ls.slice(0, 3); }
+  function radarCarta(eixos, sel, media, cor){
+    var N = eixos.length, cx = 200, cy = 160, R = 84, g = '';
+    function p(i, v){ var a = -Math.PI/2 + i*2*Math.PI/N, r = R*Math.max(0, Math.min(100, v))/100; return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; }
+    function poly(vals){ return vals.map(function(v, i){ var q = p(i, v == null ? 0 : v); return q[0].toFixed(1) + ',' + q[1].toFixed(1); }).join(' '); }
+    [25,50,75,100].forEach(function(k){ g += '<polygon points="' + poly(eixos.map(function(){ return k; })) + '" fill="none" stroke="#3A3631" stroke-width="1"/>'; });
+    eixos.forEach(function(nm, i){
+      var e = p(i, 100), a = -Math.PI/2 + i*2*Math.PI/N, lx = cx + (R + 16)*Math.cos(a), ly = cy + (R + 16)*Math.sin(a), c = Math.cos(a);
+      var anc = Math.abs(c) < 0.25 ? 'middle' : (c > 0 ? 'start' : 'end'), ls = quebra(nm.toUpperCase()), y0 = ly - (ls.length - 1)*6 + (Math.sin(a) > 0.5 ? 6 : Math.sin(a) < -0.5 ? -4 : 3);
+      g += '<g class="eixo' + (i === cartaEixo ? ' on' : '') + '" data-eixo="' + i + '"><line x1="' + cx + '" y1="' + cy + '" x2="' + e[0].toFixed(1) + '" y2="' + e[1].toFixed(1) + '" stroke="#3A3631"/>' +
+        '<text text-anchor="' + anc + '" fill="#B8B2A4" font-family="Mulish,sans-serif" font-size="9.5" font-weight="800" letter-spacing=".6">' + ls.map(function(t, k){ return '<tspan x="' + lx.toFixed(1) + '" y="' + (y0 + k*11).toFixed(1) + '">' + escH(t) + '</tspan>'; }).join('') + '</text>' +
+        '<circle cx="' + e[0].toFixed(1) + '" cy="' + e[1].toFixed(1) + '" r="16" fill="transparent"/></g>'; });
+    if (media) g += '<polygon points="' + poly(media) + '" fill="none" stroke="#F2EEE2" stroke-width="1.6" stroke-dasharray="5 4" opacity=".8"/>';
+    g += '<polygon points="' + poly(sel) + '" fill="' + cor + '" fill-opacity=".30" stroke="' + cor + '" stroke-width="2.4"/>';
+    sel.forEach(function(v, i){ if (v == null) return; var q = p(i, v); g += '<circle cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="' + (i === cartaEixo ? 5.5 : 3.5) + '" fill="' + cor + '"/>'; });
+    return '<svg viewBox="0 0 400 320" role="img" aria-label="Radar dos teus pontos">' + g + '</svg>';
+  }
   function renderCartao(){
     var pf = lerPerfil(emailAtual) || {}, pc = document.getElementById('pcard'), m = METAL[packAtual] || METAL[2];
-    pc.className = 'pcard ' + m[0] + (pc.classList.contains('virado') ? ' virado' : '');
+    pc.className = 'pcard ' + m[0];
     document.getElementById('pc-metal').textContent = m[1];
     document.getElementById('pc-num').textContent = pf.num || '—';
     document.getElementById('pc-pos').textContent = ABREV[pf.pos] || '';
     document.getElementById('pc-nome').textContent = pf.nome || 'Jogador';
     var pcf = document.getElementById('pc-foto'); pcf.hidden = !pf.foto; if (pf.foto){ pcf.innerHTML = ''; var pim = document.createElement('img'); pim.src = pf.foto; pim.alt = ''; pcf.appendChild(pim); }
     document.getElementById('pc-clube').textContent = [pf.clube, pf.esc].filter(Boolean).join(' · ');
-    var A = ATR[emailAtual], box = document.getElementById('pc-atr');
-    if (!A){ box.innerHTML = '<span class="pc-vazio">Os teus atributos aparecem aqui depois da primeira análise.</span>'; }
-    else {
-      box.innerHTML = A.at.map(function(x){ return '<span>' + x[0] + '<b>' + x[1] + '</b><i><em data-w="' + x[1] + '"></em></i></span>'; }).join('');
-      setTimeout(function(){ box.querySelectorAll('em').forEach(function(e){ e.style.width = e.dataset.w + '%'; }); }, 80);
-    }
-    var rad = document.getElementById('pc-radar'), leg = document.getElementById('pc-leg'), cor = getComputedStyle(pc).getPropertyValue('--m1').trim() || '#E2C27A';
-    if (packAtual >= 3 && A){
-      rad.innerHTML = radarSVG(A.at, A.ant, cor);
-      var melhor = A.at.map(function(x, i){ return [x[0], x[1] - A.ant[i]]; }).sort(function(a, b){ return b[1] - a[1]; })[0];
-      leg.innerHTML = '<span><i style="background:' + cor + '"></i>Último jogo</span><span><i style="border:1.5px dashed #8F897C"></i>Jogo anterior</span><span style="color:' + cor + '">' + melhor[0] + ' +' + melhor[1] + '</span>';
-    } else {
-      rad.innerHTML = '<span class="pc-lock">' + '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>' + (A ? 'A evolução jogo a jogo, com o radar dos teus atributos, é do pack Elite.' : 'Depois de duas análises, vês aqui a tua evolução.') + '</span>';
-      leg.innerHTML = '';
-    }
-    renderNivel();
+    var ses = sessoesCarta(), chips = document.getElementById('pc-chips'), rad = document.getElementById('pc-rad'), leg = document.getElementById('pc-leg2'), val = document.getElementById('pc-val'), sub = document.getElementById('pc-sub');
+    var cor = getComputedStyle(pc).getPropertyValue('--m1').trim() || '#E2C27A';
+    if (!ses.length){ chips.innerHTML = ''; leg.innerHTML = ''; val.textContent = ''; sub.textContent = ''; rad.innerHTML = '<div class="pc-vazio2">O teu radar ganha forma depois da primeira análise: os pontos fortes e o que estás a melhorar, sessão a sessão.</div>'; return; }
+    var elite = packAtual >= 3, ult = ses.length - 1;
+    if (cartaSel < 0 || cartaSel > ult || !elite) cartaSel = ult;
+    var eixos = ses[ult].notas.map(function(x){ return x[0]; });
+    function valDe(s, nm){ var f = s.notas.filter(function(x){ return x[0] === nm; })[0]; return f ? +f[1] : null; }
+    var selV = eixos.map(function(nm){ return valDe(ses[cartaSel], nm); });
+    var media = eixos.map(function(nm){ var vs = ses.map(function(s){ return valDe(s, nm); }).filter(function(v){ return v != null; }); return vs.length ? Math.round(vs.reduce(function(t, v){ return t + v; }, 0) / vs.length) : null; });
+    var comMedia = elite && ses.length > 1;
+    chips.innerHTML = (elite && ses.length > 1) ? ses.map(function(s, i){ return '<button type="button" data-cs="' + i + '" aria-pressed="' + (i === cartaSel) + '">S' + (i + 1) + '</button>'; }).join('') : '';
+    rad.innerHTML = radarCarta(eixos, selV, comMedia ? media : null, cor);
+    leg.innerHTML = '<span><i style="background:' + cor + '"></i>' + ses[cartaSel].n + (ses[cartaSel].d ? ' · ' + escH(ses[cartaSel].d) : '') + '</span>' + (comMedia ? '<span><i style="border:1.5px dashed #F2EEE2"></i>Média das ' + ses.length + ' sessões</span>' : '');
+    if (cartaEixo >= 0 && cartaEixo < eixos.length) val.innerHTML = escH(eixos[cartaEixo]) + ' · <b>' + (selV[cartaEixo] == null ? '—' : selV[cartaEixo]) + '</b>' + (comMedia && media[cartaEixo] != null ? ' <span style="opacity:.7">(média ' + media[cartaEixo] + ')</span>' : '');
+    else val.textContent = 'Toca num ponto do radar para ver a nota.';
+    var s = '';
+    if (elite && ses.length > 1){
+      var best = null; eixos.forEach(function(nm, i){ var a0 = valDe(ses[0], nm), a1 = valDe(ses[ult], nm); if (a0 != null && a1 != null && (!best || a1 - a0 > best[1])) best = [nm, a1 - a0]; });
+      if (best && best[1] > 0) s = '▲ Maior subida desde a Sessão 1: <b>' + escH(best[0]) + ' +' + best[1] + '</b>';
+    } else if (!elite && ses.length > 1) s = 'Comparar sessões e ver a tua média é do pack <b>Elite</b>.';
+    sub.innerHTML = s;
   }
-  document.getElementById('pcard').addEventListener('click', function(){ this.classList.toggle('virado'); vibra(); });
+  document.getElementById('pc-chips').addEventListener('click', function(e){ var b = e.target.closest('[data-cs]'); if (!b) return; cartaSel = +b.dataset.cs; vibra(); renderCartao(); });
+  document.getElementById('pc-rad').addEventListener('click', function(e){ var g = e.target.closest('[data-eixo]'); if (!g) return; cartaEixo = +g.dataset.eixo === cartaEixo ? -1 : +g.dataset.eixo; vibra(); renderCartao(); });
+  window.addEventListener('storage', function(e){ if (e.key === 'fiq-demo-links' && typeof emailAtual === 'string') renderCartao(); });
 
   // Foco para o próximo jogo
   var DIAS = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
   function proxSabado(){ var d = new Date(); d.setDate(d.getDate() + ((6 - d.getDay() + 7) % 7 || 7)); d.setHours(15, 0, 0, 0); return d; }
-  function lerJogo(){ try { var v = localStorage.getItem('fiq-jogo:' + emailAtual); if (v) return new Date(v); } catch(e){} return proxSabado(); }
+  // próxima sessão: marcada pelo analista na gestão (o jogador só vê)
+  var PS_EX = {'tiago@exemplo.pt': 4, 'rui@exemplo.pt': 6};
+  function lerSessao(){
+    try { var o = JSON.parse(localStorage.getItem('fiq-demo-proxsessao') || '{}'); if (o[emailAtual]) return new Date(o[emailAtual]); } catch(e){}
+    if (PS_EX[emailAtual]){ var d = new Date(); d.setDate(d.getDate() + PS_EX[emailAtual]); d.setHours(21, 0, 0, 0); return d; }
+    return null;
+  }
   function renderFoco(){
-    var d = lerJogo(), dif = d - new Date();
-    document.getElementById('foco-quando').textContent = DIAS[d.getDay()] + ', ' + d.getDate() + ' ' + MESES[d.getMonth()] + ' · ' + String(d.getHours()).padStart(2,'0') + 'h' + String(d.getMinutes()).padStart(2,'0');
+    var d = lerSessao(), q = document.getElementById('foco-quando'), cont = document.getElementById('foco-cont');
+    var psd = document.getElementById('ps-dia'), pss = document.getElementById('ps-sub');
+    if (!d || d < new Date()){
+      cont.style.display = 'none'; q.textContent = 'Por marcar. O analista marca a data e aparece aqui a contagem.';
+      if (psd){ psd.textContent = 'Por marcar'; pss.textContent = 'o analista marca a data'; }
+    } else {
+      cont.style.display = '';
+      q.textContent = DIAS[d.getDay()] + ', ' + d.getDate() + ' ' + MESES[d.getMonth()] + ' · ' + String(d.getHours()).padStart(2,'0') + 'h' + String(d.getMinutes()).padStart(2,'0');
+      if (psd){ psd.textContent = DIAS[d.getDay()] + ', ' + d.getDate() + ' ' + MESES[d.getMonth()]; pss.textContent = 'às ' + String(d.getHours()).padStart(2,'0') + 'h' + String(d.getMinutes()).padStart(2,'0'); }
+    }
+    var dif = d ? d - new Date() : 0;
     var dd = Math.max(0, Math.floor(dif/864e5)), hh = Math.max(0, Math.floor(dif/36e5) % 24), mm = Math.max(0, Math.floor(dif/6e4) % 60);
     document.getElementById('fc-d').textContent = dd; document.getElementById('fc-h').textContent = hh; document.getElementById('fc-m').textContent = String(mm).padStart(2,'0');
     var A = ATR[emailAtual], lista = document.getElementById('foco-lista');
@@ -2276,15 +2349,7 @@ input[type=range]{width:100%;accent-color:var(--gold);height:32px}
     document.getElementById('foco-link').hidden = !A;
   }
   setInterval(function(){ if (!document.getElementById('s-inicio').hidden) renderFoco(); }, 30000);
-  document.getElementById('foco-mudar').addEventListener('click', function(){
-    var ed = document.getElementById('foco-edit'), d = lerJogo(); ed.hidden = !ed.hidden;
-    var loc = new Date(d.getTime() - d.getTimezoneOffset()*6e4); document.getElementById('foco-dt').value = loc.toISOString().slice(0,16);
-  });
-  document.getElementById('foco-ok').addEventListener('click', function(){
-    var v = document.getElementById('foco-dt').value; if (!v) return;
-    try { localStorage.setItem('fiq-jogo:' + emailAtual, new Date(v).toISOString()); } catch(e){}
-    document.getElementById('foco-edit').hidden = true; renderFoco(); toast('Próximo jogo guardado. Bom jogo!');
-  });
+  window.addEventListener('storage', function(e){ if (e.key === 'fiq-demo-proxsessao' && typeof emailAtual === 'string') renderFoco(); });
 
   // Momentos do jogo
   var MOM = [

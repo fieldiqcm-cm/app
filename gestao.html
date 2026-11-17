@@ -191,6 +191,20 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
 .pdf-up{border-style:dashed;cursor:pointer}
 .pdf-up:hover{border-color:var(--cobre,#8A4F24)}
 .pdf-ic{width:38px;height:44px;border-radius:6px;background:#8A4F24;color:#fff;font:800 11px/44px Mulish,sans-serif;text-align:center;flex:none;letter-spacing:.5px}
+.nt-box{border:1px solid var(--line2,#CFC4B3);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.nt-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.nt-tit{font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--cobre,#8A4F24);margin:2px 0 6px}
+.nt-row{display:grid;grid-template-columns:minmax(0,1fr) 76px;align-items:center;gap:8px;font-size:13px;font-weight:700;margin-bottom:6px}
+.nt-row .input{height:40px;padding:0 10px;text-align:center;font-weight:800}
+.textlink{background:none;border:0;color:var(--cobre,#8A4F24);font-weight:800;cursor:pointer;font-size:12px;padding:0}
+.atr-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.atr-cols .input{margin-bottom:8px}
+.atr-cols .input.foco{outline:2px solid var(--cobre,#8A4F24)}
+.etq{display:flex;flex-wrap:wrap;gap:6px}
+.etq button{border:1px solid var(--line2,#CFC4B3);background:var(--card,#fff);color:inherit;border-radius:99px;padding:6px 11px;font:700 12px var(--body,sans-serif);cursor:pointer}
+.etq button:hover{border-color:var(--cobre,#8A4F24)}
+.etq button.usada{opacity:.4}
+@media (max-width:640px){ .nt-cols,.atr-cols{grid-template-columns:1fr} }
 .mo-box{border:1px dashed var(--line2,#CFC4B3);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
 .mo-row{display:grid;grid-template-columns:84px 124px minmax(0,1fr) 32px;gap:6px;align-items:center}
 .mo-row .input{height:40px;padding:0 10px;font-size:14px}
@@ -247,11 +261,11 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   var hoje = '14 nov';
   var clientes = [
     {id:'tiago', nome:'Tiago M.', ini:'TM', pos:'Médio', menor:true, email:'tiago@exemplo.pt', pack:'Pro', formato:'Pack 4', feitas:1, total:4, preco:250, pagamentos:[{d:'12 out',v:125,m:'MB WAY'}], acesso:'Hoje, 10h15', perfil:{nome:'Tiago M.',nasc:'2011-03-14',alt:168,pe:'Direito',pos:'Médio',clube:'GD Exemplo',esc:'Sub-15',num:'8',obj:'Ser titular',orig:'Instagram',ee:{nome:'Ana M.',cont:'ana@exemplo.pt'},aut:true,redes:false},
-      analises:[{id:'ab',nome:'Sessão 3 · Tiago M.',jogo:'vs. Atlético B',data:'9 nov',estado:'Em análise',yt:'',dl:'',pdf:'',ate:''},{id:'un',nome:'Sessão 2 · Tiago M.',jogo:'vs. União Norte',data:'26 out',estado:'Concluída',pdfNome:'Relatorio_Sessao2_TiagoM.pdf',pdfTam:4203,momentos:[{v:'0:15',t:'bom',a:'Receção orientada',d:'Olhaste antes de receber e rodaste logo para a frente.'},{v:'1:02',t:'mel',a:'Reação à perda',d:'Depois de perderes a bola ficaste parado. Nos 3 segundos seguintes, pressiona logo.'},{v:'1:50',t:'bom',a:'Passe a romper linhas',d:'Passe entre o médio e o central deles a encontrar o avançado.'},{v:'2:45',t:'mel',a:'Olhar antes de receber',d:'Recebeste de costas sem olhar e tiveste de devolver a bola para trás.'}],yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''},{id:'ds',nome:'Sessão 1 · Tiago M.',jogo:'vs. Desportivo Sul',data:'12 out',estado:'Concluída',yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''}],
+      analises:[{id:'ab',nome:'Sessão 3 · Tiago M.',jogo:'vs. Atlético B',data:'9 nov',estado:'Em análise',yt:'',dl:'',pdf:'',ate:''},{id:'un',nome:'Sessão 2 · Tiago M.',jogo:'vs. União Norte',data:'26 out',estado:'Concluída',pdfNome:'Relatorio_Sessao2_TiagoM.pdf',pdfTam:4203,notas:[['Receção orientada',81],['Passe a romper linhas',75],['Rotação/orientação',72],['Chegada à área',66],['Pressão',64],['Cobertura',73],['Duelos',70],['Equilíbrio',78]],momentos:[{v:'0:15',t:'bom',a:'Receção orientada',d:'Olhaste antes de receber e rodaste logo para a frente.'},{v:'1:02',t:'mel',a:'Reação à perda',d:'Depois de perderes a bola ficaste parado. Nos 3 segundos seguintes, pressiona logo.'},{v:'1:50',t:'bom',a:'Passe a romper linhas',d:'Passe entre o médio e o central deles a encontrar o avançado.'},{v:'2:45',t:'mel',a:'Olhar antes de receber',d:'Recebeste de costas sem olhar e tiveste de devolver a bola para trás.'}],yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''},{id:'ds',nome:'Sessão 1 · Tiago M.',jogo:'vs. Desportivo Sul',data:'12 out',estado:'Concluída',yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''}],
       manter:['Receção orientada para a frente','Apoio frontal ao colega com bola'], melhorar:['Olhar antes de receber (2 vezes)','Reação nos 3 segundos após a perda'],
       comp:[{n:'Exemplo: olhar antes de receber',d:'13 nov'},{n:'O teu lance 07, comentado',d:'10 nov'}], stats:{passes:'',duelos:'',rec:'',dec:''}},
     {id:'rui', nome:'Rui S.', ini:'RS', pos:'Defesa central', menor:false, email:'rui@exemplo.pt', pack:'Elite', formato:'Individual', feitas:1, total:1, preco:110, pagamentos:[{d:'3 nov',v:110,m:'Multibanco'}], acesso:'Ontem, 22h40', perfil:{nome:'Rui S.',nasc:'2004-07-02',alt:186,pe:'Esquerdo',pos:'Defesa central',clube:'Clube Exemplo FC',esc:'Sénior',num:'4',obj:'Chegar a um clube maior',orig:'Um colega'},
-      analises:[{id:'sn',nome:'Sessão 1 · Rui S.',jogo:'vs. Sporting Norte',data:'2 nov',estado:'Concluída',nivel:'Elite',preco:110,pago:110,pagoInfo:'Pago · Multibanco',yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''},{id:'ro',nome:'Sessão 1 · Rui S.',jogo:'vs. Oriental',data:'19 out',estado:'Concluída',nivel:'Pro',preco:70,pago:70,pagoInfo:'Pago · MB WAY',yt:'',dl:'',pdf:'',ate:''}],
+      analises:[{id:'sn',notas:[['Receção orientada',80],['Condução de bola',70],['Diversidade de passe / verticalização',85],['Afundar / criar distâncias',70],['Controlo de profundidade',75],['Duelos defensivos',75],['Fecho de baliza',75],['Equilíbrio defensivo',80]],nome:'Sessão 1 · Rui S.',jogo:'vs. Sporting Norte',data:'2 nov',estado:'Concluída',nivel:'Elite',preco:110,pago:110,pagoInfo:'Pago · Multibanco',yt:'',dl:'https://transfer.it/t/exemplo',pdf:'https://transfer.it/t/exemplo',ate:''},{id:'ro',nome:'Sessão 1 · Rui S.',jogo:'vs. Oriental',data:'19 out',estado:'Concluída',nivel:'Pro',preco:70,pago:70,pagoInfo:'Pago · MB WAY',yt:'',dl:'',pdf:'',ate:''}],
       manter:['Controlo da profundidade'], melhorar:['Primeiro passe a romper linhas'], comp:[], stats:{passes:'88%',duelos:'9/12',rec:'11',dec:'81'}},
     {id:'bruno', nome:'Bruno L.', ini:'BL', pos:'Extremo', menor:true, email:'bruno@exemplo.pt', pack:'Performance', formato:'Individual', feitas:0, total:1, preco:45, pagamentos:[], acesso:'Ainda não ativou a conta',
       analises:[{id:'lf',nome:'Sessão 1 · Bruno L.',jogo:'vs. Leões FC',data:'8 nov',estado:'Recebido',nivel:'Performance',preco:45,pago:0,pagoInfo:'Por pagar',yt:'',dl:'',pdf:'',ate:''}], manter:[], melhorar:[], comp:[], stats:{passes:'',duelos:'',rec:'',dec:''}}
@@ -260,7 +274,8 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   (function(){
     var o={}; try{ o=JSON.parse(localStorage.getItem('fiq-demo-links')||'{}'); }catch(e){}
     clientes.forEach(function(c){
-      c.analises.forEach(function(a){ var p=o[c.id+'|'+a.id]; if(p){ ['estado','yt','dl','ate','nome','jogo','data','pdfNome','pdfTam','momentos'].forEach(function(k){ if(p[k]!==undefined) a[k]=p[k]; }); a._guardada=true; } });
+      try{ var oa=JSON.parse(localStorage.getItem('fiq-demo-atr')||'{}'); if(oa[c.id]) c.atr=oa[c.id]; }catch(e){}
+      c.analises.forEach(function(a){ var p=o[c.id+'|'+a.id]; if(p){ ['notas','estado','yt','dl','ate','nome','jogo','data','pdfNome','pdfTam','momentos'].forEach(function(k){ if(p[k]!==undefined) a[k]=p[k]; }); a._guardada=true; } });
       var guardadas=c.analises.filter(function(a){ return a._guardada; });
       c.analises=[guardadas[0] || c.analises[c.id==='tiago'?1:0]];
     });
@@ -319,6 +334,26 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   function pdfGravar(k, v){ return fiqIdbOp('readwrite', function(st){ return st.put(v, k); }); }
   function pdfApagar(k){ return fiqIdbOp('readwrite', function(st){ return st.delete(k); }); }
   var ANABERTA={};
+  // ===== Pontos a avaliar (carta/radar): 4 ofensivos + 4 defensivos, por posição =====
+  var POS_ATR={
+    'Defesa central':{of:['Receção orientada','Condução de bola','Diversidade de passe / verticalização','Afundar / criar distâncias'],df:['Controlo de profundidade','Duelos defensivos','Fecho de baliza','Equilíbrio defensivo']},
+    'Lateral':{of:['Profundidade e cruzamento','Apoio interior','Condução','Ligação com o extremo'],df:['Duelos 1x1','Fecho ao 2.º poste','Cobertura ao central','Recuperação']},
+    'Médio':{of:['Receção orientada','Passe a romper linhas','Rotação/orientação','Chegada à área'],df:['Pressão','Cobertura','Duelos','Equilíbrio']},
+    'Interior':{of:['Receção entre linhas','Último passe','Condução','Remate'],df:['Pressão','Reação à perda','Cobertura','Duelos']},
+    'Extremo':{of:['1x1','Profundidade','Cruzamento/último passe','Finalização'],df:['Pressão à saída','Recuperação','Fecho interior','Apoio ao lateral']},
+    'Avançado':{of:['Finalização','Desmarcação','Jogo de costas','Ataque à área'],df:['Pressão ao central','Orientar a saída','Duelos aéreos','Reação à perda']}
+  };
+  function posDe(c){ var pf=lerPerfil(c); return (pf&&pf.pos)||c.pos||'Médio'; }
+  function atrModelo(pos){ var m=POS_ATR[pos]||POS_ATR['Médio']; return {of:m.of.slice(),df:m.df.slice()}; }
+  function atrDe(c){ return c.atr ? {of:c.atr.of.slice(),df:c.atr.df.slice()} : atrModelo(posDe(c)); }
+  function atrLista(c){ var a=atrDe(c); return a.of.concat(a.df); }
+  var ETIQUETAS=(function(){ var v={}; Object.keys(POS_ATR).forEach(function(p){ POS_ATR[p].of.concat(POS_ATR[p].df).forEach(function(e){ v[e]=1; }); }); return Object.keys(v); })();
+  function notasCampo(c,a,i){
+    var nomes=atrLista(c), mapa={}; (a.notas||[]).forEach(function(n){ mapa[n[0]]=n[1]; });
+    function linha(n,k){ return '<label class="nt-row"><span>'+esc(n)+'</span><input class="input nt-in" type="number" inputmode="numeric" min="0" max="100" step="1" data-nota="'+i+'|'+k+'" value="'+(mapa[n]!=null?mapa[n]:'')+'" placeholder="0–100"></label>'; }
+    return '<div class="nt-box"><div class="between"><span class="l" style="margin:0">Notas da carta (0–100) · as mesmas do relatório</span><button type="button" class="textlink" data-ir="sec-atr">Mudar os pontos</button></div>'+
+      '<div class="nt-cols"><div><div class="nt-tit">Ofensivo</div>'+nomes.slice(0,4).map(function(n,k){return linha(n,k);}).join('')+'</div><div><div class="nt-tit">Defensivo</div>'+nomes.slice(4).map(function(n,k){return linha(n,k+4);}).join('')+'</div></div></div>';
+  }
   function tamTxt(b){ b=+b||0; return b>=1048576 ? (b/1048576).toFixed(1).replace('.',',')+' MB' : Math.max(1,Math.round(b/1024))+' KB'; }
   function pdfCampo(c,a,i){
     return '<div class="campo" id="pdfc-'+i+'"><span class="l">Relatório PDF · ficheiro anexado</span>'+
@@ -327,11 +362,17 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
         : '<label class="pdf-up" for="pf-'+i+'"><span class="pdf-ic">PDF</span><span><strong>Anexar o relatório</strong><span class="sub" style="margin:0;display:block">Escolhe o ficheiro PDF (até 10 MB)</span></span></label>')+
       '<input type="file" id="pf-'+i+'" accept="application/pdf,.pdf" data-pdfup="'+i+'" hidden></div>';
   }
+  function lerPS(){ try{ return JSON.parse(localStorage.getItem('fiq-demo-proxsessao')||'{}'); }catch(e){ return {}; } }
+  function proxSessao(c){ return lerPS()[c.email.toLowerCase()]||''; }
+  function guardarPS(c,v){ var o=lerPS(); if(v) o[c.email.toLowerCase()]=v; else delete o[c.email.toLowerCase()]; try{ localStorage.setItem('fiq-demo-proxsessao',JSON.stringify(o)); }catch(e){} }
+  function guardarAtr(c){ try{ var o=JSON.parse(localStorage.getItem('fiq-demo-atr')||'{}'); if(c.atr) o[c.id]=c.atr; else delete o[c.id]; localStorage.setItem('fiq-demo-atr',JSON.stringify(o)); }catch(e){} }
+  function marcaEtq(){ var us={}; V.querySelectorAll('.atr-in').forEach(function(x){ us[x.value.trim()]=1; }); V.querySelectorAll('[data-etq]').forEach(function(b){ b.classList.toggle('usada', !!us[b.dataset.etq]); }); }
+  function stashNotas(i,an,c){ var nn=atrLista(c), l=[]; document.querySelectorAll('[data-nota^="'+i+'|"]').forEach(function(inp){ var k=+inp.dataset.nota.split('|')[1], v=inp.value.trim(); if(v!=='') l.push([nn[k],Math.round(+v)]); }); an.notas=l; }
   function stashCampos(i,an){ [['nm','nome'],['jg','jogo'],['dt','data'],['yt','yt'],['dl','dl'],['ate','ate']].forEach(function(p){ var el=document.getElementById(p[0]+'-'+i); if(el) an[p[1]]=el.value.trim(); }); }
   function tempoNorm(v){ v=String(v||'').trim().replace(/[,.h]/g,':').replace(/[^0-9:]/g,''); if(!v) return ''; var p=v.split(':'), s; if(p.length===1) s=(+p[0]||0)*60; else if(p.length===2) s=(+p[0]||0)*60+(+p[1]||0); else s=(+p[0]||0)*3600+(+p[1]||0)*60+(+p[2]||0); if(!(s>=0)) return ''; var h=Math.floor(s/3600), m=Math.floor(s%3600/60), ss=s%60; return (h? h+':'+String(m).padStart(2,'0') : m)+':'+String(ss).padStart(2,'0'); }
   function tempoSeg(v){ v=tempoNorm(v); if(!v) return -1; var p=v.split(':').map(Number); return p.length===3? p[0]*3600+p[1]*60+p[2] : p[0]*60+p[1]; }
   function lerMomentos(i){ var l=[]; document.querySelectorAll('[data-mo="'+i+'"]').forEach(function(r){ l.push({v:r.querySelector('.mo-v').value.trim(),t:r.querySelector('.mo-t').value,a:r.querySelector('.mo-a').value.trim(),d:r.querySelector('.mo-d').value.trim()}); }); return l; }
-  function guardarDemo(c,a){ try{ var k='fiq-demo-links', o=JSON.parse(localStorage.getItem(k)||'{}'); o[c.id+'|'+a.id]={estado:a.estado,yt:a.yt,dl:a.dl,pdfNome:a.pdfNome||'',pdfTam:a.pdfTam||0,ate:a.ate,nome:a.nome,jogo:a.jogo,data:a.data,momentos:(a.momentos||[]).filter(function(m){ return m.a && m.v; })}; localStorage.setItem(k,JSON.stringify(o)); }catch(e){} }
+  function guardarDemo(c,a){ try{ var k='fiq-demo-links', o=JSON.parse(localStorage.getItem(k)||'{}'); o[c.id+'|'+a.id]={notas:a.notas||[],estado:a.estado,yt:a.yt,dl:a.dl,pdfNome:a.pdfNome||'',pdfTam:a.pdfTam||0,ate:a.ate,nome:a.nome,jogo:a.jogo,data:a.data,momentos:(a.momentos||[]).filter(function(m){ return m.a && m.v; })}; localStorage.setItem(k,JSON.stringify(o)); }catch(e){} }
   var SOLLUA='<svg class="ico-sol" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="ico-lua" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
   function temaPrefG(){ try{ return localStorage.getItem('fiq-tema-g')||'claro'; }catch(e){ return 'claro'; } }
   function temaEfetivoG(){ var a=document.documentElement.getAttribute('data-theme'); if(a) return a; return window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'; }
@@ -400,7 +441,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     var h='<div class="row"><a class="iconbtn" href="#clientes" aria-label="Voltar aos clientes">'+ICONE_VOLTAR+'</a>'+avHtml(c,'')+'<div style="min-width:0"><div style="font-family:var(--display);font-weight:700;font-size:22px">'+esc(nomeDe(c))+'</div><div class="sub">'+esc(pf?[pf.pos,pf.clube,pf.esc].filter(Boolean).join(' · '):c.pos)+'</div></div></div>'+
       // resumo rápido
       '<div class="resumo"><span class="pill p-ink">'+(ePack(c)?'Pack de 4 · '+c.pack:'Última: '+nivelAtual(c))+'</span><span class="pill p-soft">'+(ePack(c)?c.feitas+'/'+c.total+' sessões':c.analises.length+(c.analises.length===1?' sessão individual':' sessões individuais'))+'</span><span class="pill '+e[1]+'">'+e[0]+(falta(c)>0?' · falta '+falta(c)+' €':'')+'</span><span class="pill p-soft">Último acesso: '+esc(c.acesso)+'</span></div>'+
-      '<div class="secnav" role="tablist" aria-label="Assuntos do cliente">'+[['sec-perfil','Perfil',pf?'':'!'],['sec-analises','Análises',abertas?String(abertas):''],['sec-sessoes','Sessões e pagamento',falta(c)>0?'€':''],['sec-semana','Semana',''],['sec-pack','Tipo e acesso','']].map(function(x){return '<button type="button" role="tab" data-ir="'+x[0]+'" aria-selected="'+(x[0]===secAtual)+'">'+x[1]+(x[2]?'<span class="tab-n">'+x[2]+'</span>':'')+'</button>';}).join('')+'<button type="button" class="ver-como" data-acao="ver-como">Ver como o cliente</button></div>';
+      '<div class="secnav" role="tablist" aria-label="Assuntos do cliente">'+[['sec-perfil','Perfil',pf?'':'!'],['sec-analises','Análises',abertas?String(abertas):''],['sec-sessoes','Sessões e pagamento',falta(c)>0?'€':''],['sec-semana','Semana',''],['sec-atr','Pontos a avaliar',''],['sec-pack','Tipo e acesso','']].map(function(x){return '<button type="button" role="tab" data-ir="'+x[0]+'" aria-selected="'+(x[0]===secAtual)+'">'+x[1]+(x[2]?'<span class="tab-n">'+x[2]+'</span>':'')+'</button>';}).join('')+'<button type="button" class="ver-como" data-acao="ver-como">Ver como o cliente</button></div>';
     // perfil do jogador
     if(pf){
       var dados=[['Idade',idade!==null?idade+' anos':'—'],['Altura',pf.alt?pf.alt+' cm':'—'],['Pé',pf.pe||'—'],['Camisola',pf.num?'Nº '+pf.num:'—'],['Objetivo',pf.obj||'—',1],['Conheceu por',pf.orig||'—',1]];
@@ -424,6 +465,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
         campoLink('yt',i,a.yt,'Vídeo · link do YouTube (não listado)','https://youtu.be/…')+
         campoLink('dl',i,a.dl,'Descarregar vídeo · link transfer.it, WeTransfer ou Drive','https://transfer.it/…')+
         pdfCampo(c,a,i)+
+        notasCampo(c,a,i)+
         '<div class="campo"><label class="l" for="ate-'+i+'">Link para descarregar o vídeo válido até (opcional)</label><input class="input" type="date" id="ate-'+i+'" value="'+esc(a.ate||'')+'"></div>'+
         '<div class="mo-box"><div class="between"><span class="l" style="margin:0">Momentos do jogo · tempo no vídeo da sessão (opcional)</span></div>'+
           (a.momentos||[]).map(function(mo,j){ return '<div class="mo-row" data-mo="'+i+'">'+
@@ -439,7 +481,8 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     });
     h+=card('sec-analises','Análises','<button class="btn ghost small" type="button" data-acao="nova-analise">+ Nova</button>',an);
     // sessões + pagamento
-    var sp='';
+    var sp='', psv=proxSessao(c), psl=psv?(function(d){ return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,16); })(new Date(psv)):'';
+    sp+='<div class="campo"><label class="l" for="ps-dt">Próxima sessão (o jogador vê a contagem decrescente no Início)</label><div class="row" style="gap:8px;flex-wrap:wrap"><input class="input" type="datetime-local" id="ps-dt" value="'+psl+'" style="flex:1;min-width:200px"><button class="btn ink small" type="button" data-acao="guardar-ps">Guardar</button>'+(psv?'<button class="btn ghost small" type="button" data-acao="limpar-ps">Por marcar</button>':'')+'</div></div><div class="sep"></div>';
     if(ePack(c)){
       sp+='<div class="it"><span><strong>Pack de 4 · '+c.pack+'</strong> · o mesmo nível nas 4 sessões</span></div>'+
         '<div class="between"><span style="font-weight:700">Sessões feitas</span><div class="step"><button type="button" data-ses="feitas:-1" aria-label="Menos uma sessão feita">−</button><b>'+c.feitas+'</b><button type="button" data-ses="feitas:1" aria-label="Mais uma sessão feita">+</button></div></div>'+
@@ -480,6 +523,15 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       '<div class="sub">Email da conta: <strong>'+esc(c.email)+'</strong></div>'+
       '<div class="row" style="flex-wrap:wrap;gap:8px"><a class="btn whats small" href="'+linkWhats(c)+'" target="_blank" rel="noopener">Convite por WhatsApp</a><button class="btn ghost small" type="button" data-acao="reenviar">Reenviar email de ativação</button><button class="btn ghost small" type="button" data-acao="suspender">Suspender acesso</button></div>';
     h+=card('sec-pack','Tipo e acesso','',pk);
+    // pontos a avaliar (radar da carta)
+    var at=atrDe(c), usados={}; at.of.concat(at.df).forEach(function(n){ usados[n]=1; });
+    var ap='<div class="sub" style="margin:0">Os 8 pontos que aparecem no radar da carta de '+esc(nomeCurto(c))+'. Vêm da posição dele ('+esc(posDe(c))+'); podes trocar qualquer um só para este jogador.</div>'+
+      '<div class="campo"><span class="l">Carregar os pontos de uma posição</span><div class="etq">'+Object.keys(POS_ATR).map(function(p){ return '<button type="button" data-atrpos="'+esc(p)+'">'+esc(p)+'</button>'; }).join('')+'</div></div>'+
+      '<div class="atr-cols"><div><div class="nt-tit">Ofensivo</div>'+at.of.map(function(n,k){ return '<input class="input atr-in" id="atr-'+k+'" data-atrk="'+k+'" value="'+esc(n)+'" aria-label="Ponto ofensivo '+(k+1)+'">'; }).join('')+'</div>'+
+      '<div><div class="nt-tit">Defensivo</div>'+at.df.map(function(n,k){ return '<input class="input atr-in" id="atr-'+(k+4)+'" data-atrk="'+(k+4)+'" value="'+esc(n)+'" aria-label="Ponto defensivo '+(k+1)+'">'; }).join('')+'</div></div>'+
+      '<div class="campo"><span class="l">Etiquetas · toca num campo acima e depois numa etiqueta para a pôr lá</span><div class="etq" id="etq-lista">'+ETIQUETAS.map(function(e){ return '<button type="button" data-etq="'+esc(e)+'"'+(usados[e]?' class="usada"':'')+'>'+esc(e)+'</button>'; }).join('')+'</div></div>'+
+      '<div class="row" style="flex-wrap:wrap;gap:8px"><button class="btn ink small" type="button" data-acao="guardar-atr">Guardar pontos</button><button class="btn ghost small" type="button" data-acao="repor-atr">Repor os da posição</button></div>';
+    h+=card('sec-atr','Pontos a avaliar','',ap);
     return h;
   }
   function vDuvidas(){
@@ -582,10 +634,15 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(t.dataset.rm && c){ var r=t.dataset.rm.split(':'); c[r[0]].splice(+r[1],1); render(); return; }
     if(t.dataset.np){ novoPack=t.dataset.np; document.querySelectorAll('[data-np]').forEach(function(x){x.setAttribute('aria-pressed',x===t);}); atualizaPreco(); return; }
     if(t.dataset.nf){ novoForm=t.dataset.nf; document.querySelectorAll('[data-nf]').forEach(function(x){x.setAttribute('aria-pressed',x===t);}); atualizaPreco(); return; }
+    if(t.dataset.atrpos && c){ var mp=atrModelo(t.dataset.atrpos); mp.of.concat(mp.df).forEach(function(n,k){ var el=document.getElementById('atr-'+k); if(el) el.value=n; }); marcaEtq(); toast('Pontos de '+t.dataset.atrpos+' carregados. Carrega em Guardar pontos.'); return; }
+    if(t.dataset.etq && c){ var alvo=V.querySelector('.atr-in.foco')||V.querySelector('.atr-in'); if(alvo){ alvo.value=t.dataset.etq; var nk=+alvo.dataset.atrk+1, prox=document.getElementById('atr-'+(nk%8)); V.querySelectorAll('.atr-in').forEach(function(x){ x.classList.remove('foco'); }); if(prox){ prox.classList.add('foco'); } marcaEtq(); } return; }
     if(t.dataset.pdfrm!==undefined && c){ var ri=+t.dataset.pdfrm, ra=c.analises[ri]; pdfApagar(c.id+'|'+ra.id).catch(function(){}); ra.pdfNome=''; ra.pdfTam=0; document.getElementById('pdfc-'+ri).outerHTML=pdfCampo(c,ra,ri); toast('PDF tirado. Carrega em Guardar para atualizar o cliente.'); return; }
-    if(t.dataset.moadd!==undefined && c){ var mi=+t.dataset.moadd, man=c.analises[mi]; ANABERTA[c.id+'|'+man.id]=1; stashCampos(mi,man); man.momentos=lerMomentos(mi); man.momentos.push({v:'',t:'bom',a:'',d:''}); render(); var rs=document.querySelectorAll('[data-mo="'+mi+'"] .mo-v'); if(rs.length) rs[rs.length-1].focus(); return; }
-    if(t.dataset.morm && c){ var mr=t.dataset.morm.split(':'), man2=c.analises[+mr[0]]; ANABERTA[c.id+'|'+man2.id]=1; stashCampos(+mr[0],man2); man2.momentos=lerMomentos(+mr[0]); man2.momentos.splice(+mr[1],1); render(); return; }
+    if(t.dataset.moadd!==undefined && c){ var mi=+t.dataset.moadd, man=c.analises[mi]; ANABERTA[c.id+'|'+man.id]=1; stashCampos(mi,man); stashNotas(mi,man,c); man.momentos=lerMomentos(mi); man.momentos.push({v:'',t:'bom',a:'',d:''}); render(); var rs=document.querySelectorAll('[data-mo="'+mi+'"] .mo-v'); if(rs.length) rs[rs.length-1].focus(); return; }
+    if(t.dataset.morm && c){ var mr=t.dataset.morm.split(':'), man2=c.analises[+mr[0]]; ANABERTA[c.id+'|'+man2.id]=1; stashCampos(+mr[0],man2); stashNotas(+mr[0],man2,c); man2.momentos=lerMomentos(+mr[0]); man2.momentos.splice(+mr[1],1); render(); return; }
     if(t.dataset.guardar!==undefined && c){ var gi=+t.dataset.guardar, an=c.analises[gi], erros=[];
+      var nNomes=atrLista(c), nErr=false; an.notas=[];
+      V.querySelectorAll('[data-nota^="'+gi+'|"]').forEach(function(inp){ var k=+inp.dataset.nota.split('|')[1], v=inp.value.trim(); if(v==='') return; v=Math.round(+v); if(!(v>=0&&v<=100)){ nErr=true; return; } an.notas.push([nNomes[k],v]); });
+      if(nErr){ toast('As notas da carta vão de 0 a 100.'); return; }
       var momL=lerMomentos(gi).filter(function(m){ return m.a || m.v; });
       if(momL.some(function(m){ return m.a && tempoSeg(m.v)<0; })){ toast('Falta o tempo no vídeo num momento (ex.: 5:30).'); return; }
       an.momentos=momL.map(function(m){ m.v=tempoNorm(m.v); return m; }).sort(function(x,y){ return tempoSeg(x.v)-tempoSeg(y.v); });
@@ -600,6 +657,13 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(a==='sair'){ try{ sessionStorage.removeItem('fiq-gestao'); }catch(x){} logado=false; if(/github\.io$|fieldiqcm\.com$/.test(location.hostname)) location.href='index.html'; else { location.hash='login'; render(); } return; }
     if(a==='ver-como') toast('Abre a app tal como '+nomeDe(c)+' a vê.');
     if(a==='copiar-convite'){ var cc=cli(location.hash.slice(9)); var tx=textoConvite(cc); var ok=function(){ toast('Mensagem copiada'); }; try{ navigator.clipboard.writeText(tx).then(ok,function(){ selTexto(); }); }catch(x){ selTexto(); } return; }
+    if(a==='guardar-ps' && c){ var pv=document.getElementById('ps-dt').value; if(!pv){ toast('Escolhe a data e a hora.'); return; } guardarPS(c,new Date(pv).toISOString()); toast('Próxima sessão marcada. O jogador já vê a contagem.'); render(); return; }
+    if(a==='limpar-ps' && c){ guardarPS(c,''); toast('Próxima sessão por marcar.'); render(); return; }
+    if(a==='guardar-atr' && c){ var vs=[]; for(var ak=0;ak<8;ak++){ var ev=document.getElementById('atr-'+ak); vs.push(ev?ev.value.trim():''); }
+      if(vs.some(function(x){return !x;})){ toast('Preenche os 8 pontos.'); return; }
+      var antes=atrLista(c), mud=vs.filter(function(x,k){ return x!==antes[k]; }).length;
+      c.atr={of:vs.slice(0,4),df:vs.slice(4)}; guardarAtr(c); toast(mud?'Pontos guardados. Nos pontos novos, a evolução começa a contar a partir daqui.':'Pontos guardados.'); render(); return; }
+    if(a==='repor-atr' && c){ c.atr=null; guardarAtr(c); toast('Voltaram os pontos da posição ('+posDe(c)+').'); render(); return; }
     if(a==='reenviar') toast('Email de ativação reenviado para '+c.email);
     if(a==='suspender') toast('Esboço: aqui suspendes o acesso (pede confirmação).');
     if(a==='guardar-stats'){ document.querySelectorAll('[data-stat]').forEach(function(i){ c.stats[i.dataset.stat]=i.value; }); toast('Estatísticas guardadas. O cliente já as vê.'); }
@@ -621,7 +685,9 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
 
     if(t.id==='n-menor'){ document.getElementById('n-email-l').textContent=t.checked?'Email do encarregado de educação':'Email do jogador'; }
   });
+  V.addEventListener('focusin', function(e){ if(e.target.classList && e.target.classList.contains('atr-in')){ V.querySelectorAll('.atr-in').forEach(function(x){ x.classList.remove('foco'); }); e.target.classList.add('foco'); } });
   V.addEventListener('input', function(e){
+    if(e.target.classList && e.target.classList.contains('atr-in')) marcaEtq();
     if(e.target.dataset && e.target.dataset.lk){ var k=e.target.dataset.lk, r=validaLink(k.split(':')[0], e.target.value), el=V.querySelector('[data-vl="'+k+'"]'); if(el){ el.className='vl '+r[0]; el.textContent=r[1]; } }
     if(e.target.id==='procura'){ var q=e.target.value.trim().toLowerCase(); document.querySelectorAll('#lista-cli [data-nome]').forEach(function(a){ a.hidden=q && a.dataset.nome.indexOf(q)<0; }); }
   });
