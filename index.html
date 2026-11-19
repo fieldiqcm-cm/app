@@ -3105,9 +3105,18 @@ nav.tabs a{position:relative}
     }
   });
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !guia.hidden) guia.hidden = true; });
+  function instalarJa(){ pedido.prompt(); pedido.userChoice.then(function(r){ pedido = null; if (r && r.outcome === 'accepted') escondeInstalar(); }); }
   function instalar(){
-    if (pedido){ pedido.prompt(); pedido.userChoice.then(function(r){ pedido = null; if (r && r.outcome === 'accepted') escondeInstalar(); }); }
-    else abrirGuia();
+    if (pedido){ instalarJa(); return; }
+    // Chrome/Edge/Samsung instalam com um clique: o pedido do navegador pode chegar uns instantes depois de abrir a página
+    var podeDireto = !ios && /Chrome|Edg|SamsungBrowser/i.test(ua) && !/OPR|OPT|Opera|MiuiBrowser|wv\)/i.test(ua);
+    if (!podeDireto){ abrirGuia(); return; }
+    var t0 = Date.now();
+    (function espera(){
+      if (pedido){ instalarJa(); return; }
+      if (Date.now() - t0 > 2500){ abrirGuia(); return; }
+      setTimeout(espera, 150);
+    })();
   }
   btnInst.addEventListener('click', instalar);
   btnTop.addEventListener('click', instalar);
