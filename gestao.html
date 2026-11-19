@@ -194,7 +194,7 @@ details.an > summary{list-style:none;cursor:pointer;padding:14px;min-height:48px
 details.an > summary::-webkit-details-marker{display:none}
 details.an[open] > summary{border-bottom:1px solid var(--line)}
 .an-corpo{display:flex;flex-direction:column;gap:10px;padding:14px}
-.gd-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:8px}.gd-row .btn{width:100%}
+.gd-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:8px}.gd-row .btn{width:100%;white-space:nowrap}@media (max-width:440px){.gd-row .gd-cli{display:none}}
 .pdf-it,.pdf-up{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line2,#CFC4B3);border-radius:12px;flex-wrap:wrap}
 .pdf-up{border-style:dashed;cursor:pointer}
 .pdf-up:hover{border-color:var(--cobre,#8A4F24)}
@@ -493,7 +493,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
           '</div>'; }).join('')+
           '<button class="btn ghost small" type="button" data-moadd="'+i+'" style="align-self:flex-start">＋ Momento</button>'+
           '<div class="sub" style="margin:0">Escreve o tempo em que o lance começa no vídeo da sessão (ex.: 5:30 ou 5,30). O jogador toca e o vídeo salta para lá.</div></div>'+
-        '<div class="gd-row"><button class="btn ghost small" type="button" data-guardar="'+i+'" data-so="1">Guardar</button><button class="btn ink small" type="button" data-guardar="'+i+'">Guardar e avisar o cliente</button></div></div></details>';
+        '<div class="gd-row"><button class="btn ghost small" type="button" data-guardar="'+i+'" data-so="1">Guardar</button><button class="btn ink small" type="button" data-guardar="'+i+'">Guardar e avisar<span class="gd-cli">&nbsp;o cliente</span></button></div></div></details>';
     });
     h+=card('sec-analises','Análises','<button class="btn ghost small" type="button" data-acao="nova-analise">+ Nova</button>',an);
     // sessões + pagamento
