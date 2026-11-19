@@ -1176,7 +1176,7 @@ nav.tabs a{position:relative}
       <div class="wordmark">Field<span>IQ</span></div>
       <div class="row" style="gap:8px">
       <button class="iconbtn tema-btn" type="button" data-tema-toggle aria-label="Mudar para modo claro"><svg class="ico-sol" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="ico-lua" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
-      <button class="iconbtn" aria-label="Notificações" data-toast="Sem notificações novas">
+      <button class="iconbtn" id="sino" aria-label="Notificações" data-toast="Sem notificações novas">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
         <span style="position:absolute;top:10px;right:11px;width:8px;height:8px;border-radius:4px;background:var(--gold2)"></span>
       </button>
@@ -1201,7 +1201,7 @@ nav.tabs a{position:relative}
         <circle cx="174" cy="80" r="9" fill="#C9A453"/>
       </svg>
       <span class="hero-in">
-        <span class="hero-eb">A tua última análise · <span id="hero-data">26 out</span></span>
+        <span class="hero-eb">A tua última análise<span id="hero-sep"> · </span><span id="hero-data">26 out</span></span>
         <span class="hero-nome" id="hero-nome">Sessão 2 · vs. União Norte</span>
         <span class="hero-chips"><span>✓ Receção orientada</span><span>↗ Olhar antes de receber</span></span>
         <span class="hero-acoes"><span class="hero-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#111" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span id="hero-btn-txt">Ver o vídeo</span></span><span class="hero-cont" id="hero-cont" hidden></span></span>
@@ -2173,7 +2173,7 @@ nav.tabs a{position:relative}
     function poeHero(){
       if (!hn) return;
       HERO_K = chaveConta();
-      var p = lerPonte(HERO_K), def = AN_DEF[HERO_K] || AN_DEF['tiago|un'];
+      var p = lerPonte(HERO_K), def = AN_DEF[HERO_K] || ((window.__fiqReal && window.__fiqReal()) ? {nome: 'Sessão', jogo: '', data: ''} : AN_DEF['tiago|un']);
       hn.textContent = ((p && p.nome) || def.nome).split('·')[0].trim() + ' · ' + ((p && p.jogo) || def.jogo);
       var hero = document.getElementById('hero'), velha = hero.querySelector('.hero-capa'), hid = p ? ytId(p.yt) : '', campo = hero.querySelector('.hero-campo');
       if (velha) velha.remove(); if (campo) campo.style.display = '';
@@ -2182,6 +2182,7 @@ nav.tabs a{position:relative}
         hi.onload = function(){ if (hi.naturalWidth <= 120 && /maxresdefault/.test(hi.src)) hi.src = 'https://i.ytimg.com/vi/' + hid + '/hqdefault.jpg'; };
         hi.src = 'https://i.ytimg.com/vi/' + hid + '/maxresdefault.jpg'; hero.insertBefore(hi, hero.firstChild); if (campo) campo.style.display = 'none'; }
       document.getElementById('hero-data').textContent = (p && p.data) || def.data;
+      document.getElementById('hero-sep').hidden = !document.getElementById('hero-data').textContent;
     }
     poeHero();
     if (hn) document.getElementById('hero').addEventListener('click', function(){ try { sessionStorage.setItem('fiq-tocar', '1'); sessionStorage.setItem('fiq-an', HERO_K); } catch(e){} });
@@ -2267,7 +2268,7 @@ nav.tabs a{position:relative}
     window.addEventListener('hashchange', function(){ if (!pv.hidden) fecharPdf(); });
     // ---- abrir uma análise (a que o jogador escolheu) ----
     function carregar(k){
-      ANALISE = k; dados = lerPonte(k); var def = AN_DEF[k] || AN_DEF['tiago|un'];
+      ANALISE = k; dados = lerPonte(k); var def = AN_DEF[k] || ((window.__fiqReal && window.__fiqReal()) ? {nome: 'Sessão', jogo: '', data: ''} : AN_DEF['tiago|un']);
       document.getElementById('an-nome').textContent = (dados && dados.nome) || def.nome;
       document.getElementById('an-titulo').textContent = (dados && dados.jogo) || def.jogo;
       document.getElementById('an-data').textContent = (dados && dados.data) || def.data;
@@ -2857,6 +2858,52 @@ nav.tabs a{position:relative}
     }
     window.__fiqFoco = function(){ return (ativo() && cli) ? ((cli.extra || {}).melhorar || []).slice(0, packAtual >= 2 ? 2 : 1) : null; };
     window.addEventListener('hashchange', function(){ if (/^#(inicio|analise)$/.test(location.hash)) setTimeout(aplicarConteudo, 0); });
+    // ----- avisos no telemóvel (notificações): o analista carrega a sessão e o jogador recebe um aviso -----
+    var VAPID_PUB = 'BKi68g1GYEXhWVfUxw4oMp9BVB2dnBvqNCnsm0JktvF_mkXmRyec9A6ghzgabyVlcsfRRCrPjtWt8KuP22I8cUE';
+    var iosP = /iphone|ipad|ipod/i.test(navigator.userAgent), standaloneP = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+    var podePush = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    function b64u(t){ var p = '='.repeat((4 - t.length % 4) % 4), b = atob((t + p).replace(/-/g, '+').replace(/_/g, '/')), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
+    function obterSub(){ return navigator.serviceWorker.ready.then(function(reg){ return reg.pushManager.getSubscription().then(function(x){ return x || reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: b64u(VAPID_PUB)}); }); }); }
+    function guardarSub(sub){ var j = sub.toJSON(); return SB.from('push_subs').upsert({endpoint: j.endpoint, cliente_id: cli.id, p256dh: j.keys.p256dh, auth: j.keys.auth}).then(function(r){ if (r.error) throw r.error; }); }
+    function poeBannerAvisos(){
+      var b = document.getElementById('avisos-cta');
+      if (!b){
+        var hero = document.getElementById('hero'); if (!hero) return;
+        b = document.createElement('div'); b.id = 'avisos-cta'; b.className = 'avisos-cta';
+        b.innerHTML = '<span class="av-ic" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span><span class="av-tx"><b>Recebe um aviso</b><span id="avisos-sub">quando o analista carregar a tua sessão.</span></span><button type="button" id="avisos-bt">Ligar</button>';
+        hero.parentNode.insertBefore(b, hero);
+        var sty = document.createElement('style');
+        sty.textContent = '.avisos-cta{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;border:1px solid rgba(201,164,83,.45);background:rgba(201,164,83,.10)}.avisos-cta .av-ic{width:38px;height:38px;flex:none;border-radius:19px;background:var(--gold);color:#111;display:flex;align-items:center;justify-content:center}.avisos-cta .av-tx{flex:1;min-width:0;font-size:13px;color:var(--muted);line-height:1.35}.avisos-cta .av-tx b{display:block;color:var(--fg);font-size:14px}.avisos-cta button{flex:none;min-height:40px;padding:0 16px;border-radius:99px;border:none;background:var(--gold);color:#111;font:800 13px Mulish,sans-serif;cursor:pointer}';
+        document.head.appendChild(sty);
+        document.getElementById('avisos-bt').addEventListener('click', ativarAvisos);
+      }
+      var falta = iosP && !standaloneP, mostrar = ativo() && (falta || (podePush && Notification.permission === 'default'));
+      b.hidden = !mostrar;
+      if (falta){ document.getElementById('avisos-sub').textContent = 'instala primeiro a app no ecrã principal (Partilhar → Adicionar ao ecrã principal).'; document.getElementById('avisos-bt').hidden = true; }
+    }
+    function ativarAvisos(){
+      if (!podePush){ toast('Este navegador não recebe avisos. Instala a app.'); return; }
+      Notification.requestPermission().then(function(p){
+        if (p !== 'granted'){ toast('Avisos desligados. Podes ligá-los nas definições do telemóvel.'); poeBannerAvisos(); return; }
+        return obterSub().then(guardarSub).then(function(){ toast('Avisos ligados'); poeBannerAvisos(); });
+      }).catch(function(){ toast('Não foi possível ligar os avisos. Tenta outra vez.'); });
+    }
+    (function(){
+      var sino = document.getElementById('sino'); if (!sino) return;
+      sino.addEventListener('click', function(e){
+        if (!ativo()) return;
+        e.stopImmediatePropagation(); e.preventDefault();
+        if (iosP && !standaloneP){ toast('Para receberes avisos, instala primeiro a app no ecrã principal.'); return; }
+        if (!podePush){ toast('Este navegador não recebe avisos.'); return; }
+        if (Notification.permission === 'granted'){ toast('Avisos ligados: recebes um aviso quando o analista carregar a sessão.'); return; }
+        if (Notification.permission === 'denied'){ toast('Avisos bloqueados. Liga-os nas definições do telemóvel, em Notificações.'); return; }
+        ativarAvisos();
+      }, true);
+    })();
+    function sincronizarAvisos(){
+      poeBannerAvisos();
+      if (podePush && Notification.permission === 'granted' && cli) obterSub().then(guardarSub).catch(function(){});
+    }
     window.__fiqPdf = function(path){
       return SB.storage.from('relatorios').download(path).then(function(r){ if (r.error) throw r.error; return r.data; });
     };
@@ -2870,6 +2917,7 @@ nav.tabs a{position:relative}
       desenhaDuv(); contaDuv();
       aplicarConteudo();
       ligarTempoReal();
+      sincronizarAvisos();
     }
     function entrarReal(){
       return carregarDados().then(function(){

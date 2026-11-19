@@ -1,8 +1,8 @@
 /* FieldIQ — service worker
-   Sempre que mudares ficheiros da app, aumenta a VERSAO (ex.: 'fieldiq-v60').
+   Sempre que mudares ficheiros da app, aumenta a VERSAO (ex.: 'fieldiq-v61').
    Estratégia: tenta sempre a rede primeiro (as alterações aparecem logo);
    sem rede, usa a cópia guardada (a app abre na mesma). */
-const VERSAO = 'fieldiq-v60';
+const VERSAO = 'fieldiq-v61';
 const BASE = [
   './',
   './index.html',
@@ -50,4 +50,25 @@ self.addEventListener('fetch', (e) => {
       })
       .catch(() => caches.match(req).then((r) => r || (req.mode === 'navigate' ? caches.match('./index.html') : undefined)))
   );
+});
+
+// Avisos (notificações) enviados pelo analista
+self.addEventListener('push', (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (x) { d = {texto: e.data ? e.data.text() : ''}; }
+  e.waitUntil(self.registration.showNotification(d.titulo || 'FieldIQ', {
+    body: d.texto || '',
+    icon: './assets/icons/icon-192.png',
+    badge: './assets/icons/icon-192.png',
+    data: {url: d.url || './'},
+    tag: d.tag || 'fieldiq-' + Date.now()
+  }));
+});
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = new URL((e.notification.data && e.notification.data.url) || './', self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({type: 'window', includeUncontrolled: true}).then((ws) => {
+    for (const w of ws) { if ('focus' in w) { return w.navigate(url).then((x) => (x || w).focus()).catch(() => w.focus()); } }
+    return self.clients.openWindow(url);
+  }));
 });

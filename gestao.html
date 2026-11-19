@@ -587,6 +587,15 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   function horaTxt(iso){ var d=new Date(iso); return d.getDate()+' '+MESES_C[d.getMonth()]+', '+String(d.getHours()).padStart(2,'0')+'h'+String(d.getMinutes()).padStart(2,'0'); }
   function textoRec(c){ return 'Olá! Para criares uma palavra-passe nova na app FieldIQ:\n\n1. Abre a app: '+location.origin+'/\n2. Carrega em "Esqueci-me da palavra-passe" e escreve o teu email: '+c.email+'\n3. Escreve este código: '+c.recCodigo+'\n\nO código vale 24 horas.'; }
   function linkRec(c){ var t=String(c.tel||'').replace(/\D/g,''); if(t.length===9) t='351'+t; return 'https://wa.me/'+t+'?text='+encodeURIComponent(textoRec(c)); }
+  // Aviso no telemóvel do jogador quando a análise fica Concluída (só uma vez por análise)
+  function avisarPronta(c,an){
+    if(!window.__fiqAvisar || an.estado!=='Concluída' || an.avisado) return false;
+    an.avisado=new Date().toISOString(); if(window.__fiqGravar) window.__fiqGravar();
+    window.__fiqAvisar(c,'A tua análise está pronta',(an.jogo?'Já podes ver a análise '+an.jogo+'.':'Já podes ver a tua análise.')+' Toca para abrir.','./#analises').then(function(d){
+      toast(d&&d.enviados?'Guardado. O jogador recebeu um aviso no telemóvel.':'Guardado. O jogador ainda não ligou os avisos (vê na app quando entrar).');
+    },function(){ toast('Guardado. O aviso não foi enviado (confirma a rede).'); });
+    return true;
+  }
   function textoConvite(c){
     var url = window.FIQ_CFG ? location.origin + '/' : 'https://fieldiqcm-cm.github.io/app/';
     return 'Olá! A tua conta FieldIQ está pronta.\n\n1. Abre a app: '+url+'\n2. Carrega em "1.ª vez? Ativar conta" e usa este email: '+c.email+(c.codigo ? '\n   Código de ativação: '+c.codigo : '')+'\n3. Preenche o teu perfil (1 minuto) e instala a app no telemóvel.\n\n'+(ePack(c)?'O teu pack: '+c.pack+' · 4 sessões.':'A tua sessão: '+nivelAtual(c)+'.')+'\nQualquer dúvida, responde a esta mensagem.';
@@ -684,7 +693,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
         an.pagoInfo=document.getElementById('pg-'+gi).value; an.preco=an.pagoInfo==='Oferta'?0:(+document.getElementById('pr-'+gi).value||0); an.pago=an.pagoInfo.indexOf('Pago')===0?an.preco:0; }
       an.nome=document.getElementById('nm-'+gi).value.trim(); an.jogo=document.getElementById('jg-'+gi).value.trim(); an.data=document.getElementById('dt-'+gi).value.trim();
       if(erros.length){ toast('Há um link que não foi reconhecido. Corrige e volta a guardar.'); return; }
-      guardarDemo(c,an); toast('Guardado. O cliente recebe um aviso.'); render(); return; }
+      guardarDemo(c,an); if(!avisarPronta(c,an)) toast('Guardado.'+(window.FIQ_CFG?'':' O cliente recebe um aviso.')); render(); return; }
     var a=t.dataset.acao;
     if(a==='sair'){ try{ sessionStorage.removeItem('fiq-gestao'); }catch(x){} if(window.__fiqGSair){ window.__fiqGSair().then(function(){ location.href='index.html'; }); return; } logado=false; if(/github\.io$|fieldiqcm\.com$/.test(location.hostname)) location.href='index.html'; else { location.hash='login'; render(); } return; }
     if(a==='ver-como') toast('Abre a app tal como '+nomeDe(c)+' a vê.');
@@ -719,7 +728,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       if(f.size>10*1048576){ toast('O PDF tem mais de 10 MB. Exporta-o mais leve e volta a tentar.'); t.value=''; return; }
       (window.__fiqPdfUp ? window.__fiqPdfUp(c,ua,f) : pdfGravar(c.id+'|'+ua.id, f)).then(function(){ ua.pdfNome=f.name; ua.pdfTam=f.size; document.getElementById('pdfc-'+ui).outerHTML=pdfCampo(c,ua,ui); toast('PDF anexado. Carrega em Guardar para avisar o cliente.'); }).catch(function(){ toast('Não foi possível anexar neste browser.'); });
       return; }
-    if(t.dataset.estado!==undefined && c){ c.analises[+t.dataset.estado].estado=t.value; if(window.__fiqGravar) window.__fiqGravar(); toast('Estado: '+t.value+'. O cliente recebe um aviso.'); }
+    if(t.dataset.estado!==undefined && c){ var ea=c.analises[+t.dataset.estado]; ea.estado=t.value; if(window.__fiqGravar) window.__fiqGravar(); if(!avisarPronta(c,ea)) toast('Estado: '+t.value+'.'); }
 
     if(t.id==='n-menor'){ document.getElementById('n-email-l').textContent=t.checked?'Email do encarregado de educação':'Email do jogador'; }
   });
@@ -779,9 +788,9 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     window.__fiqCodigo = function(){ var A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = '', b = new Uint32Array(6); crypto.getRandomValues(b); for (var i = 0; i < 6; i++) s += A[b[i] % A.length]; return s; };
 
     function msgDe(m){ return {id: m.id, de: m.autor === 'cliente' ? 'cli' : 'eu', sb: m.sobre || (m.autor === 'cliente' ? 'Geral' : 'Analista'), t: m.texto, q: quando(m.criado_em), ts: Date.parse(m.criado_em)}; }
-    function anDe(a){ return {id: a.id, nome: a.nome || '', jogo: a.jogo || '', data: a.data_txt || '', estado: a.estado, nivel: a.nivel || '', preco: +a.preco || 0, pago: +a.pago || 0, pagoInfo: a.pago_info || 'Por pagar', yt: a.yt || '', dl: a.link_video || '', ate: a.links_ate || '', pdf: '', pdfNome: a.pdf_nome || '', pdfTam: a.pdf_tamanho || 0, pdfPath: a.pdf_path || '', notas: a.notas || [], momentos: a.momentos || []}; }
+    function anDe(a){ return {id: a.id, nome: a.nome || '', jogo: a.jogo || '', data: a.data_txt || '', estado: a.estado, nivel: a.nivel || '', preco: +a.preco || 0, pago: +a.pago || 0, pagoInfo: a.pago_info || 'Por pagar', yt: a.yt || '', dl: a.link_video || '', ate: a.links_ate || '', pdf: '', pdfNome: a.pdf_nome || '', pdfTam: a.pdf_tamanho || 0, pdfPath: a.pdf_path || '', notas: a.notas || [], momentos: a.momentos || [], avisado: (a.conteudo || {}).avisado || ''}; }
     function linhaCli(c){ return {id: c.id, email: String(c.email).toLowerCase(), telefone: c.tel || null, formato: c.formato, pack: c.pack, total: +c.total || 1, feitas: +c.feitas || 0, preco: +c.preco || 0, codigo: c.codigo || null, atr: c.atr || null, prox_sessao: proxSessao(c) || null, pos: c.pos || null, extra: {nome: c.nome || '', manter: c.manter || [], melhorar: c.melhorar || [], comp: c.comp || [], stats: c.stats || {}}}; }
-    function linhaAn(c, a){ return {id: a.id, cliente_id: c.id, nome: a.nome || 'Sessão', jogo: a.jogo || null, data_txt: a.data || null, estado: a.estado || 'Recebido', nivel: a.nivel || null, preco: +a.preco || 0, pago: +a.pago || 0, pago_info: a.pagoInfo || 'Por pagar', yt: a.yt || null, link_video: a.dl || null, links_ate: a.ate || null, pdf_path: a.pdfPath || null, pdf_nome: a.pdfNome || null, pdf_tamanho: a.pdfTam || null, momentos: a.momentos || [], notas: a.notas || []}; }
+    function linhaAn(c, a){ return {id: a.id, cliente_id: c.id, nome: a.nome || 'Sessão', jogo: a.jogo || null, data_txt: a.data || null, estado: a.estado || 'Recebido', nivel: a.nivel || null, preco: +a.preco || 0, pago: +a.pago || 0, pago_info: a.pagoInfo || 'Por pagar', yt: a.yt || null, link_video: a.dl || null, links_ate: a.ate || null, pdf_path: a.pdfPath || null, pdf_nome: a.pdfNome || null, pdf_tamanho: a.pdfTam || null, momentos: a.momentos || [], notas: a.notas || [], conteudo: a.avisado ? {avisado: a.avisado} : {}}; }
     function linhasPag(c){ return (c.pagamentos || []).map(function(p){ if (!p._data) p._data = hojeISO(); return {cliente_id: c.id, data: p._data, valor: +p.v || 0, metodo: p.m || null}; }); }
     function foto(c){ var g = {cli: JSON.stringify(linhaCli(c)), an: {}, pag: JSON.stringify(linhasPag(c))}; c.analises.forEach(function(a){ g.an[a.id] = JSON.stringify(linhaAn(c, a)); }); return g; }
 
@@ -855,11 +864,15 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
           SB.from('mensagens').insert({cliente_id: cid, autor: 'analista', texto: m.t, sobre: 'Analista'}).select('id').single().then(function(r){
             if (r.error){ toast('A resposta não foi enviada. Confirma a rede e tenta outra vez.'); return; }
             m.id = r.data.id; REAL['fiq-demo-duvidas'] = JSON.stringify(o);
+            var cc = cli(cid); if (cc) window.__fiqAvisar(cc, 'Resposta do analista', String(m.t).slice(0, 110), './#duvidas').catch(function(){});
           });
         });
       });
       REAL['fiq-demo-duvidas'] = JSON.stringify(o);
     }
+    window.__fiqAvisar = function(c, titulo, texto, abrir){
+      return SB.functions.invoke('notificar', {body: {cliente_id: c.id, titulo: titulo, texto: texto, abrir: abrir}}).then(function(r){ if (r.error) throw r.error; return r.data; });
+    };
     // PDF do relatório: fica no Storage privado (relatorios/<cliente>/<análise>.pdf)
     window.__fiqPdfUp = function(c, a, f){
       var path = c.id + '/' + a.id + '.pdf';
