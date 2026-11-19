@@ -3150,6 +3150,18 @@ nav.tabs a{position:relative}
       Promise.race([feito, new Promise(function(r){ setTimeout(r, 2500); })]).then(limpa, limpa);
     };
 
+    // ----- análise vista: o analista vê ✓✓ na gestão quando o jogador abre a análise -----
+    var vistasEnv = {};
+    function marcarVista(){
+      if (!REAL || location.hash !== '#analise') return;
+      var k = window.__fiqAnKey; if (!k || k.indexOf('r|') !== 0) return;
+      var id = k.slice(2); if (!/^[0-9a-f-]{36}$/.test(id) || vistasEnv[id]) return;
+      vistasEnv[id] = 1;
+      SB.rpc('marcar_vista', {p_id: id}).then(function(r){ if (r && r.error) delete vistasEnv[id]; }, function(){ delete vistasEnv[id]; });
+    }
+    window.addEventListener('hashchange', function(){ if (location.hash === '#analise') setTimeout(marcarVista, 1200); });
+    if (location.hash === '#analise') setTimeout(marcarVista, 2500);
+
     // ----- ao abrir: se já há sessão, entra logo -----
     var livre = ['entrada', 'ativar', 'recuperar'];
     var h0 = (location.hash || '').replace('#', '');
