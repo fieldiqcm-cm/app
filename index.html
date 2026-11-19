@@ -2859,11 +2859,25 @@ nav.tabs a{position:relative}
     window.__fiqFoco = function(){ return (ativo() && cli) ? ((cli.extra || {}).melhorar || []).slice(0, packAtual >= 2 ? 2 : 1) : null; };
     window.addEventListener('hashchange', function(){ if (/^#(inicio|analise)$/.test(location.hash)) setTimeout(aplicarConteudo, 0); });
     // ----- avisos no telemóvel (notificações): o analista carrega a sessão e o jogador recebe um aviso -----
-    var VAPID_PUB = 'BKi68g1GYEXhWVfUxw4oMp9BVB2dnBvqNCnsm0JktvF_mkXmRyec9A6ghzgabyVlcsfRRCrPjtWt8KuP22I8cUE';
+    var chavePub = null; // chave pública dos avisos: vem do servidor (função notificar)
     var iosP = /iphone|ipad|ipod/i.test(navigator.userAgent), standaloneP = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
     var podePush = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
     function b64u(t){ var p = '='.repeat((4 - t.length % 4) % 4), b = atob((t + p).replace(/-/g, '+').replace(/_/g, '/')), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
-    function obterSub(){ return navigator.serviceWorker.ready.then(function(reg){ return reg.pushManager.getSubscription().then(function(x){ return x || reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: b64u(VAPID_PUB)}); }); }); }
+    function lerChave(){
+      if (chavePub) return Promise.resolve(chavePub);
+      return fetch(CFG.url + '/functions/v1/notificar', {headers: {apikey: CFG.key, Authorization: 'Bearer ' + CFG.key}}).then(function(r){ return r.json(); }).then(function(j){ if (!j.publicKey) throw new Error('sem chave'); chavePub = j.publicKey; return chavePub; });
+    }
+    function mesmaChave(sub, k){ try { var a = new Uint8Array(sub.options.applicationServerKey), b = b64u(k); if (a.length !== b.length) return false; for (var i = 0; i < a.length; i++) if (a[i] !== b[i]) return false; return true; } catch(e){ return true; } }
+    function obterSub(){
+      return lerChave().then(function(k){
+        return navigator.serviceWorker.ready.then(function(reg){
+          return reg.pushManager.getSubscription().then(function(x){
+            if (x && mesmaChave(x, k)) return x;
+            return (x ? x.unsubscribe() : Promise.resolve()).then(function(){ return reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: b64u(k)}); });
+          });
+        });
+      });
+    }
     function guardarSub(sub){ var j = sub.toJSON(); return SB.from('push_subs').upsert({endpoint: j.endpoint, cliente_id: cli.id, p256dh: j.keys.p256dh, auth: j.keys.auth}).then(function(r){ if (r.error) throw r.error; }); }
     function poeBannerAvisos(){
       var b = document.getElementById('avisos-cta');
