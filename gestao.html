@@ -194,6 +194,7 @@ details.an > summary{list-style:none;cursor:pointer;padding:14px;min-height:48px
 details.an > summary::-webkit-details-marker{display:none}
 details.an[open] > summary{border-bottom:1px solid var(--line)}
 .an-corpo{display:flex;flex-direction:column;gap:10px;padding:14px}
+.gd-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:8px}.gd-row .btn{width:100%}
 .pdf-it,.pdf-up{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line2,#CFC4B3);border-radius:12px;flex-wrap:wrap}
 .pdf-up{border-style:dashed;cursor:pointer}
 .pdf-up:hover{border-color:var(--cobre,#8A4F24)}
@@ -492,7 +493,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
           '</div>'; }).join('')+
           '<button class="btn ghost small" type="button" data-moadd="'+i+'" style="align-self:flex-start">＋ Momento</button>'+
           '<div class="sub" style="margin:0">Escreve o tempo em que o lance começa no vídeo da sessão (ex.: 5:30 ou 5,30). O jogador toca e o vídeo salta para lá.</div></div>'+
-        '<button class="btn ink small" type="button" data-guardar="'+i+'">Guardar e avisar o cliente</button></div></details>';
+        '<div class="gd-row"><button class="btn ghost small" type="button" data-guardar="'+i+'" data-so="1">Guardar</button><button class="btn ink small" type="button" data-guardar="'+i+'">Guardar e avisar o cliente</button></div></div></details>';
     });
     h+=card('sec-analises','Análises','<button class="btn ghost small" type="button" data-acao="nova-analise">+ Nova</button>',an);
     // sessões + pagamento
@@ -616,7 +617,16 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   var vistaAnterior=null;
   var logado=false; try { logado = sessionStorage.getItem('fiq-gestao') === '1'; } catch(x){}
   function guardarEstados(){ try{ var o={}; clientes.forEach(function(c){ if(!c.email) return; o[c.email.toLowerCase()]={formato:c.formato,pack:c.pack,feitas:c.feitas,total:c.total,preco:c.preco,pagamentos:c.pagamentos||[],sessoes:(c.analises||[]).map(function(a){ return {nome:a.nome,jogo:a.jogo,data:a.data,nivel:a.nivel||c.pack,preco:+a.preco||0,pago:+a.pago||0,pagoInfo:a.pagoInfo||''}; })}; }); localStorage.setItem('fiq-demo-estado',JSON.stringify(o)); }catch(e){} }
+  function guardarEscrito(){
+    var c=fichaDe&&cli(fichaDe); if(!c||!V.querySelector('.secnav')) return; // o que está no ecrã é a ficha deste cliente
+    c.analises.forEach(function(an,i){
+      if(!document.getElementById('nm-'+i)) return;
+      stashCampos(i,an); stashNotas(i,an,c);
+      if(document.querySelector('[data-mo="'+i+'"]')) an.momentos=lerMomentos(i);
+    });
+  }
   function render(){
+    guardarEscrito();
     syncDuvidas();
     guardarEstados();
     var h=(location.hash||'').replace('#','');
@@ -695,7 +705,10 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
         an.pagoInfo=document.getElementById('pg-'+gi).value; an.preco=an.pagoInfo==='Oferta'?0:(+document.getElementById('pr-'+gi).value||0); an.pago=an.pagoInfo.indexOf('Pago')===0?an.preco:0; }
       an.nome=document.getElementById('nm-'+gi).value.trim(); an.jogo=document.getElementById('jg-'+gi).value.trim(); an.data=document.getElementById('dt-'+gi).value.trim();
       if(erros.length){ toast('Há um link que não foi reconhecido. Corrige e volta a guardar.'); return; }
-      guardarDemo(c,an); if(!avisarPronta(c,an)) toast('Guardado.'+(window.FIQ_CFG?'':' O cliente recebe um aviso.')); render(); return; }
+      guardarDemo(c,an);
+      if(t.dataset.so) toast('Guardado. O cliente ainda não foi avisado.');
+      else if(!avisarPronta(c,an)) toast(an.estado==='Concluída'?'Guardado.'+(window.FIQ_CFG?'':' O cliente recebe um aviso.'):'Guardado. O aviso vai quando a análise estiver Concluída.');
+      render(); return; }
     var a=t.dataset.acao;
     if(a==='sair'){ try{ sessionStorage.removeItem('fiq-gestao'); }catch(x){} if(window.__fiqGSair){ window.__fiqGSair().then(function(){ location.href='index.html'; }); return; } logado=false; if(/github\.io$|fieldiqcm\.com$/.test(location.hostname)) location.href='index.html'; else { location.hash='login'; render(); } return; }
     if(a==='ver-como') toast('Abre a app tal como '+nomeDe(c)+' a vê.');
