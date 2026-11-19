@@ -591,9 +591,10 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   // Aviso no telemóvel do jogador quando a análise fica Concluída (só uma vez por análise)
   function avisarPronta(c,an){
     if(!window.__fiqAvisar || an.estado!=='Concluída' || an.avisado) return false;
-    an.avisado=new Date().toISOString(); if(window.__fiqGravar) window.__fiqGravar();
     window.__fiqAvisar(c,'A tua análise está pronta',(an.jogo?'Já podes ver a análise '+an.jogo+'.':'Já podes ver a tua análise.')+' Toca para abrir.','./#analises').then(function(d){
-      toast(d&&d.enviados?'Guardado. O jogador recebeu um aviso no telemóvel.':'Guardado. O jogador ainda não ligou os avisos (vê na app quando entrar).');
+      // só fica marcado como avisado quando o aviso chegou a pelo menos um aparelho (se não, tenta de novo ao guardar)
+      if(d&&d.enviados){ an.avisado=new Date().toISOString(); if(window.__fiqGravar) window.__fiqGravar(); }
+      toast(d&&d.enviados?'Guardado. O jogador recebeu um aviso no telemóvel.':'Guardado. O jogador ainda não ligou os avisos: o aviso não foi enviado (vê na app quando entrar).');
     },function(){ toast('Guardado. O aviso não foi enviado (confirma a rede).'); });
     return true;
   }
