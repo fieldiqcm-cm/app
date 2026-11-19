@@ -425,7 +425,6 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     pr.forEach(function(v){ var c=cli(v.cli); h+='<a class="card cli" href="#conversa-'+conversas.indexOf(v)+'"><span class="dot"></span><span style="flex:1"><span class="nm">Responder a '+esc(nomeDe(c))+'</span><span class="ds" style="display:block">"'+esc(v.msgs[v.msgs.length-1].t)+'"</span></span></a>'; });
     curso.forEach(function(x){ var falt=[]; if(!x.a.yt) falt.push('vídeo (YouTube)'); if(!x.a.pdfNome&&!x.a.pdf) falt.push('relatório (PDF)');
       h+='<a class="card cli" href="#cliente-'+x.c.id+'">'+avHtml(x.c,'width:34px;height:34px;font-size:12px')+'<span style="flex:1"><span class="nm">'+esc(x.a.nome||x.a.jogo)+'</span><span class="ds" style="display:block">'+x.a.estado+(falt.length?' · falta pôr o link do '+falt.join(' e do '):'')+'</span></span></a>'; });
-    clientes.filter(function(c){return c.recPedido;}).forEach(function(c){ h+='<a class="card cli" href="#cliente-'+c.id+'" data-rec="1"><span class="pill p-bad">Acesso</span><span style="flex:1"><span class="nm">'+esc(nomeDe(c))+' esqueceu-se da palavra-passe</span><span class="ds" style="display:block">Abre a ficha, em Tipo e acesso, e envia-lhe um código</span></span></a>'; });
     clientes.filter(function(c){return !lerPerfil(c);}).forEach(function(c){ h+='<a class="card cli" href="#cliente-'+c.id+'"><span class="pill p-warn">Perfil</span><span style="flex:1"><span class="nm">'+esc(nomeDe(c))+' ainda não completou o perfil</span><span class="ds" style="display:block">'+esc(c.acesso)+'</span></span></a>'; });
     emFalta.forEach(function(c){ h+='<a class="card cli" href="#cliente-'+c.id+'"><span class="pill '+estPag(c)[1]+'">'+falta(c)+' €</span><span style="flex:1"><span class="nm">Pagamento · '+esc(nomeDe(c))+'</span><span class="ds" style="display:block">'+c.pack+' · '+c.formato+'</span></span></a>'; });
     h+='</div><button class="btn ghost small" type="button" data-acao="sair" style="align-self:flex-start">Sair da gestão</button><div class="demo">Esboço: daqui a uns segundos chega uma notificação de exemplo, como aparece no telemóvel quando um cliente te escreve.</div>';
@@ -581,9 +580,9 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(!window.FIQ_CFG) return '<div class="row" style="flex-wrap:wrap;gap:8px"><a class="btn whats small" href="'+linkWhats(c)+'" target="_blank" rel="noopener">Convite por WhatsApp</a><button class="btn ghost small" type="button" data-acao="reenviar">Reenviar email de ativação</button><button class="btn ghost small" type="button" data-acao="suspender">Suspender acesso</button></div>';
     if(!c.ativa) return '<div class="sub">Código de ativação: <strong style="letter-spacing:2px">'+esc(c.codigo||'—')+'</strong> · ainda não ativou a conta</div><div class="row" style="flex-wrap:wrap;gap:8px"><a class="btn whats small" href="'+linkWhats(c)+'" target="_blank" rel="noopener">Convite por WhatsApp</a><button class="btn ghost small" type="button" data-acao="reenviar">Ver convite</button></div>';
     var temCod=c.recCodigo && c.recAte && new Date(c.recAte)>new Date();
-    return '<div class="sub">✓ Conta ativada'+(c.recPedido?' · <strong style="color:var(--bad)">pediu para recuperar a palavra-passe</strong>':'')+'</div>'+
+    return '<div class="sub">✓ Conta ativada · se o jogador se esquecer da palavra-passe, recebe um código no email automaticamente</div>'+
       (temCod?'<div class="card" style="padding:12px"><div class="sub" style="margin:0">Código para recuperar a palavra-passe · válido até '+esc(horaTxt(c.recAte))+'</div><div style="font:800 24px var(--body);letter-spacing:4px;margin:6px 0">'+esc(c.recCodigo)+'</div><a class="btn whats small" href="'+linkRec(c)+'" target="_blank" rel="noopener">Enviar por WhatsApp</a></div>':'')+
-      '<div class="row" style="flex-wrap:wrap;gap:8px"><button class="btn ghost small" type="button" data-acao="rec-codigo">'+(temCod?'Gerar outro código':'Código para recuperar a palavra-passe')+'</button></div>';
+      '<div class="row" style="flex-wrap:wrap;gap:8px"><button class="btn ghost small" type="button" data-acao="rec-codigo">'+(temCod?'Gerar outro código':'Código de reserva (se o email não chegar)')+'</button></div>';
   }
   function horaTxt(iso){ var d=new Date(iso); return d.getDate()+' '+MESES_C[d.getMonth()]+', '+String(d.getHours()).padStart(2,'0')+'h'+String(d.getMinutes()).padStart(2,'0'); }
   function textoRec(c){ return 'Olá! Para criares uma palavra-passe nova na app FieldIQ:\n\n1. Abre a app: '+location.origin+'/\n2. Carrega em "Esqueci-me da palavra-passe" e escreve o teu email: '+c.email+'\n3. Escreve este código: '+c.recCodigo+'\n\nO código vale 24 horas.'; }
@@ -904,7 +903,6 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
           c.recPedido = r.rec_pedido_em || null; c.recCodigo = r.rec_codigo || ''; c.recAte = r.rec_ate || null; c.ativa = !!r.user_id;
           if (c.ativa) c.acesso = 'Conta ativada';
           if (JSON.stringify([c.recPedido, c.recCodigo, c.ativa]) === antes) return;
-          if (c.recPedido) toast(nomeDe(c) + ' pediu para recuperar a palavra-passe.');
           var h = location.hash; if (h === '#painel' || h === '#clientes' || h === '' || h === '#' || h === '#cliente-' + c.id) render();
         })
         .subscribe();

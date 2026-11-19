@@ -2957,14 +2957,14 @@ nav.tabs a{position:relative}
     var recEmail = '';
     (function(){
       var r1 = document.getElementById('rec-1'), r2 = document.getElementById('rec-2');
-      var p1 = r1.querySelector('p'); if (p1) p1.textContent = 'Escreve o teu email. O analista recebe o pedido e envia-te um código por WhatsApp.';
-      var b1 = r1.querySelector('button[type="submit"]'); if (b1) b1.textContent = 'Pedir código ao analista';
+      var p1 = r1.querySelector('p'); if (p1) p1.textContent = 'Escreve o teu email. Enviamos-te logo um código para criares uma palavra-passe nova.';
+      var b1 = r1.querySelector('button[type="submit"]'); if (b1) b1.textContent = 'Enviar código';
       var ja = document.createElement('button'); ja.type = 'button'; ja.className = 'textbtn'; ja.id = 'rc-ja'; ja.textContent = 'Já tenho um código'; ja.style.alignSelf = 'center'; r1.appendChild(ja);
-      r2.innerHTML = '<p class="sub" style="margin:0">Escreve o código que o analista te enviou e escolhe a palavra-passe nova.</p>' +
-        '<label for="rc-cod" class="sr">Código de recuperação</label><input class="input" id="rc-cod" placeholder="Código de recuperação" autocomplete="one-time-code" autocapitalize="characters" maxlength="6" style="text-transform:uppercase;letter-spacing:3px">' +
+      r2.innerHTML = '<p class="sub" style="margin:0">Escreve o código que recebeste no email (vê também no spam) e escolhe a palavra-passe nova.</p>' +
+        '<label for="rc-cod" class="sr">Código de recuperação</label><input class="input" id="rc-cod" placeholder="Código do email" autocomplete="one-time-code" autocapitalize="characters" maxlength="8" style="text-transform:uppercase;letter-spacing:3px">' +
         '<div class="pw"><label for="rc-p1" class="sr">Palavra-passe nova</label><input class="input" id="rc-p1" type="password" placeholder="Palavra-passe nova" autocomplete="new-password"><button class="olho" type="button" id="rc-olho" aria-label="Mostrar palavra-passe">Ver</button></div>' +
         '<label for="rc-p2" class="sr">Repetir palavra-passe</label><input class="input" id="rc-p2" type="password" placeholder="Repetir palavra-passe" autocomplete="new-password">' +
-        '<p class="note" style="margin:0">Pelo menos 8 caracteres e um número. O código vale 24 horas.</p>' +
+        '<p class="note" style="margin:0">Pelo menos 8 caracteres e um número. O código vale 1 hora.</p>' +
         '<p class="erro" id="rc-erro" role="alert" hidden></p>' +
         '<button class="btn gold" type="submit">Guardar e entrar</button>' +
         '<button class="textbtn" type="button" id="rc-voltar" style="align-self:center">Voltar</button>';
@@ -2981,22 +2981,41 @@ nav.tabs a{position:relative}
       if (!r1.hidden){
         recEmail = document.getElementById('rec-email').value.trim().toLowerCase();
         if (!recEmail || recEmail.indexOf('@') < 1){ toast('Escreve o teu email.'); return; }
-        SB.rpc('pedir_recuperacao', {p_email: recEmail}).then(function(r){
+        var bt = r1.querySelector('button[type="submit"]'); bt.disabled = true;
+        SB.auth.resetPasswordForEmail(recEmail, {redirectTo: location.origin + '/'}).then(function(r){
+          bt.disabled = false;
+          if (r.error && /rate|limit|seconds/i.test(r.error.message)){ toast('Pediste um código há pouco. Espera um minuto.'); return; }
           if (r.error){ toast(SEM_REDE); return; }
-          r1.hidden = true; r2.hidden = false; erroRc('');
-          toast('Pedido enviado ao analista.');
+          r1.hidden = true; r2.hidden = false; erroRc(''); document.getElementById('rc-cod').focus();
+          toast('Enviámos-te um código por email.');
         });
         return;
       }
       var cod = document.getElementById('rc-cod').value.trim().toUpperCase(), a = document.getElementById('rc-p1').value, b = document.getElementById('rc-p2').value;
-      if (cod.length < 6){ erroRc('Escreve o código de 6 letras.'); return; }
+      if (cod.length < 6){ erroRc('Escreve o código que recebeste.'); return; }
       if (a.length < 8 || !/\d/.test(a)){ erroRc('A palavra-passe precisa de 8 caracteres e um número.'); return; }
       if (a !== b){ erroRc('As duas palavras-passe não são iguais.'); return; }
       erroRc('');
+      function fim(){
+        ['rc-cod', 'rc-p1', 'rc-p2'].forEach(function(id){ document.getElementById(id).value = ''; });
+        r2.hidden = true; r1.hidden = false; toast('Palavra-passe nova guardada'); return entrarReal();
+      }
+      if (/^\d+$/.test(cod)){
+        // código do email (automático)
+        SB.auth.verifyOtp({email: recEmail, token: cod, type: 'recovery'}).then(function(r){
+          if (r.error){ erroRc('Código errado ou fora de prazo. Carrega em Voltar e pede outro.'); return; }
+          return SB.auth.updateUser({password: a}).then(function(u){
+            if (u.error){ erroRc(/different|same/i.test(u.error.message) ? 'Escolhe uma palavra-passe diferente da antiga.' : 'Não foi possível guardar. Tenta outra vez.'); return; }
+            return fim();
+          });
+        }).catch(function(){ location.hash = 'entrada'; });
+        return;
+      }
+      // código de reserva dado pelo analista (letras)
       SB.rpc('recuperar_pw', {p_email: recEmail, p_codigo: cod, p_nova: a}).then(function(r){
         if (r.error){ erroRc(SEM_REDE); return; }
         if (r.data === 'fraca'){ erroRc('A palavra-passe precisa de 8 caracteres e um número.'); return; }
-        if (r.data !== 'ok'){ erroRc('Código errado ou fora de prazo (vale 24 horas). Pede outro ao analista.'); return; }
+        if (r.data !== 'ok'){ erroRc('Código errado ou fora de prazo. Carrega em Voltar e pede outro.'); return; }
         return SB.auth.signInWithPassword({email: recEmail, password: a}).then(function(x){
           if (x.error){ toast('Palavra-passe nova guardada. Entra com ela.'); location.hash = 'entrada'; return; }
           ['rc-cod', 'rc-p1', 'rc-p2'].forEach(function(id){ document.getElementById(id).value = ''; });
