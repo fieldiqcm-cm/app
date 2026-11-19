@@ -425,6 +425,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     pr.forEach(function(v){ var c=cli(v.cli); h+='<a class="card cli" href="#conversa-'+conversas.indexOf(v)+'"><span class="dot"></span><span style="flex:1"><span class="nm">Responder a '+esc(nomeDe(c))+'</span><span class="ds" style="display:block">"'+esc(v.msgs[v.msgs.length-1].t)+'"</span></span></a>'; });
     curso.forEach(function(x){ var falt=[]; if(!x.a.yt) falt.push('vídeo (YouTube)'); if(!x.a.pdfNome&&!x.a.pdf) falt.push('relatório (PDF)');
       h+='<a class="card cli" href="#cliente-'+x.c.id+'">'+avHtml(x.c,'width:34px;height:34px;font-size:12px')+'<span style="flex:1"><span class="nm">'+esc(x.a.nome||x.a.jogo)+'</span><span class="ds" style="display:block">'+x.a.estado+(falt.length?' · falta pôr o link do '+falt.join(' e do '):'')+'</span></span></a>'; });
+    clientes.filter(function(c){return c.recPedido;}).forEach(function(c){ h+='<a class="card cli" href="#cliente-'+c.id+'" data-rec="1"><span class="pill p-bad">Acesso</span><span style="flex:1"><span class="nm">'+esc(nomeDe(c))+' esqueceu-se da palavra-passe</span><span class="ds" style="display:block">Abre a ficha, em Tipo e acesso, e envia-lhe um código</span></span></a>'; });
     clientes.filter(function(c){return !lerPerfil(c);}).forEach(function(c){ h+='<a class="card cli" href="#cliente-'+c.id+'"><span class="pill p-warn">Perfil</span><span style="flex:1"><span class="nm">'+esc(nomeDe(c))+' ainda não completou o perfil</span><span class="ds" style="display:block">'+esc(c.acesso)+'</span></span></a>'; });
     emFalta.forEach(function(c){ h+='<a class="card cli" href="#cliente-'+c.id+'"><span class="pill '+estPag(c)[1]+'">'+falta(c)+' €</span><span style="flex:1"><span class="nm">Pagamento · '+esc(nomeDe(c))+'</span><span class="ds" style="display:block">'+c.pack+' · '+c.formato+'</span></span></a>'; });
     h+='</div><button class="btn ghost small" type="button" data-acao="sair" style="align-self:flex-start">Sair da gestão</button><div class="demo">Esboço: daqui a uns segundos chega uma notificação de exemplo, como aparece no telemóvel quando um cliente te escreve.</div>';
@@ -449,6 +450,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   function card(id,titulo,extra,corpo){ return '<section class="card sec" id="'+id+'" role="tabpanel"'+(id!==secAtual?' hidden':'')+'><div class="between"><h2>'+titulo+'</h2>'+(extra||'')+'</div>'+corpo+'</section>'; }
   function vCliente(c){
     if(fichaDe!==c.id){ fichaDe=c.id; secAtual='sec-analises'; }
+    if(window.__fiqSecSeg){ secAtual=window.__fiqSecSeg; window.__fiqSecSeg=null; }
     var e=estPag(c), nPack={Performance:1,Pro:2,Elite:3}[nivelAtual(c)], pf=lerPerfil(c), idade=pf?idadeDe(pf.nasc):null;
     var abertas=c.analises.filter(function(a){return a.estado!=='Concluída';}).length;
     var h='<div class="row"><a class="iconbtn" href="#clientes" aria-label="Voltar aos clientes">'+ICONE_VOLTAR+'</a>'+avHtml(c,'')+'<div style="min-width:0"><div style="font-family:var(--display);font-weight:700;font-size:22px">'+esc(nomeDe(c))+'</div><div class="sub">'+esc(pf?[pf.pos,pf.clube,pf.esc].filter(Boolean).join(' · '):c.pos)+'</div></div></div>'+
@@ -534,7 +536,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
         :'<div class="note" style="margin:0">Em sessões individuais, o nível escolhe-se em cada sessão (separador Análises). O cliente vê em cada análise o que esse nível desbloqueia.</div>')+
       '<div class="sep"></div>'+
       '<div class="sub">Email da conta: <strong>'+esc(c.email)+'</strong></div>'+
-      '<div class="row" style="flex-wrap:wrap;gap:8px"><a class="btn whats small" href="'+linkWhats(c)+'" target="_blank" rel="noopener">Convite por WhatsApp</a><button class="btn ghost small" type="button" data-acao="reenviar">Reenviar email de ativação</button><button class="btn ghost small" type="button" data-acao="suspender">Suspender acesso</button></div>';
+      blocoAcesso(c);
     h+=card('sec-pack','Tipo e acesso','',pk);
     // pontos a avaliar (radar da carta)
     var at=atrDe(c), usados={}; at.of.concat(at.df).forEach(function(n){ usados[n]=1; });
@@ -575,6 +577,17 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       '<div class="campo"><label class="l" for="n-preco">Valor acordado (€)</label><input class="input" id="n-preco" type="number" min="0" value="70"><span class="note">Preenchido pela tabela. Muda se houver preço especial.</span></div>'+
       '<button class="btn ink" type="submit">Criar cliente</button></form>';
   }
+  function blocoAcesso(c){
+    if(!window.FIQ_CFG) return '<div class="row" style="flex-wrap:wrap;gap:8px"><a class="btn whats small" href="'+linkWhats(c)+'" target="_blank" rel="noopener">Convite por WhatsApp</a><button class="btn ghost small" type="button" data-acao="reenviar">Reenviar email de ativação</button><button class="btn ghost small" type="button" data-acao="suspender">Suspender acesso</button></div>';
+    if(!c.ativa) return '<div class="sub">Código de ativação: <strong style="letter-spacing:2px">'+esc(c.codigo||'—')+'</strong> · ainda não ativou a conta</div><div class="row" style="flex-wrap:wrap;gap:8px"><a class="btn whats small" href="'+linkWhats(c)+'" target="_blank" rel="noopener">Convite por WhatsApp</a><button class="btn ghost small" type="button" data-acao="reenviar">Ver convite</button></div>';
+    var temCod=c.recCodigo && c.recAte && new Date(c.recAte)>new Date();
+    return '<div class="sub">✓ Conta ativada'+(c.recPedido?' · <strong style="color:var(--bad)">pediu para recuperar a palavra-passe</strong>':'')+'</div>'+
+      (temCod?'<div class="card" style="padding:12px"><div class="sub" style="margin:0">Código para recuperar a palavra-passe · válido até '+esc(horaTxt(c.recAte))+'</div><div style="font:800 24px var(--body);letter-spacing:4px;margin:6px 0">'+esc(c.recCodigo)+'</div><a class="btn whats small" href="'+linkRec(c)+'" target="_blank" rel="noopener">Enviar por WhatsApp</a></div>':'')+
+      '<div class="row" style="flex-wrap:wrap;gap:8px"><button class="btn ghost small" type="button" data-acao="rec-codigo">'+(temCod?'Gerar outro código':'Código para recuperar a palavra-passe')+'</button></div>';
+  }
+  function horaTxt(iso){ var d=new Date(iso); return d.getDate()+' '+MESES_C[d.getMonth()]+', '+String(d.getHours()).padStart(2,'0')+'h'+String(d.getMinutes()).padStart(2,'0'); }
+  function textoRec(c){ return 'Olá! Para criares uma palavra-passe nova na app FieldIQ:\n\n1. Abre a app: '+location.origin+'/\n2. Carrega em "Esqueci-me da palavra-passe" e escreve o teu email: '+c.email+'\n3. Escreve este código: '+c.recCodigo+'\n\nO código vale 24 horas.'; }
+  function linkRec(c){ var t=String(c.tel||'').replace(/\D/g,''); if(t.length===9) t='351'+t; return 'https://wa.me/'+t+'?text='+encodeURIComponent(textoRec(c)); }
   function textoConvite(c){
     var url = window.FIQ_CFG ? location.origin + '/' : 'https://fieldiqcm-cm.github.io/app/';
     return 'Olá! A tua conta FieldIQ está pronta.\n\n1. Abre a app: '+url+'\n2. Carrega em "1.ª vez? Ativar conta" e usa este email: '+c.email+(c.codigo ? '\n   Código de ativação: '+c.codigo : '')+'\n3. Preenche o teu perfil (1 minuto) e instala a app no telemóvel.\n\n'+(ePack(c)?'O teu pack: '+c.pack+' · 4 sessões.':'A tua sessão: '+nivelAtual(c)+'.')+'\nQualquer dúvida, responde a esta mensagem.';
@@ -636,6 +649,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   // ===== ações =====
   var clienteAtual=function(){ var h=location.hash.replace('#',''); return h.indexOf('cliente-')===0 ? cli(h.slice(8)) : null; };
   var novoPack='Pro', novoForm='Individual';
+  V.addEventListener('click', function(e){ if(e.target.closest('[data-rec]')) window.__fiqSecSeg='sec-pack'; }, true);
   V.addEventListener('click', function(e){
     var t=e.target.closest('button'); if(!t) return;
     var c=clienteAtual();
@@ -688,6 +702,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       if(sA){ sA.notas=notasN; guardarDemo(c,sA); }
       toast(mud?'Pontos e notas guardados. Nos pontos novos, a evolução começa a contar a partir daqui.':'Pontos e notas guardados. O jogador já vê na carta.'); render(); return; }
     if(a==='repor-atr' && c){ c.atr=null; guardarAtr(c); toast('Voltaram os pontos da posição ('+posDe(c)+').'); render(); return; }
+    if(a==='rec-codigo' && c && window.__fiqRecCodigo){ window.__fiqRecCodigo(c).then(function(){ render(); toast('Código criado. Envia-o ao jogador por WhatsApp.'); }, function(){ toast('Não foi possível criar o código. Confirma a rede.'); }); return; }
     if(a==='reenviar'){ if(window.FIQ_CFG){ location.hash='convite-'+c.id; return; } toast('Email de ativação reenviado para '+c.email); }
     if(a==='suspender') toast('Esboço: aqui suspendes o acesso (pede confirmação).');
     if(a==='guardar-stats'){ document.querySelectorAll('[data-stat]').forEach(function(i){ c.stats[i.dataset.stat]=i.value; }); if(window.__fiqGravar) window.__fiqGravar(); toast('Estatísticas guardadas. O cliente já as vê.'); }
@@ -791,6 +806,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
           clientes.push({id: r.id, nome: ex.nome || '', ini: '', pos: r.pos || '', menor: false, email: r.email, tel: r.telefone || '', pack: r.pack, formato: r.formato, feitas: r.feitas, total: r.total, preco: +r.preco || 0, codigo: r.codigo || '', atr: r.atr || null, ativa: !!r.user_id,
             pagamentos: pgs.filter(function(p){ return p.cliente_id === r.id; }).map(function(p){ return {d: dCurta(p.data), _data: p.data, v: +p.valor || 0, m: p.metodo || ''}; }),
             acesso: r.user_id ? 'Conta ativada' : 'Ainda não ativou a conta · código ' + (r.codigo || '—'),
+            recPedido: r.rec_pedido_em || null, recCodigo: r.rec_codigo || '', recAte: r.rec_ate || null,
             perfil: null, analises: ans.filter(function(a){ return a.cliente_id === r.id; }).map(anDe),
             manter: ex.manter || [], melhorar: ex.melhorar || [], comp: ex.comp || [], stats: ex.stats || {passes: '', duelos: '', rec: '', dec: ''}});
           if (r.prox_sessao) ps[r.email.toLowerCase()] = r.prox_sessao;
@@ -850,6 +866,12 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       var path = c.id + '/' + a.id + '.pdf';
       return SB.storage.from('relatorios').upload(path, f, {upsert: true, contentType: 'application/pdf'}).then(function(r){ if (r.error) throw r.error; a.pdfPath = path; });
     };
+    window.__fiqRecCodigo = function(c){
+      var cod = window.__fiqCodigo(), ate = new Date(Date.now() + 864e5).toISOString();
+      return SB.from('clientes').update({rec_codigo: cod, rec_ate: ate, rec_pedido_em: null}).eq('id', c.id).then(function(r){
+        if (r.error) throw r.error; c.recCodigo = cod; c.recAte = ate; c.recPedido = null;
+      });
+    };
     window.__fiqPdfRm = function(c, a){
       if (a.pdfPath) SB.storage.from('relatorios').remove([a.pdfPath]).then(function(){});
       a.pdfPath = '';
@@ -876,6 +898,15 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       canal = SB.channel('fiq-gestao')
         .on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'mensagens'}, recarregarMsgs)
         .on('postgres_changes', {event: '*', schema: 'public', table: 'perfis'}, recarregarPerfis)
+        .on('postgres_changes', {event: 'UPDATE', schema: 'public', table: 'clientes'}, function(p){
+          var r = p.new || {}, c = cli(r.id); if (!c) return;
+          var antes = JSON.stringify([c.recPedido, c.recCodigo, c.ativa]);
+          c.recPedido = r.rec_pedido_em || null; c.recCodigo = r.rec_codigo || ''; c.recAte = r.rec_ate || null; c.ativa = !!r.user_id;
+          if (c.ativa) c.acesso = 'Conta ativada';
+          if (JSON.stringify([c.recPedido, c.recCodigo, c.ativa]) === antes) return;
+          if (c.recPedido) toast(nomeDe(c) + ' pediu para recuperar a palavra-passe.');
+          var h = location.hash; if (h === '#painel' || h === '#clientes' || h === '' || h === '#' || h === '#cliente-' + c.id) render();
+        })
         .subscribe();
     }
     document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible' && REAL){ recarregarMsgs(); recarregarPerfis(); } });

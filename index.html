@@ -2953,25 +2953,58 @@ nav.tabs a{position:relative}
         });
       }
     };
-    // ----- recuperar: email -> código de 6 dígitos -> palavra-passe nova -----
+    // ----- recuperar: email -> pedido ao analista -> código (WhatsApp) + palavra-passe nova -----
     var recEmail = '';
+    (function(){
+      var r1 = document.getElementById('rec-1'), r2 = document.getElementById('rec-2');
+      var p1 = r1.querySelector('p'); if (p1) p1.textContent = 'Escreve o teu email. O analista recebe o pedido e envia-te um código por WhatsApp.';
+      var b1 = r1.querySelector('button[type="submit"]'); if (b1) b1.textContent = 'Pedir código ao analista';
+      var ja = document.createElement('button'); ja.type = 'button'; ja.className = 'textbtn'; ja.id = 'rc-ja'; ja.textContent = 'Já tenho um código'; ja.style.alignSelf = 'center'; r1.appendChild(ja);
+      r2.innerHTML = '<p class="sub" style="margin:0">Escreve o código que o analista te enviou e escolhe a palavra-passe nova.</p>' +
+        '<label for="rc-cod" class="sr">Código de recuperação</label><input class="input" id="rc-cod" placeholder="Código de recuperação" autocomplete="one-time-code" autocapitalize="characters" maxlength="6" style="text-transform:uppercase;letter-spacing:3px">' +
+        '<div class="pw"><label for="rc-p1" class="sr">Palavra-passe nova</label><input class="input" id="rc-p1" type="password" placeholder="Palavra-passe nova" autocomplete="new-password"><button class="olho" type="button" id="rc-olho" aria-label="Mostrar palavra-passe">Ver</button></div>' +
+        '<label for="rc-p2" class="sr">Repetir palavra-passe</label><input class="input" id="rc-p2" type="password" placeholder="Repetir palavra-passe" autocomplete="new-password">' +
+        '<p class="note" style="margin:0">Pelo menos 8 caracteres e um número. O código vale 24 horas.</p>' +
+        '<p class="erro" id="rc-erro" role="alert" hidden></p>' +
+        '<button class="btn gold" type="submit">Guardar e entrar</button>' +
+        '<button class="textbtn" type="button" id="rc-voltar" style="align-self:center">Voltar</button>';
+      document.getElementById('rc-olho').addEventListener('click', function(){ var i = document.getElementById('rc-p1'), v = i.type === 'password'; i.type = v ? 'text' : 'password'; this.textContent = v ? 'Ocultar' : 'Ver'; });
+      ja.addEventListener('click', function(){
+        recEmail = document.getElementById('rec-email').value.trim().toLowerCase();
+        if (!recEmail || recEmail.indexOf('@') < 1){ toast('Escreve primeiro o teu email.'); document.getElementById('rec-email').focus(); return; }
+        r1.hidden = true; r2.hidden = false; document.getElementById('rc-cod').focus();
+      });
+      document.getElementById('rc-voltar').addEventListener('click', function(){ r2.hidden = true; r1.hidden = false; });
+    })();
+    function erroRc(t){ var e = document.getElementById('rc-erro'); e.textContent = t || ''; e.hidden = !t; }
     window.__fiqRec = function(r1, r2){
       if (!r1.hidden){
         recEmail = document.getElementById('rec-email').value.trim().toLowerCase();
         if (!recEmail || recEmail.indexOf('@') < 1){ toast('Escreve o teu email.'); return; }
-        SB.auth.resetPasswordForEmail(recEmail, {redirectTo: location.origin + location.pathname}).then(function(r){
-          if (r.error && /rate|limit/i.test(r.error.message)){ toast('Pediste muitos códigos. Espera uns minutos.'); return; }
-          r1.hidden = true; r2.hidden = false; toast('Se o email for de um cliente, enviámos um código.'); document.getElementById('c1').focus();
+        SB.rpc('pedir_recuperacao', {p_email: recEmail}).then(function(r){
+          if (r.error){ toast(SEM_REDE); return; }
+          r1.hidden = true; r2.hidden = false; erroRc('');
+          toast('Pedido enviado ao analista.');
         });
-      } else {
-        var cod = [].map.call(document.querySelectorAll('.code input'), function(i){ return i.value.trim(); }).join('');
-        if (cod.length < 6){ toast('Escreve os 6 dígitos do código.'); return; }
-        SB.auth.verifyOtp({email: recEmail, token: cod, type: 'recovery'}).then(function(r){
-          if (r.error){ toast('Código errado ou fora de prazo. Pede outro.'); return; }
-          r1.hidden = false; r2.hidden = true;
-          modoAt = {tipo: 'recuperar'}; vemDaRecuperacao = true; passoAtivar(2); location.hash = 'ativar';
-        });
+        return;
       }
+      var cod = document.getElementById('rc-cod').value.trim().toUpperCase(), a = document.getElementById('rc-p1').value, b = document.getElementById('rc-p2').value;
+      if (cod.length < 6){ erroRc('Escreve o código de 6 letras.'); return; }
+      if (a.length < 8 || !/\d/.test(a)){ erroRc('A palavra-passe precisa de 8 caracteres e um número.'); return; }
+      if (a !== b){ erroRc('As duas palavras-passe não são iguais.'); return; }
+      erroRc('');
+      SB.rpc('recuperar_pw', {p_email: recEmail, p_codigo: cod, p_nova: a}).then(function(r){
+        if (r.error){ erroRc(SEM_REDE); return; }
+        if (r.data === 'fraca'){ erroRc('A palavra-passe precisa de 8 caracteres e um número.'); return; }
+        if (r.data !== 'ok'){ erroRc('Código errado ou fora de prazo (vale 24 horas). Pede outro ao analista.'); return; }
+        return SB.auth.signInWithPassword({email: recEmail, password: a}).then(function(x){
+          if (x.error){ toast('Palavra-passe nova guardada. Entra com ela.'); location.hash = 'entrada'; return; }
+          ['rc-cod', 'rc-p1', 'rc-p2'].forEach(function(id){ document.getElementById(id).value = ''; });
+          r2.hidden = true; r1.hidden = false;
+          toast('Palavra-passe nova guardada');
+          return entrarReal();
+        });
+      }).catch(function(){ location.hash = 'entrada'; });
     };
     window.__fiqSair = function(){
       if (canal){ SB.removeChannel(canal); canal = null; }
