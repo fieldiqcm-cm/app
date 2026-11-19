@@ -455,6 +455,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   function card(id,titulo,extra,corpo){ return '<section class="card sec" id="'+id+'" role="tabpanel"'+(id!==secAtual?' hidden':'')+'><div class="between"><h2>'+titulo+'</h2>'+(extra||'')+'</div>'+corpo+'</section>'; }
   function vCliente(c){
     if(fichaDe!==c.id){ fichaDe=c.id; secAtual='sec-analises'; }
+    FICHA={cli:c.id, ids:c.analises.map(function(a){ return a.id; })};
     if(window.__fiqSecSeg){ secAtual=window.__fiqSecSeg; window.__fiqSecSeg=null; }
     var e=estPag(c), nPack={Performance:1,Pro:2,Elite:3}[nivelAtual(c)], pf=lerPerfil(c), idade=pf?idadeDe(pf.nasc):null;
     var abertas=c.analises.filter(function(a){return a.estado!=='Concluída';}).length;
@@ -626,16 +627,23 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   var vistaAnterior=null;
   var logado=false; try { logado = sessionStorage.getItem('fiq-gestao') === '1'; } catch(x){}
   function guardarEstados(){ try{ var o={}; clientes.forEach(function(c){ if(!c.email) return; o[c.email.toLowerCase()]={formato:c.formato,pack:c.pack,feitas:c.feitas,total:c.total,preco:c.preco,pagamentos:c.pagamentos||[],sessoes:(c.analises||[]).map(function(a){ return {nome:a.nome,jogo:a.jogo,data:a.data,nivel:a.nivel||c.pack,preco:+a.preco||0,pago:+a.pago||0,pagoInfo:a.pagoInfo||''}; })}; }); localStorage.setItem('fiq-demo-estado',JSON.stringify(o)); }catch(e){} }
+  // FICHA = que cliente e que análises (por id, pela ordem do ecrã) estão desenhados agora.
+  // Tudo o que lê o ecrã usa isto, para nunca copiar os campos de uma sessão para outra
+  // quando a lista muda (nova análise, apagar, pedido novo do jogador a chegar em tempo real).
+  var FICHA=null;
+  function anEcra(c,i){ i=+i; if(FICHA&&FICHA.cli===c.id){ var id=FICHA.ids[i]; return id==null?null:(c.analises.filter(function(a){ return a.id===id; })[0]||null); } return c.analises[i]||null; }
   function guardarEscrito(){
-    var c=fichaDe&&cli(fichaDe); if(!c||!V.querySelector('.secnav')) return; // o que está no ecrã é a ficha deste cliente
-    c.analises.forEach(function(an,i){
-      if(!document.getElementById('nm-'+i)) return;
+    if(!FICHA||!V.querySelector('.secnav')) return;
+    var c=cli(FICHA.cli); if(!c) return;
+    FICHA.ids.forEach(function(id,i){
+      var an=c.analises.filter(function(a){ return a.id===id; })[0];
+      if(!an||!document.getElementById('nm-'+i)) return;
       stashCampos(i,an); stashNotas(i,an,c);
       if(document.querySelector('[data-mo="'+i+'"]')) an.momentos=lerMomentos(i);
     });
   }
   function render(){
-    guardarEscrito();
+    guardarEscrito(); FICHA=null;
     syncDuvidas();
     guardarEstados();
     var h=(location.hash||'').replace('#','');
@@ -705,18 +713,18 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(t.dataset.atrsel!==undefined && c){ c._atrSel=+t.dataset.atrsel; secAtual='sec-atr'; render(); return; }
     if(t.dataset.atrpos && c){ var mp=atrModelo(t.dataset.atrpos); mp.of.concat(mp.df).forEach(function(n,k){ var el=document.getElementById('atr-'+k); if(el) el.value=n; }); marcaEtq(); toast('Pontos de '+t.dataset.atrpos+' carregados. Carrega em Guardar pontos.'); return; }
     if(t.dataset.etq && c){ var alvo=V.querySelector('.atr-in.foco')||V.querySelector('.atr-in'); if(alvo){ alvo.value=t.dataset.etq; var nk=+alvo.dataset.atrk+1, prox=document.getElementById('atr-'+(nk%8)); V.querySelectorAll('.atr-in').forEach(function(x){ x.classList.remove('foco'); }); if(prox){ prox.classList.add('foco'); } marcaEtq(); } return; }
-    if(t.dataset.pdfrm!==undefined && c){ var ri=+t.dataset.pdfrm, ra=c.analises[ri]; if(window.__fiqPdfRm) window.__fiqPdfRm(c,ra); else pdfApagar(c.id+'|'+ra.id).catch(function(){}); ra.pdfNome=''; ra.pdfTam=0; document.getElementById('pdfc-'+ri).outerHTML=pdfCampo(c,ra,ri); toast('PDF tirado. Carrega em Guardar para atualizar o cliente.'); return; }
-    if(t.dataset.moadd!==undefined && c){ var mi=+t.dataset.moadd, man=c.analises[mi]; ANABERTA[c.id+'|'+man.id]=1; stashCampos(mi,man); stashNotas(mi,man,c); man.momentos=lerMomentos(mi); man.momentos.push({v:'',t:'bom',a:'',d:''}); render(); var rs=document.querySelectorAll('[data-mo="'+mi+'"] .mo-v'); if(rs.length) rs[rs.length-1].focus(); return; }
-    if(t.dataset.morm && c){ var mr=t.dataset.morm.split(':'), man2=c.analises[+mr[0]]; ANABERTA[c.id+'|'+man2.id]=1; stashCampos(+mr[0],man2); stashNotas(+mr[0],man2,c); man2.momentos=lerMomentos(+mr[0]); man2.momentos.splice(+mr[1],1); render(); return; }
-    if(t.dataset.apagar!==undefined && c){ e.preventDefault(); var xa=c.analises[+t.dataset.apagar]; if(xa){ APAGAR=c.id+'|'+xa.id; ANABERTA[APAGAR]=1; render(); var cf=V.querySelector('.del-conf'); if(cf){ var dd=cf.closest('details'); if(dd) dd.open=true; cf.scrollIntoView({behavior:'smooth',block:'center'}); } } return; }
+    if(t.dataset.pdfrm!==undefined && c){ var ri=+t.dataset.pdfrm, ra=anEcra(c,ri); if(window.__fiqPdfRm) window.__fiqPdfRm(c,ra); else pdfApagar(c.id+'|'+ra.id).catch(function(){}); ra.pdfNome=''; ra.pdfTam=0; document.getElementById('pdfc-'+ri).outerHTML=pdfCampo(c,ra,ri); toast('PDF tirado. Carrega em Guardar para atualizar o cliente.'); return; }
+    if(t.dataset.moadd!==undefined && c){ var mi=+t.dataset.moadd, man=anEcra(c,mi); ANABERTA[c.id+'|'+man.id]=1; stashCampos(mi,man); stashNotas(mi,man,c); man.momentos=lerMomentos(mi); man.momentos.push({v:'',t:'bom',a:'',d:''}); render(); var rs=document.querySelectorAll('[data-mo="'+mi+'"] .mo-v'); if(rs.length) rs[rs.length-1].focus(); return; }
+    if(t.dataset.morm && c){ var mr=t.dataset.morm.split(':'), man2=anEcra(c,mr[0]); ANABERTA[c.id+'|'+man2.id]=1; stashCampos(+mr[0],man2); stashNotas(+mr[0],man2,c); man2.momentos=lerMomentos(+mr[0]); man2.momentos.splice(+mr[1],1); render(); return; }
+    if(t.dataset.apagar!==undefined && c){ e.preventDefault(); var xa=anEcra(c,t.dataset.apagar); if(xa){ APAGAR=c.id+'|'+xa.id; ANABERTA[APAGAR]=1; render(); var cf=V.querySelector('.del-conf'); if(cf){ var dd=cf.closest('details'); if(dd) dd.open=true; cf.scrollIntoView({behavior:'smooth',block:'center'}); } } return; }
     if(t.dataset.apagarNao!==undefined){ APAGAR=''; render(); return; }
-    if(t.dataset.apagarSim!==undefined && c){ var xi=+t.dataset.apagarSim, xb=c.analises[xi]; APAGAR=''; if(!xb){ render(); return; }
+    if(t.dataset.apagarSim!==undefined && c){ var xi=+t.dataset.apagarSim, xb=anEcra(c,xi); APAGAR=''; if(!xb){ render(); return; } xi=c.analises.indexOf(xb);
       c.analises.splice(xi,1); delete ANABERTA[c.id+'|'+xb.id];
       try{ var lk=JSON.parse(localStorage.getItem('fiq-demo-links')||'{}'); delete lk[c.id+'|'+xb.id]; localStorage.setItem('fiq-demo-links',JSON.stringify(lk)); }catch(x){}
       if(window.__fiqApagarAn) window.__fiqApagarAn(c,xb).then(function(){ toast('Sessão apagada.'); }).catch(function(){ toast('Não foi possível apagar no servidor. Confirma a rede e tenta outra vez.'); });
       else { if(xb.pdfNome) pdfApagar(c.id+'|'+xb.id).catch(function(){}); toast('Sessão apagada.'); }
       secAtual='sec-analises'; render(); return; }
-    if(t.dataset.guardar!==undefined && c){ var gi=+t.dataset.guardar, an=c.analises[gi], erros=[];
+    if(t.dataset.guardar!==undefined && c){ var gi=+t.dataset.guardar, an=anEcra(c,gi), erros=[];
       var nNomes=atrLista(c), nErr=false, nIns=V.querySelectorAll('[data-nota^="'+gi+'|"]'); if(nIns.length) an.notas=[];
       nIns.forEach(function(inp){ var k=+inp.dataset.nota.split('|')[1], v=inp.value.trim(); if(v==='') return; v=Math.round(+v); if(!(v>=0&&v<=100)){ nErr=true; return; } an.notas.push([nNomes[k],v]); });
       if(nErr){ toast('As notas da carta vão de 0 a 100.'); return; }
@@ -763,12 +771,12 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   }
   V.addEventListener('change', function(e){
     var t=e.target, c=clienteAtual();
-    if(t.dataset.pdfup!==undefined && c){ var ui=+t.dataset.pdfup, ua=c.analises[ui], f=t.files&&t.files[0]; if(!f) return;
+    if(t.dataset.pdfup!==undefined && c){ var ui=+t.dataset.pdfup, ua=anEcra(c,ui), f=t.files&&t.files[0]; if(!f) return;
       if(!(f.type==='application/pdf'||/\.pdf$/i.test(f.name))){ toast('Escolhe um ficheiro PDF.'); t.value=''; return; }
       if(f.size>10*1048576){ toast('O PDF tem mais de 10 MB. Exporta-o mais leve e volta a tentar.'); t.value=''; return; }
       (window.__fiqPdfUp ? window.__fiqPdfUp(c,ua,f) : pdfGravar(c.id+'|'+ua.id, f)).then(function(){ ua.pdfNome=f.name; ua.pdfTam=f.size; document.getElementById('pdfc-'+ui).outerHTML=pdfCampo(c,ua,ui); toast('PDF anexado. Carrega em Guardar para avisar o cliente.'); }).catch(function(){ toast('Não foi possível anexar neste browser.'); });
       return; }
-    if(t.dataset.estado!==undefined && c){ var ea=c.analises[+t.dataset.estado]; ea.estado=t.value; if(window.__fiqGravar) window.__fiqGravar(); if(!avisarPronta(c,ea)) toast('Estado: '+t.value+'.'); }
+    if(t.dataset.estado!==undefined && c){ var ea=anEcra(c,t.dataset.estado); ea.estado=t.value; if(window.__fiqGravar) window.__fiqGravar(); if(!avisarPronta(c,ea)) toast('Estado: '+t.value+'.'); }
 
     if(t.id==='n-menor'){ document.getElementById('n-email-l').textContent=t.checked?'Email do encarregado de educação':'Email do jogador'; }
   });
