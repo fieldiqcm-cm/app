@@ -79,19 +79,25 @@ Deno.serve(async (req) => {
     if (!cliente_id) return resposta({ erro: "falta o cliente" }, 400);
     const { data: subs } = await admin.from("push_subs").select("*").eq("cliente_id", cliente_id);
     let enviados = 0;
+    const erros: unknown[] = [];
     for (const s of subs ?? []) {
       try {
         await webpush.sendNotification(
           { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
           JSON.stringify({ titulo: titulo || "FieldIQ", texto: texto || "", url: abrir || "./#inicio" }),
+          { TTL: 86400, urgency: "high" },
         );
         enviados++;
       } catch (e) {
         const code = (e as { statusCode?: number }).statusCode;
+        const info = { quando: new Date().toISOString(), servico: new URL(s.endpoint).host, code, body: String((e as { body?: string }).body ?? (e as Error).message ?? e).slice(0, 300) };
+        console.error("push falhou", JSON.stringify(info));
+        erros.push(info);
         if (code === 404 || code === 410) await admin.from("push_subs").delete().eq("endpoint", s.endpoint);
       }
     }
-    return resposta({ enviados, aparelhos: (subs ?? []).length });
+    if (erros.length) await admin.from("config_privada").upsert([{ k: "ultimo_erro_push", v: JSON.stringify(erros) }]);
+    return resposta({ enviados, aparelhos: (subs ?? []).length, erros });
   } catch (e) {
     return resposta({ erro: String(e) }, 500);
   }
