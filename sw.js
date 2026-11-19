@@ -1,8 +1,8 @@
 /* FieldIQ — service worker
-   Sempre que mudares ficheiros da app, aumenta a VERSAO (ex.: 'fieldiq-v52').
+   Sempre que mudares ficheiros da app, aumenta a VERSAO (ex.: 'fieldiq-v53').
    Estratégia: tenta sempre a rede primeiro (as alterações aparecem logo);
    sem rede, usa a cópia guardada (a app abre na mesma). */
-const VERSAO = 'fieldiq-v52';
+const VERSAO = 'fieldiq-v53';
 const BASE = [
   './',
   './index.html',
@@ -38,6 +38,10 @@ self.addEventListener('fetch', (e) => {
   e.respondWith(
     (req.mode === 'navigate' || /\.(html|json|js|webmanifest)(\?|$)/.test(new URL(req.url).pathname) ? fetch(req.url, {cache: 'no-cache', credentials: 'same-origin'}) : fetch(req))
       .then((res) => {
+        // uma resposta redirecionada não pode servir uma navegação: entrega-a como resposta normal
+        if (res && res.redirected && req.mode === 'navigate') {
+          res = new Response(res.body, {status: res.status, statusText: res.statusText, headers: res.headers});
+        }
         if (res && res.ok) {
           const copia = res.clone();
           caches.open(VERSAO).then((c) => c.put(req, copia));
