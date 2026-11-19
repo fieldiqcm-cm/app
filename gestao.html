@@ -194,7 +194,7 @@ details.an > summary{list-style:none;cursor:pointer;padding:14px;min-height:48px
 details.an > summary::-webkit-details-marker{display:none}
 details.an[open] > summary{border-bottom:1px solid var(--line)}
 .an-corpo{display:flex;flex-direction:column;gap:10px;padding:14px}
-.gd-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:8px}.gd-row .btn{width:100%;white-space:nowrap}@media (max-width:440px){.gd-row .gd-cli{display:none}}
+.del-lnk{align-self:center;background:none;border:0;color:#C0503F;font:inherit;font-size:13px;font-weight:700;padding:10px 12px;min-height:40px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}.del-conf{display:grid;gap:10px;border:1.5px solid #C0503F;border-radius:14px;padding:12px;font-size:13.5px;line-height:1.45}.btn.del-sim{background:#C0503F;border:1.5px solid #C0503F;color:#fff}.gd-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:8px}.gd-row .btn{width:100%;white-space:nowrap}@media (max-width:440px){.gd-row .gd-cli{display:none}}
 .pdf-it,.pdf-up{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line2,#CFC4B3);border-radius:12px;flex-wrap:wrap}
 .pdf-up{border-style:dashed;cursor:pointer}
 .pdf-up:hover{border-color:var(--cobre,#8A4F24)}
@@ -347,7 +347,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   function pdfLer(k){ return fiqIdbOp('readonly', function(st){ return st.get(k); }); }
   function pdfGravar(k, v){ return fiqIdbOp('readwrite', function(st){ return st.put(v, k); }); }
   function pdfApagar(k){ return fiqIdbOp('readwrite', function(st){ return st.delete(k); }); }
-  var ANABERTA={};
+  var ANABERTA={}, APAGAR='';
   // ===== Pontos a avaliar (carta/radar): 4 ofensivos + 4 defensivos, por posição =====
   var POS_ATR={
     'Defesa central':{of:['Receção orientada','Condução de bola','Diversidade de passe / verticalização','Afundar / criar distâncias'],df:['Controlo de profundidade','Duelos defensivos','Fecho de baliza','Equilíbrio defensivo']},
@@ -493,7 +493,11 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
           '</div>'; }).join('')+
           '<button class="btn ghost small" type="button" data-moadd="'+i+'" style="align-self:flex-start">＋ Momento</button>'+
           '<div class="sub" style="margin:0">Escreve o tempo em que o lance começa no vídeo da sessão (ex.: 5:30 ou 5,30). O jogador toca e o vídeo salta para lá.</div></div>'+
-        '<div class="gd-row"><button class="btn ghost small" type="button" data-guardar="'+i+'" data-so="1">Guardar</button><button class="btn ink small" type="button" data-guardar="'+i+'">Guardar e avisar<span class="gd-cli">&nbsp;o cliente</span></button></div></div></details>';
+        '<div class="gd-row"><button class="btn ghost small" type="button" data-guardar="'+i+'" data-so="1">Guardar</button><button class="btn ink small" type="button" data-guardar="'+i+'"><span>Guardar e avisar<span class="gd-cli">&nbsp;o cliente</span></span></button></div>'+
+        (APAGAR===c.id+'|'+a.id
+          ? '<div class="del-conf" role="alert"><span>Apagar <strong>'+esc(a.nome||'esta sessão')+'</strong>? Saem as notas, os links e o PDF. Não dá para desfazer.</span><div class="gd-row"><button class="btn ghost small" type="button" data-apagar-nao="1">Cancelar</button><button class="btn small del-sim" type="button" data-apagar-sim="'+i+'">Apagar sessão</button></div></div>'
+          : '<button class="del-lnk" type="button" data-apagar="'+i+'">Apagar esta sessão</button>')+
+        '</div></details>';
     });
     h+=card('sec-analises','Análises','<button class="btn ghost small" type="button" data-acao="nova-analise">+ Nova</button>',an);
     // sessões + pagamento
@@ -692,6 +696,14 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(t.dataset.pdfrm!==undefined && c){ var ri=+t.dataset.pdfrm, ra=c.analises[ri]; if(window.__fiqPdfRm) window.__fiqPdfRm(c,ra); else pdfApagar(c.id+'|'+ra.id).catch(function(){}); ra.pdfNome=''; ra.pdfTam=0; document.getElementById('pdfc-'+ri).outerHTML=pdfCampo(c,ra,ri); toast('PDF tirado. Carrega em Guardar para atualizar o cliente.'); return; }
     if(t.dataset.moadd!==undefined && c){ var mi=+t.dataset.moadd, man=c.analises[mi]; ANABERTA[c.id+'|'+man.id]=1; stashCampos(mi,man); stashNotas(mi,man,c); man.momentos=lerMomentos(mi); man.momentos.push({v:'',t:'bom',a:'',d:''}); render(); var rs=document.querySelectorAll('[data-mo="'+mi+'"] .mo-v'); if(rs.length) rs[rs.length-1].focus(); return; }
     if(t.dataset.morm && c){ var mr=t.dataset.morm.split(':'), man2=c.analises[+mr[0]]; ANABERTA[c.id+'|'+man2.id]=1; stashCampos(+mr[0],man2); stashNotas(+mr[0],man2,c); man2.momentos=lerMomentos(+mr[0]); man2.momentos.splice(+mr[1],1); render(); return; }
+    if(t.dataset.apagar!==undefined && c){ var xa=c.analises[+t.dataset.apagar]; if(xa){ APAGAR=c.id+'|'+xa.id; ANABERTA[APAGAR]=1; render(); var cf=V.querySelector('.del-conf'); if(cf) cf.scrollIntoView({behavior:'smooth',block:'center'}); } return; }
+    if(t.dataset.apagarNao!==undefined){ APAGAR=''; render(); return; }
+    if(t.dataset.apagarSim!==undefined && c){ var xi=+t.dataset.apagarSim, xb=c.analises[xi]; APAGAR=''; if(!xb){ render(); return; }
+      c.analises.splice(xi,1); delete ANABERTA[c.id+'|'+xb.id];
+      try{ var lk=JSON.parse(localStorage.getItem('fiq-demo-links')||'{}'); delete lk[c.id+'|'+xb.id]; localStorage.setItem('fiq-demo-links',JSON.stringify(lk)); }catch(x){}
+      if(window.__fiqApagarAn) window.__fiqApagarAn(c,xb).then(function(){ toast('Sessão apagada.'); }).catch(function(){ toast('Não foi possível apagar no servidor. Confirma a rede e tenta outra vez.'); });
+      else { if(xb.pdfNome) pdfApagar(c.id+'|'+xb.id).catch(function(){}); toast('Sessão apagada.'); }
+      secAtual='sec-analises'; render(); return; }
     if(t.dataset.guardar!==undefined && c){ var gi=+t.dataset.guardar, an=c.analises[gi], erros=[];
       var nNomes=atrLista(c), nErr=false, nIns=V.querySelectorAll('[data-nota^="'+gi+'|"]'); if(nIns.length) an.notas=[];
       nIns.forEach(function(inp){ var k=+inp.dataset.nota.split('|')[1], v=inp.value.trim(); if(v==='') return; v=Math.round(+v); if(!(v>=0&&v<=100)){ nErr=true; return; } an.notas.push([nNomes[k],v]); });
@@ -924,6 +936,11 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       return SB.from('clientes').update({rec_codigo: cod, rec_ate: ate, rec_pedido_em: null}).eq('id', c.id).then(function(r){
         if (r.error) throw r.error; c.recCodigo = cod; c.recAte = ate; c.recPedido = null;
       });
+    };
+    window.__fiqApagarAn = function(c, a){
+      if (a.pdfPath) SB.storage.from('relatorios').remove([a.pdfPath]).then(function(){});
+      var g = guardados[c.id]; if (g) delete g.an[a.id];
+      return SB.from('analises').delete().eq('id', a.id).then(function(r){ if (r.error) throw r.error; });
     };
     window.__fiqPdfRm = function(c, a){
       if (a.pdfPath) SB.storage.from('relatorios').remove([a.pdfPath]).then(function(){});
