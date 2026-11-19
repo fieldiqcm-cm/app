@@ -3039,7 +3039,8 @@ nav.tabs a{position:relative}
     if (livre.indexOf(h0) < 0) document.body.classList.add('a-carregar');
     SB.auth.getSession().then(function(r){
       var s = r.data && r.data.session, em = s ? String(s.user.email || '').toLowerCase() : '';
-      if (!s || GESTAO.indexOf(em) >= 0){
+      if (s && GESTAO.indexOf(em) >= 0){ location.replace('gestao.html#painel'); return; }
+      if (!s){
         document.body.classList.remove('a-carregar');
         if (livre.indexOf((location.hash || '').replace('#', '')) < 0) location.hash = 'entrada';
         return;
