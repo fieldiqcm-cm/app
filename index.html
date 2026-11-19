@@ -3057,14 +3057,57 @@ nav.tabs a{position:relative}
   document.getElementById('instalar-txt').textContent = movel ? 'Um toque e fica no ecrã do telemóvel, como uma app.' : 'Um clique e fica no computador, numa janela própria.';
   function mostraInstalar(){ btnInst.hidden = false; btnTop.hidden = false; }
   function escondeInstalar(){ btnInst.hidden = true; btnTop.hidden = true; }
+  // o botão aparece sempre (fora da app instalada); onde o navegador não instala sozinho, mostra os passos certos
   if (!standalone){
     window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); pedido = e; mostraInstalar(); });
-    if (ios){ mostraInstalar(); document.getElementById('instalar-txt').textContent = 'No Safari: Partilhar → Adicionar ao ecrã principal.'; }
+    mostraInstalar();
   }
+  function passosInstalar(){
+    var and = /android/i.test(ua), s = function(t){ return t; };
+    if (ios){
+      if (/CriOS/i.test(ua)) return {nav: 'Chrome (iPhone)', p: ['Carrega em <b>Partilhar</b> <span class="ig-ic">⬆︎</span> na barra do endereço, em cima.', 'Escolhe <b>Adicionar ao ecrã principal</b>.', 'Carrega em <b>Adicionar</b>.']};
+      if (/FxiOS|EdgiOS|OPiOS|GSA/i.test(ua)) return {nav: 'este navegador', p: ['Copia o endereço com o botão de baixo.', 'Abre o <b>Safari</b> e cola o endereço.', 'Carrega em <b>Partilhar</b> <span class="ig-ic">⬆︎</span> → <b>Adicionar ao ecrã principal</b>.'], copiar: true};
+      return {nav: 'Safari', p: ['Carrega em <b>Partilhar</b> <span class="ig-ic">⬆︎</span> (o quadrado com a seta, em baixo).', 'Desce e escolhe <b>Adicionar ao ecrã principal</b>.', 'Carrega em <b>Adicionar</b>, em cima à direita.']};
+    }
+    if (and){
+      if (/SamsungBrowser/i.test(ua)) return {nav: 'Samsung Internet', p: ['Carrega no menu <b>☰</b>, em baixo à direita.', 'Escolhe <b>Adicionar página a</b> → <b>Ecrã inicial</b>.', 'Confirma em <b>Adicionar</b>.']};
+      if (/Firefox/i.test(ua)) return {nav: 'Firefox', p: ['Carrega nos <b>três pontinhos ⋮</b>.', 'Escolhe <b>Instalar</b> (ou <b>Adicionar ao ecrã principal</b>).', 'Confirma em <b>Adicionar</b>.']};
+      if (/OPR|OPT|Opera/i.test(ua)) return {nav: 'Opera', p: ['Carrega no menu <b>☰</b> ou <b>⋮</b>.', 'Escolhe <b>Adicionar a…</b> → <b>Ecrã inicial</b>.', 'Confirma em <b>Adicionar</b>.']};
+      if (/EdgA/i.test(ua)) return {nav: 'Edge', p: ['Carrega nos <b>três pontinhos ⋯</b>, em baixo.', 'Escolhe <b>Adicionar ao telemóvel</b> (ou <b>Instalar app</b>).', 'Confirma em <b>Instalar</b>.']};
+      if (/MiuiBrowser|XiaoMi/i.test(ua)) return {nav: 'Mi Browser', p: ['Carrega no menu <b>☰</b>, em baixo à direita.', 'Escolhe <b>Adicionar ao ecrã inicial</b>.', 'Se não existir, copia o endereço e abre-o no <b>Chrome</b> → ⋮ → <b>Instalar app</b>.'], copiar: true};
+      if (/Chrome/i.test(ua) && !/wv\)|Version\//.test(ua)) return {nav: 'Chrome', p: ['Carrega nos <b>três pontinhos ⋮</b>, em cima à direita.', 'Escolhe <b>Instalar app</b> (ou <b>Adicionar ao ecrã principal</b>).', 'Confirma em <b>Instalar</b>.']};
+      return {nav: 'este navegador', p: ['Abre o menu do navegador (<b>☰</b> ou <b>⋮</b>) e procura <b>Adicionar ao ecrã inicial</b> ou <b>Instalar</b>.', 'Se não existir, copia o endereço com o botão de baixo.', 'Abre-o no <b>Chrome</b> → ⋮ → <b>Instalar app</b>.'], copiar: true};
+    }
+    if (/Edg\//.test(ua)) return {nav: 'Edge', p: ['Carrega no ícone <b>Instalar</b> à direita da barra do endereço.', 'Ou: <b>⋯</b> → <b>Aplicações</b> → <b>Instalar este site como aplicação</b>.', 'Confirma em <b>Instalar</b>.']};
+    if (/Chrome/i.test(ua) && !/OPR/.test(ua)) return {nav: 'Chrome', p: ['Carrega no ícone <b>Instalar</b> (ecrã com uma seta) à direita da barra do endereço.', 'Ou: <b>⋮</b> → <b>Transmitir, guardar e partilhar</b> → <b>Instalar página como app</b>.', 'Confirma em <b>Instalar</b>.']};
+    if (/Safari/i.test(ua) && /Macintosh/.test(ua)) return {nav: 'Safari (Mac)', p: ['No menu <b>Ficheiro</b>, escolhe <b>Adicionar à Dock</b>.', 'Confirma em <b>Adicionar</b>.', 'A FieldIQ fica na Dock, numa janela própria.']};
+    return {nav: 'este navegador', p: ['Este navegador não instala apps.', 'Copia o endereço com o botão de baixo.', 'Abre-o no <b>Chrome</b> ou no <b>Edge</b> e carrega em <b>Instalar</b>.'], copiar: true};
+  }
+  var guia = document.createElement('div'); guia.className = 'ig'; guia.hidden = true; guia.setAttribute('role', 'dialog'); guia.setAttribute('aria-modal', 'true'); guia.setAttribute('aria-labelledby', 'ig-tit');
+  document.body.appendChild(guia);
+  var igSt = document.createElement('style');
+  igSt.textContent = '.ig{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}.ig-c{width:100%;max-width:440px;background:#1B1815;color:#F2EEE2;border:1px solid #3A3631;border-radius:20px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:igUp .3s cubic-bezier(.2,1.2,.4,1)}@keyframes igUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}.ig-top{display:flex;align-items:center;gap:12px}.ig-top img{width:44px;height:44px;border-radius:11px}.ig-c h2{margin:0;font:700 20px "Playfair Display",Georgia,serif}.ig-c small{display:block;font:800 10px Mulish,sans-serif;letter-spacing:1.6px;color:#C9A453;text-transform:uppercase}.ig-ol{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:ig}.ig-ol li{counter-increment:ig;display:flex;gap:12px;align-items:flex-start;font:600 15px/1.45 Mulish,sans-serif;color:#E8E0D3}.ig-ol li::before{content:counter(ig);flex:none;width:26px;height:26px;border-radius:13px;background:#C9A453;color:#111;font:800 13px/26px Mulish,sans-serif;text-align:center}.ig-ol b{color:#F2EEE2}.ig-ic{display:inline-block;padding:0 4px;border:1px solid #6E6457;border-radius:5px;font-size:12px}.ig-b{display:flex;gap:8px;margin-top:18px}.ig-b button{flex:1;min-height:46px;border-radius:12px;font:800 14px Mulish,sans-serif;cursor:pointer}.ig-ok{background:#C9A453;color:#111;border:none}.ig-cp{background:transparent;color:#F2EEE2;border:1.5px solid #6E6457}';
+  document.head.appendChild(igSt);
+  function abrirGuia(){
+    var g = passosInstalar();
+    guia.innerHTML = '<div class="ig-c"><div class="ig-top"><img src="assets/icons/icon-192.png" alt=""><div><small>Instalar no ' + (movel ? 'telemóvel' : 'computador') + ' · ' + g.nav + '</small><h2 id="ig-tit">Põe a FieldIQ no ecrã</h2></div></div>' +
+      '<ol class="ig-ol">' + g.p.map(function(t){ return '<li><span>' + t + '</span></li>'; }).join('') + '</ol>' +
+      '<div class="ig-b">' + (g.copiar ? '<button type="button" class="ig-cp" data-ig="cp">Copiar endereço</button>' : '') + '<button type="button" class="ig-ok" data-ig="ok">Percebi</button></div></div>';
+    guia.hidden = false; guia.querySelector('[data-ig="ok"]').focus();
+  }
+  guia.addEventListener('click', function(e){
+    var b = e.target.closest('[data-ig]');
+    if (e.target === guia || (b && b.dataset.ig === 'ok')){ guia.hidden = true; return; }
+    if (b && b.dataset.ig === 'cp'){
+      var url = location.origin + '/';
+      var ok = function(){ toast('Endereço copiado: ' + location.host); };
+      try { navigator.clipboard.writeText(url).then(ok, function(){ prompt('Copia este endereço:', url); }); } catch(x){ prompt('Copia este endereço:', url); }
+    }
+  });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !guia.hidden) guia.hidden = true; });
   function instalar(){
     if (pedido){ pedido.prompt(); pedido.userChoice.then(function(r){ pedido = null; if (r && r.outcome === 'accepted') escondeInstalar(); }); }
-    else if (ios){ toast('Partilhar  →  Adicionar ao ecrã principal'); }
-    else { toast('Menu do browser  →  Instalar app'); }
+    else abrirGuia();
   }
   btnInst.addEventListener('click', instalar);
   btnTop.addEventListener('click', instalar);
