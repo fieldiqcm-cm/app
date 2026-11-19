@@ -630,9 +630,10 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   // FICHA = que cliente e que análises (por id, pela ordem do ecrã) estão desenhados agora.
   // Tudo o que lê o ecrã usa isto, para nunca copiar os campos de uma sessão para outra
   // quando a lista muda (nova análise, apagar, pedido novo do jogador a chegar em tempo real).
-  var FICHA=null;
+  var FICHA=null, SEM_ESCRITO=false; // SEM_ESCRITO: o próprio botão já leu o ecrã (ex.: + Momento), não reler
   function anEcra(c,i){ i=+i; if(FICHA&&FICHA.cli===c.id){ var id=FICHA.ids[i]; return id==null?null:(c.analises.filter(function(a){ return a.id===id; })[0]||null); } return c.analises[i]||null; }
   function guardarEscrito(){
+    if(SEM_ESCRITO){ SEM_ESCRITO=false; return; }
     if(!FICHA||!V.querySelector('.secnav')) return;
     var c=cli(FICHA.cli); if(!c) return;
     FICHA.ids.forEach(function(id,i){
@@ -714,8 +715,8 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(t.dataset.atrpos && c){ var mp=atrModelo(t.dataset.atrpos); mp.of.concat(mp.df).forEach(function(n,k){ var el=document.getElementById('atr-'+k); if(el) el.value=n; }); marcaEtq(); toast('Pontos de '+t.dataset.atrpos+' carregados. Carrega em Guardar pontos.'); return; }
     if(t.dataset.etq && c){ var alvo=V.querySelector('.atr-in.foco')||V.querySelector('.atr-in'); if(alvo){ alvo.value=t.dataset.etq; var nk=+alvo.dataset.atrk+1, prox=document.getElementById('atr-'+(nk%8)); V.querySelectorAll('.atr-in').forEach(function(x){ x.classList.remove('foco'); }); if(prox){ prox.classList.add('foco'); } marcaEtq(); } return; }
     if(t.dataset.pdfrm!==undefined && c){ var ri=+t.dataset.pdfrm, ra=anEcra(c,ri); if(window.__fiqPdfRm) window.__fiqPdfRm(c,ra); else pdfApagar(c.id+'|'+ra.id).catch(function(){}); ra.pdfNome=''; ra.pdfTam=0; document.getElementById('pdfc-'+ri).outerHTML=pdfCampo(c,ra,ri); toast('PDF tirado. Carrega em Guardar para atualizar o cliente.'); return; }
-    if(t.dataset.moadd!==undefined && c){ var mi=+t.dataset.moadd, man=anEcra(c,mi); ANABERTA[c.id+'|'+man.id]=1; stashCampos(mi,man); stashNotas(mi,man,c); man.momentos=lerMomentos(mi); man.momentos.push({v:'',t:'bom',a:'',d:''}); render(); var rs=document.querySelectorAll('[data-mo="'+mi+'"] .mo-v'); if(rs.length) rs[rs.length-1].focus(); return; }
-    if(t.dataset.morm && c){ var mr=t.dataset.morm.split(':'), man2=anEcra(c,mr[0]); ANABERTA[c.id+'|'+man2.id]=1; stashCampos(+mr[0],man2); stashNotas(+mr[0],man2,c); man2.momentos=lerMomentos(+mr[0]); man2.momentos.splice(+mr[1],1); render(); return; }
+    if(t.dataset.moadd!==undefined && c){ var mi=+t.dataset.moadd, man=anEcra(c,mi); ANABERTA[c.id+'|'+man.id]=1; stashCampos(mi,man); stashNotas(mi,man,c); man.momentos=lerMomentos(mi); man.momentos.push({v:'',t:'bom',a:'',d:''}); SEM_ESCRITO=true; render(); var rs=document.querySelectorAll('[data-mo="'+mi+'"] .mo-v'); if(rs.length) rs[rs.length-1].focus(); return; }
+    if(t.dataset.morm && c){ var mr=t.dataset.morm.split(':'), man2=anEcra(c,mr[0]); ANABERTA[c.id+'|'+man2.id]=1; stashCampos(+mr[0],man2); stashNotas(+mr[0],man2,c); man2.momentos=lerMomentos(+mr[0]); man2.momentos.splice(+mr[1],1); SEM_ESCRITO=true; render(); return; }
     if(t.dataset.apagar!==undefined && c){ e.preventDefault(); var xa=anEcra(c,t.dataset.apagar); if(xa){ APAGAR=c.id+'|'+xa.id; ANABERTA[APAGAR]=1; render(); var cf=V.querySelector('.del-conf'); if(cf){ var dd=cf.closest('details'); if(dd) dd.open=true; cf.scrollIntoView({behavior:'smooth',block:'center'}); } } return; }
     if(t.dataset.apagarNao!==undefined){ APAGAR=''; render(); return; }
     if(t.dataset.apagarSim!==undefined && c){ var xi=+t.dataset.apagarSim, xb=anEcra(c,xi); APAGAR=''; if(!xb){ render(); return; } xi=c.analises.indexOf(xb);
