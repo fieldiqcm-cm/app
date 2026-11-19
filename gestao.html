@@ -609,13 +609,16 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     return '<span class="an-env no" role="img" aria-label="Ainda não enviada ao cliente" title="Ainda não enviada ao cliente">'+IX+'</span>';
   }
   window.__fiqSelo=function(a){ return selo(a); };
+  function atualizaSelo(a){ var el=V.querySelector('details.an[data-anid="'+a.id+'"] .an-env'); if(!el) return; var t=document.createElement('span'); t.innerHTML=selo(a); el.replaceWith(t.firstChild); }
+  window.__fiqAtualizaSelo=atualizaSelo;
   function avisarPronta(c,an){
     if(!window.__fiqAvisar || an.estado!=='Concluída' || an.avisado) return false;
-    window.__fiqAvisar(c,'A tua análise está pronta',(an.jogo?'Já podes ver a análise '+an.jogo+'.':'Já podes ver a tua análise.')+' Toca para abrir.','./#analises').then(function(d){
-      // só fica marcado como avisado quando o aviso chegou a pelo menos um aparelho (se não, tenta de novo ao guardar)
-      if(d&&d.enviados){ an.avisado=new Date().toISOString(); if(window.__fiqGravar) window.__fiqGravar(); }
-      toast(d&&d.enviados?'Guardado. O jogador recebeu um aviso no telemóvel.':'Guardado. O jogador ainda não ligou os avisos: o aviso não foi enviado (vê na app quando entrar).');
-    },function(){ toast('Guardado. O aviso não foi enviado (confirma a rede).'); });
+    // carregar em "Guardar e avisar" = enviada (✓) logo, mesmo que o jogador ainda não tenha os avisos ligados
+    var agora=new Date().toISOString(); an.avisado=agora; atualizaSelo(an);
+    if(window.__fiqMarcarEnviada) window.__fiqMarcarEnviada(an, agora);
+    window.__fiqAvisar(c,'A tua análise está pronta',(an.jogo?'Já podes ver a análise '+an.jogo+'.':'Já podes ver a tua análise.')+' Toca para abrir.','./#analises',an.id).then(function(d){
+      toast(d&&d.enviados?'Enviada. O jogador recebeu um aviso no telemóvel.':'Enviada. O jogador vê a análise quando abrir a app (ainda não ligou os avisos no telemóvel).');
+    },function(){ toast('Enviada. O jogador vê a análise quando abrir a app (o aviso no telemóvel falhou: confirma a rede).'); });
     return true;
   }
   function textoConvite(c){
@@ -846,9 +849,9 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     window.__fiqCodigo = function(){ var A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = '', b = new Uint32Array(6); crypto.getRandomValues(b); for (var i = 0; i < 6; i++) s += A[b[i] % A.length]; return s; };
 
     function msgDe(m){ return {id: m.id, de: m.autor === 'cliente' ? 'cli' : 'eu', sb: m.sobre || (m.autor === 'cliente' ? 'Geral' : 'Analista'), t: m.texto, q: quando(m.criado_em), ts: Date.parse(m.criado_em)}; }
-    function anDe(a){ return {id: a.id, nome: a.nome || '', jogo: a.jogo || '', data: a.data_txt || '', estado: a.estado, nivel: a.nivel || '', preco: +a.preco || 0, pago: +a.pago || 0, pagoInfo: a.pago_info || 'Por pagar', yt: a.yt || '', dl: a.link_video || '', ate: a.links_ate || '', pdf: '', pdfNome: a.pdf_nome || '', pdfTam: a.pdf_tamanho || 0, pdfPath: a.pdf_path || '', notas: a.notas || [], momentos: a.momentos || [], avisado: (a.conteudo || {}).avisado || '', vista: a.vista_em || '', pedido: (a.conteudo || {}).pedido || null}; }
+    function anDe(a){ return {id: a.id, nome: a.nome || '', jogo: a.jogo || '', data: a.data_txt || '', estado: a.estado, nivel: a.nivel || '', preco: +a.preco || 0, pago: +a.pago || 0, pagoInfo: a.pago_info || 'Por pagar', yt: a.yt || '', dl: a.link_video || '', ate: a.links_ate || '', pdf: '', pdfNome: a.pdf_nome || '', pdfTam: a.pdf_tamanho || 0, pdfPath: a.pdf_path || '', notas: a.notas || [], momentos: a.momentos || [], avisado: a.avisado_em || (a.conteudo || {}).avisado || '', vista: a.vista_em || '', pedido: (a.conteudo || {}).pedido || null}; }
     function linhaCli(c){ return {id: c.id, email: String(c.email).toLowerCase(), telefone: c.tel || null, formato: c.formato, pack: c.pack, total: +c.total || 1, feitas: +c.feitas || 0, preco: +c.preco || 0, codigo: c.codigo || null, atr: c.atr || null, prox_sessao: proxSessao(c) || null, pos: c.pos || null, extra: {nome: c.nome || '', manter: c.manter || [], melhorar: c.melhorar || [], comp: c.comp || [], stats: c.stats || {}}}; }
-    function linhaAn(c, a){ return {id: a.id, cliente_id: c.id, nome: a.nome || 'Sessão', jogo: a.jogo || null, data_txt: a.data || null, estado: a.estado || 'Recebido', nivel: a.nivel || null, preco: +a.preco || 0, pago: +a.pago || 0, pago_info: a.pagoInfo || 'Por pagar', yt: a.yt || null, link_video: a.dl || null, links_ate: a.ate || null, pdf_path: a.pdfPath || null, pdf_nome: a.pdfNome || null, pdf_tamanho: a.pdfTam || null, momentos: a.momentos || [], notas: a.notas || [], conteudo: Object.assign({}, a.pedido ? {pedido: a.pedido} : {}, a.avisado ? {avisado: a.avisado} : {})}; }
+    function linhaAn(c, a){ return {id: a.id, cliente_id: c.id, nome: a.nome || 'Sessão', jogo: a.jogo || null, data_txt: a.data || null, estado: a.estado || 'Recebido', nivel: a.nivel || null, preco: +a.preco || 0, pago: +a.pago || 0, pago_info: a.pagoInfo || 'Por pagar', yt: a.yt || null, link_video: a.dl || null, links_ate: a.ate || null, pdf_path: a.pdfPath || null, pdf_nome: a.pdfNome || null, pdf_tamanho: a.pdfTam || null, momentos: a.momentos || [], notas: a.notas || [], conteudo: Object.assign({}, a.pedido ? {pedido: a.pedido} : {})}; }
     function linhasPag(c){ return (c.pagamentos || []).map(function(p){ if (!p._data) p._data = hojeISO(); return {cliente_id: c.id, data: p._data, valor: +p.v || 0, metodo: p.m || null}; }); }
     function foto(c){ var g = {cli: JSON.stringify(linhaCli(c)), an: {}, pag: JSON.stringify(linhasPag(c))}; c.analises.forEach(function(a){ g.an[a.id] = JSON.stringify(linhaAn(c, a)); }); return g; }
 
@@ -953,8 +956,11 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       }).catch(function(){ toast('Não foi possível ligar os avisos. Tenta outra vez.'); });
     };
     function sincronizarAvisosG(){ if (podePushG && Notification.permission === 'granted') subG().catch(function(){}); }
-    window.__fiqAvisar = function(c, titulo, texto, abrir){
-      return SB.functions.invoke('notificar', {body: {cliente_id: c.id, titulo: titulo, texto: texto, abrir: abrir}}).then(function(r){ if (r.error) throw r.error; return r.data; });
+    window.__fiqMarcarEnviada = function(a, quando){
+      SB.from('analises').update({avisado_em: quando}).eq('id', a.id).then(function(r){ if (r && r.error) console.error(r.error); });
+    };
+    window.__fiqAvisar = function(c, titulo, texto, abrir, anId){
+      return SB.functions.invoke('notificar', {body: {cliente_id: c.id, titulo: titulo, texto: texto, abrir: abrir, analise_id: anId || null}}).then(function(r){ if (r.error) throw r.error; return r.data; });
     };
     // PDF do relatório: fica no Storage privado (relatorios/<cliente>/<análise>.pdf)
     window.__fiqPdfUp = function(c, a, f){
@@ -1003,12 +1009,13 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
           carregarG().then(function(){ var c = cli(r.cliente_id); toast('Novo pedido de análise' + (c ? ' de ' + nomeDe(c) : '') + '.'); render(); });
         })
         .on('postgres_changes', {event: 'UPDATE', schema: 'public', table: 'analises'}, function(p){
-          var r = p.new || {}, c = cli(r.cliente_id); if (!c || !r.vista_em) return;
-          var a = c.analises.filter(function(x){ return x.id === r.id; })[0]; if (!a || a.vista) return;
-          a.vista = r.vista_em;
-          var el = V.querySelector('details.an[data-anid="' + r.id + '"] .an-env');
-          if (el){ var t = document.createElement('span'); t.innerHTML = window.__fiqSelo(a); el.replaceWith(t.firstChild); }
-          toast(nomeDe(c) + ' viu a análise ' + (a.jogo || a.nome || '') + '.');
+          var r = p.new || {}, c = cli(r.cliente_id); if (!c) return;
+          var a = c.analises.filter(function(x){ return x.id === r.id; })[0]; if (!a) return;
+          var novaVista = r.vista_em && !a.vista;
+          if (r.avisado_em && !a.avisado) a.avisado = r.avisado_em;
+          if (r.vista_em) a.vista = r.vista_em;
+          window.__fiqAtualizaSelo(a);
+          if (novaVista) toast(nomeDe(c) + ' viu a análise ' + (a.jogo || a.nome || '') + '.');
         })
         .on('postgres_changes', {event: 'UPDATE', schema: 'public', table: 'clientes'}, function(p){
           var r = p.new || {}, c = cli(r.id); if (!c) return;
