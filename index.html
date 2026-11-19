@@ -2589,7 +2589,7 @@ nav.tabs a{position:relative}
       MOM = (d && Array.isArray(d.momentos)) ? d.momentos.map(function(x){ return {s: seg(x.v), t: x.t === 'mel' ? 'mel' : 'bom', a: x.a || '', d: x.d || ''}; }).filter(function(x){ return x.a && x.s >= 0; }).sort(function(p, q){ return p.s - q.s; }) : MOM_DEMO.slice();
       momSel = 0; if (typeof renderMomentos === 'function' && document.getElementById('mom-track')) renderMomentos(typeof momFiltro === 'string' ? momFiltro : 'todos');
     };
-    function seg(v){ v = String(v || '').trim().replace(/[,.h]/g, ':'); if (!v) return -1; var p = v.split(':').map(function(n){ return +n || 0; }); return p.length === 3 ? p[0]*3600 + p[1]*60 + p[2] : p.length === 2 ? p[0]*60 + p[1] : p[0]*60; }
+    function seg(v){ v = String(v || '').trim().replace(/[,.h]/g, ':'); if (!v) return -1; var p = v.split(':').map(function(n){ return +n || 0; }); return p.length === 3 ? (p[2] === 0 ? p[0]*60 + p[1] : p[0]*3600 + p[1]*60 + p[2]) : p.length === 2 ? p[0]*60 + p[1] : p[0]*60; }
     var d0 = window.__fiqPonte ? window.__fiqPonte(window.__fiqAnKey || 'tiago|un') : null;
     if (d0 && Array.isArray(d0.momentos)) MOM = d0.momentos.map(function(x){ return {s: seg(x.v), t: x.t === 'mel' ? 'mel' : 'bom', a: x.a || '', d: x.d || ''}; }).filter(function(x){ return x.a && x.s >= 0; }).sort(function(p, q){ return p.s - q.s; });
   })();
