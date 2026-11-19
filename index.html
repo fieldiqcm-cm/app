@@ -2737,6 +2737,7 @@ nav.tabs a{position:relative}
           SB.from('mensagens').insert({cliente_id: cli.id, autor: 'cliente', texto: m.t, sobre: m.sb || 'Geral'}).select('id').single().then(function(r){
             if (r.error){ toast('A mensagem não foi enviada. Confirma a rede e tenta outra vez.'); return; }
             m.id = r.data.id; REAL['fiq-demo-duvidas'] = JSON.stringify(o);
+            SB.functions.invoke('notificar', {body: {tipo: 'mensagem'}}).catch(function(){});
           });
         });
         REAL[k] = JSON.stringify(o);
@@ -2918,6 +2919,53 @@ nav.tabs a{position:relative}
       poeBannerAvisos();
       if (podePush && Notification.permission === 'granted' && cli) obterSub().then(guardarSub).catch(function(){});
     }
+    // ----- pedir nova análise: chega à gestão como "Recebido" e o analista recebe um aviso -----
+    (function(){
+      var bt = document.querySelector('#s-analises a.btn[href="#estado"]'); if (!bt) return;
+      var sh = document.createElement('div'); sh.className = 'pd'; sh.hidden = true; sh.setAttribute('role', 'dialog'); sh.setAttribute('aria-modal', 'true'); sh.setAttribute('aria-labelledby', 'pd-tit');
+      sh.innerHTML = '<form class="pd-c" id="f-pedido" novalidate><div class="pd-top"><div><small>Pedido ao analista</small><h2 id="pd-tit">Pedir nova análise</h2></div><button type="button" class="pd-x" data-pd="x" aria-label="Fechar">×</button></div>' +
+        '<label class="pd-l" for="pd-jogo">Jogo</label><input class="input" id="pd-jogo" placeholder="Ex.: vs. Clube Exemplo" autocomplete="off">' +
+        '<label class="pd-l" for="pd-data">Data do jogo</label><input class="input" id="pd-data" type="date">' +
+        '<label class="pd-l" for="pd-link">Link do vídeo do jogo <span>(se tiveres)</span></label><input class="input" id="pd-link" type="url" inputmode="url" placeholder="YouTube, Drive, WeTransfer…">' +
+        '<div id="pd-nivw"><span class="pd-l">Nível da análise</span><div class="pd-niv" id="pd-niv"><button type="button" data-niv="Performance">Performance</button><button type="button" data-niv="Pro">Pro</button><button type="button" data-niv="Elite">Elite</button></div></div>' +
+        '<label class="pd-l" for="pd-nota">Nota para o analista <span>(opcional)</span></label><textarea class="input" id="pd-nota" rows="2" placeholder="Ex.: joguei a médio; quero ver a pressão"></textarea>' +
+        '<p class="erro" id="pd-erro" role="alert" hidden></p><button class="btn gold" type="submit" id="pd-env">Enviar pedido</button></form>';
+      document.body.appendChild(sh);
+      var st2 = document.createElement('style');
+      st2.textContent = '.pd{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}.pd-c{width:100%;max-width:460px;max-height:calc(100dvh - 32px);overflow:auto;background:var(--card,#1B1815);color:var(--fg);border:1px solid var(--line,#3A3631);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:8px;box-shadow:0 20px 60px rgba(0,0,0,.6)}.pd-top{display:flex;justify-content:space-between;gap:12px;margin-bottom:4px}.pd-top small{font:800 10px Mulish,sans-serif;letter-spacing:1.6px;color:var(--gold);text-transform:uppercase}.pd-top h2{margin:2px 0 0;font:700 22px "Playfair Display",Georgia,serif}.pd-x{width:40px;height:40px;border-radius:20px;border:1px solid var(--line,#3A3631);background:none;color:inherit;font-size:22px;cursor:pointer}.pd-l{font:800 12px Mulish,sans-serif;color:var(--muted);margin-top:6px}.pd-l span{font-weight:600}.pd-niv{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}.pd-niv button{min-height:42px;border-radius:12px;border:1px solid var(--line,#3A3631);background:none;color:inherit;font:800 13px Mulish,sans-serif;cursor:pointer}.pd-niv button[aria-pressed="true"]{background:var(--gold);color:#111;border-color:var(--gold)}#pd-env{margin-top:10px}';
+      document.head.appendChild(st2);
+      var nivel = 'Pro';
+      function marcaNiv(){ sh.querySelectorAll('[data-niv]').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.niv === nivel ? 'true' : 'false'); }); }
+      function erroPd(t){ var e = document.getElementById('pd-erro'); e.textContent = t || ''; e.hidden = !t; }
+      function abrir(){
+        nivel = (cli && cli.pack) || 'Pro'; marcaNiv(); erroPd('');
+        document.getElementById('pd-nivw').hidden = !!(cli && cli.formato === 'Pack 4');
+        sh.hidden = false; setTimeout(function(){ document.getElementById('pd-jogo').focus(); }, 50);
+      }
+      bt.addEventListener('click', function(e){ if (!ativo()) return; e.preventDefault(); e.stopImmediatePropagation(); abrir(); }, true);
+      sh.addEventListener('click', function(e){
+        if (e.target === sh || e.target.closest('[data-pd="x"]')){ sh.hidden = true; return; }
+        var b = e.target.closest('[data-niv]'); if (b){ nivel = b.dataset.niv; marcaNiv(); }
+      });
+      document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !sh.hidden) sh.hidden = true; });
+      document.getElementById('f-pedido').addEventListener('submit', function(e){
+        e.preventDefault();
+        var jogo = document.getElementById('pd-jogo').value.trim(), dt = document.getElementById('pd-data').value, link = document.getElementById('pd-link').value.trim(), nota = document.getElementById('pd-nota').value.trim();
+        if (!jogo){ erroPd('Escreve o jogo (por exemplo: vs. Clube Exemplo).'); return; }
+        if (link && !/^https?:\/\//i.test(link)) link = 'https://' + link;
+        var dTxt = ''; if (dt){ var d = new Date(dt + 'T12:00:00'); dTxt = d.getDate() + ' ' + MES[d.getMonth()]; }
+        if (jogo && !/^vs\.?\s/i.test(jogo)) jogo = 'vs. ' + jogo;
+        var env = document.getElementById('pd-env'); env.disabled = true; env.textContent = 'A enviar…';
+        SB.rpc('pedir_analise', {p_jogo: jogo, p_data: dTxt, p_link: link, p_nivel: nivel, p_nota: nota}).then(function(r){
+          env.disabled = false; env.textContent = 'Enviar pedido';
+          if (r.error){ erroPd(SEM_REDE); return; }
+          sh.hidden = true; ['pd-jogo', 'pd-data', 'pd-link', 'pd-nota'].forEach(function(id){ document.getElementById(id).value = ''; });
+          toast('Pedido enviado. O analista já foi avisado.');
+          SB.functions.invoke('notificar', {body: {tipo: 'pedido'}}).catch(function(){});
+          recarregar();
+        });
+      });
+    })();
     window.__fiqPdf = function(path){
       return SB.storage.from('relatorios').download(path).then(function(r){ if (r.error) throw r.error; return r.data; });
     };

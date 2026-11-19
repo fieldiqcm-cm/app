@@ -1,6 +1,7 @@
 // FieldIQ · avisos (notificações) para o telemóvel dos jogadores.
 // GET  -> devolve a chave pública (o par de chaves é criado aqui na 1.ª vez e fica só no servidor).
-// POST -> só a conta de gestão: envia o aviso para os aparelhos do cliente.
+// POST (gestão)  -> envia o aviso para os aparelhos do cliente.
+// POST (jogador) -> {tipo:'pedido'|'mensagem'}: avisa o analista (texto feito aqui, a partir dos dados do servidor).
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -35,14 +36,47 @@ Deno.serve(async (req) => {
     if (req.method === "GET") return resposta({ publicKey: k.publicKey });
 
     const quem = await createClient(url, anon, { global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } } }).auth.getUser();
-    if ((quem.data.user?.email ?? "").toLowerCase() !== GESTOR) return resposta({ erro: "sem permissão" }, 403);
-
+    const user = quem.data.user;
+    if (!user) return resposta({ erro: "sem sessão" }, 401);
     const corpo = await req.json();
+    webpush.setVapidDetails("mailto:" + GESTOR, k.publicKey, k.privateKey);
+
+    // jogador -> analista
+    if ((user.email ?? "").toLowerCase() !== GESTOR) {
+      const { data: c } = await admin.from("clientes").select("id,email,extra").eq("user_id", user.id).maybeSingle();
+      if (!c) return resposta({ erro: "sem permissão" }, 403);
+      const { data: pf } = await admin.from("perfis").select("dados").eq("cliente_id", c.id).maybeSingle();
+      const nome = (pf?.dados?.nome as string) || (c.extra?.nome as string) || c.email.split("@")[0];
+      let titulo = "", texto = "", abrir = "./gestao#painel";
+      if (corpo.tipo === "pedido") {
+        const { data: a } = await admin.from("analises").select("jogo,nivel,data_txt").eq("cliente_id", c.id).order("criado_em", { ascending: false }).limit(1).maybeSingle();
+        titulo = "Novo pedido de análise · " + nome;
+        texto = [a?.jogo, a?.data_txt, a?.nivel].filter(Boolean).join(" · ") || "Abre a gestão para veres o pedido.";
+        abrir = "./gestao#cliente-" + c.id;
+      } else if (corpo.tipo === "mensagem") {
+        const { data: m } = await admin.from("mensagens").select("texto").eq("cliente_id", c.id).eq("autor", "cliente").order("criado_em", { ascending: false }).limit(1).maybeSingle();
+        titulo = "Nova mensagem · " + nome;
+        texto = String(m?.texto ?? "").slice(0, 120);
+        abrir = "./gestao#duvidas";
+      } else return resposta({ erro: "tipo desconhecido" }, 400);
+      const { data: gs } = await admin.from("push_gestor").select("*");
+      let n = 0;
+      for (const s of gs ?? []) {
+        try {
+          await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify({ titulo, texto, url: abrir }));
+          n++;
+        } catch (e) {
+          const code = (e as { statusCode?: number }).statusCode;
+          if (code === 404 || code === 410) await admin.from("push_gestor").delete().eq("endpoint", s.endpoint);
+        }
+      }
+      return resposta({ enviados: n });
+    }
+
+    // analista -> jogador
     if (corpo.chave) return resposta({ publicKey: k.publicKey });
     const { cliente_id, titulo, texto, abrir } = corpo;
     if (!cliente_id) return resposta({ erro: "falta o cliente" }, 400);
-
-    webpush.setVapidDetails("mailto:" + GESTOR, k.publicKey, k.privateKey);
     const { data: subs } = await admin.from("push_subs").select("*").eq("cliente_id", cliente_id);
     let enviados = 0;
     for (const s of subs ?? []) {

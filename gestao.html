@@ -421,6 +421,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       '<a class="card kpi" href="#clientes"><b>'+totFalta+' €</b><span>Em falta · '+emFalta.length+' clientes</span></a>'+
       '<a class="card kpi" href="#clientes"><b>'+curso.length+'</b><span>Análises em curso</span></a>'+
       '<a class="card kpi" href="#clientes"><b>'+clientes.length+'</b><span>Clientes ativos</span></a></div>'+
+      (window.__fiqAvisosG ? window.__fiqAvisosG() : '')+
       '<h2>A fazer</h2><div class="lista">';
     pr.forEach(function(v){ var c=cli(v.cli); h+='<a class="card cli" href="#conversa-'+conversas.indexOf(v)+'"><span class="dot"></span><span style="flex:1"><span class="nm">Responder a '+esc(nomeDe(c))+'</span><span class="ds" style="display:block">"'+esc(v.msgs[v.msgs.length-1].t)+'"</span></span></a>'; });
     curso.forEach(function(x){ var falt=[]; if(!x.a.yt) falt.push('vídeo (YouTube)'); if(!x.a.pdfNome&&!x.a.pdf) falt.push('relatório (PDF)');
@@ -467,7 +468,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     var an='<details class="dica"><summary>Antes de colar o link do YouTube</summary><ol><li>Visibilidade: <strong>Não listado</strong>.</li><li>Em Mais opções: <strong>Permitir incorporação</strong> ligado.</li><li>Comentários desligados.</li><li>Canal com o nome da marca, nunca o teu.</li></ol></details>';
     c.analises.forEach(function(a,i){
       var pronto=a.yt&&(a.pdfNome||a.pdf);
-      an+='<details class="an"'+((a.estado!=='Concluída'||ANABERTA[c.id+'|'+a.id])?' open':'')+'><summary class="between"><span style="min-width:0"><span style="font-weight:800;display:block">'+esc(a.nome||a.jogo||'Nova análise')+'</span><span class="sub" style="font-weight:600">'+esc([ePack(c)?'':(a.nivel||''),a.jogo,a.data].filter(Boolean).join(' · '))+(!ePack(c)&&a.preco>0&&!(a.pago>=a.preco)?' · <span style="color:var(--bad);font-weight:800">por pagar</span>':'')+'</span></span><span class="pill '+(a.estado==='Concluída'?'p-ok':(pronto?'p-soft':'p-warn'))+'">'+a.estado+'</span></summary><div class="an-corpo">'+
+      an+='<details class="an"'+((a.estado!=='Concluída'||ANABERTA[c.id+'|'+a.id])?' open':'')+'><summary class="between"><span style="min-width:0"><span style="font-weight:800;display:block">'+esc(a.nome||a.jogo||'Nova análise')+'</span><span class="sub" style="font-weight:600">'+esc([ePack(c)?'':(a.nivel||''),a.jogo,a.data].filter(Boolean).join(' · '))+(!ePack(c)&&a.preco>0&&!(a.pago>=a.preco)?' · <span style="color:var(--bad);font-weight:800">por pagar</span>':'')+'</span></span><span class="pill '+(a.estado==='Concluída'?'p-ok':(pronto?'p-soft':'p-warn'))+'">'+a.estado+'</span></summary><div class="an-corpo">'+(a.pedido?'<div class="dica" style="background:var(--warn-bg);border-color:var(--warn)"><strong>Pedido do jogador</strong>'+(a.pedido.link?'<br>Vídeo do jogo: <a href="'+esc(a.pedido.link)+'" target="_blank" rel="noopener">'+esc(a.pedido.link)+'</a>':'')+(a.pedido.nota?'<br>Nota: '+esc(a.pedido.nota):'')+'</div>':'')+
         '<div class="campo"><label class="l" for="nm-'+i+'">Nome da análise</label><input class="input" id="nm-'+i+'" value="'+esc(a.nome||'')+'" placeholder="Ex.: Sessão 4 · Diogo Costa"></div>'+
         '<div class="grid2"><div class="campo"><label class="l" for="jg-'+i+'">Jogo</label><input class="input" id="jg-'+i+'" value="'+esc(a.jogo||'')+'" placeholder="Ex.: vs. Atlético B"></div><div class="campo"><label class="l" for="dt-'+i+'">Data do jogo</label><input class="input" id="dt-'+i+'" value="'+esc(a.data||'')+'" placeholder="Ex.: 9 nov"></div></div>'+
         (ePack(c)
@@ -711,6 +712,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       toast(mud?'Pontos e notas guardados. Nos pontos novos, a evolução começa a contar a partir daqui.':'Pontos e notas guardados. O jogador já vê na carta.'); render(); return; }
     if(a==='repor-atr' && c){ c.atr=null; guardarAtr(c); toast('Voltaram os pontos da posição ('+posDe(c)+').'); render(); return; }
     if(a==='rec-codigo' && c && window.__fiqRecCodigo){ window.__fiqRecCodigo(c).then(function(){ render(); toast('Código criado. Envia-o ao jogador por WhatsApp.'); }, function(){ toast('Não foi possível criar o código. Confirma a rede.'); }); return; }
+    if(a==='avisos-g' && window.__fiqLigarAvisosG){ window.__fiqLigarAvisosG(); return; }
     if(a==='reenviar'){ if(window.FIQ_CFG){ location.hash='convite-'+c.id; return; } toast('Email de ativação reenviado para '+c.email); }
     if(a==='suspender') toast('Esboço: aqui suspendes o acesso (pede confirmação).');
     if(a==='guardar-stats'){ document.querySelectorAll('[data-stat]').forEach(function(i){ c.stats[i.dataset.stat]=i.value; }); if(window.__fiqGravar) window.__fiqGravar(); toast('Estatísticas guardadas. O cliente já as vê.'); }
@@ -788,9 +790,9 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     window.__fiqCodigo = function(){ var A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = '', b = new Uint32Array(6); crypto.getRandomValues(b); for (var i = 0; i < 6; i++) s += A[b[i] % A.length]; return s; };
 
     function msgDe(m){ return {id: m.id, de: m.autor === 'cliente' ? 'cli' : 'eu', sb: m.sobre || (m.autor === 'cliente' ? 'Geral' : 'Analista'), t: m.texto, q: quando(m.criado_em), ts: Date.parse(m.criado_em)}; }
-    function anDe(a){ return {id: a.id, nome: a.nome || '', jogo: a.jogo || '', data: a.data_txt || '', estado: a.estado, nivel: a.nivel || '', preco: +a.preco || 0, pago: +a.pago || 0, pagoInfo: a.pago_info || 'Por pagar', yt: a.yt || '', dl: a.link_video || '', ate: a.links_ate || '', pdf: '', pdfNome: a.pdf_nome || '', pdfTam: a.pdf_tamanho || 0, pdfPath: a.pdf_path || '', notas: a.notas || [], momentos: a.momentos || [], avisado: (a.conteudo || {}).avisado || ''}; }
+    function anDe(a){ return {id: a.id, nome: a.nome || '', jogo: a.jogo || '', data: a.data_txt || '', estado: a.estado, nivel: a.nivel || '', preco: +a.preco || 0, pago: +a.pago || 0, pagoInfo: a.pago_info || 'Por pagar', yt: a.yt || '', dl: a.link_video || '', ate: a.links_ate || '', pdf: '', pdfNome: a.pdf_nome || '', pdfTam: a.pdf_tamanho || 0, pdfPath: a.pdf_path || '', notas: a.notas || [], momentos: a.momentos || [], avisado: (a.conteudo || {}).avisado || '', pedido: (a.conteudo || {}).pedido || null}; }
     function linhaCli(c){ return {id: c.id, email: String(c.email).toLowerCase(), telefone: c.tel || null, formato: c.formato, pack: c.pack, total: +c.total || 1, feitas: +c.feitas || 0, preco: +c.preco || 0, codigo: c.codigo || null, atr: c.atr || null, prox_sessao: proxSessao(c) || null, pos: c.pos || null, extra: {nome: c.nome || '', manter: c.manter || [], melhorar: c.melhorar || [], comp: c.comp || [], stats: c.stats || {}}}; }
-    function linhaAn(c, a){ return {id: a.id, cliente_id: c.id, nome: a.nome || 'Sessão', jogo: a.jogo || null, data_txt: a.data || null, estado: a.estado || 'Recebido', nivel: a.nivel || null, preco: +a.preco || 0, pago: +a.pago || 0, pago_info: a.pagoInfo || 'Por pagar', yt: a.yt || null, link_video: a.dl || null, links_ate: a.ate || null, pdf_path: a.pdfPath || null, pdf_nome: a.pdfNome || null, pdf_tamanho: a.pdfTam || null, momentos: a.momentos || [], notas: a.notas || [], conteudo: a.avisado ? {avisado: a.avisado} : {}}; }
+    function linhaAn(c, a){ return {id: a.id, cliente_id: c.id, nome: a.nome || 'Sessão', jogo: a.jogo || null, data_txt: a.data || null, estado: a.estado || 'Recebido', nivel: a.nivel || null, preco: +a.preco || 0, pago: +a.pago || 0, pago_info: a.pagoInfo || 'Por pagar', yt: a.yt || null, link_video: a.dl || null, links_ate: a.ate || null, pdf_path: a.pdfPath || null, pdf_nome: a.pdfNome || null, pdf_tamanho: a.pdfTam || null, momentos: a.momentos || [], notas: a.notas || [], conteudo: Object.assign({}, a.pedido ? {pedido: a.pedido} : {}, a.avisado ? {avisado: a.avisado} : {})}; }
     function linhasPag(c){ return (c.pagamentos || []).map(function(p){ if (!p._data) p._data = hojeISO(); return {cliente_id: c.id, data: p._data, valor: +p.v || 0, metodo: p.m || null}; }); }
     function foto(c){ var g = {cli: JSON.stringify(linhaCli(c)), an: {}, pag: JSON.stringify(linhasPag(c))}; c.analises.forEach(function(a){ g.an[a.id] = JSON.stringify(linhaAn(c, a)); }); return g; }
 
@@ -870,6 +872,31 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       });
       REAL['fiq-demo-duvidas'] = JSON.stringify(o);
     }
+    var podePushG = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    var iosG = /iphone|ipad|ipod/i.test(navigator.userAgent), standaloneG = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+    function b64uG(t){ var p = '='.repeat((4 - t.length % 4) % 4), b = atob((t + p).replace(/-/g, '+').replace(/_/g, '/')), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
+    var chaveG = null;
+    function lerChaveG(){ if (chaveG) return Promise.resolve(chaveG); return fetch(CFG.url + '/functions/v1/notificar', {headers: {apikey: CFG.key, Authorization: 'Bearer ' + CFG.key}}).then(function(r){ return r.json(); }).then(function(j){ if (!j.publicKey) throw new Error('sem chave'); chaveG = j.publicKey; return chaveG; }); }
+    function subG(){
+      return lerChaveG().then(function(k){ return navigator.serviceWorker.ready.then(function(reg){ return reg.pushManager.getSubscription().then(function(x){
+        var igual = false; try { var a = new Uint8Array(x.options.applicationServerKey), b = b64uG(k); igual = a.length === b.length && a.every(function(v, i){ return v === b[i]; }); } catch(e){}
+        if (x && igual) return x;
+        return (x ? x.unsubscribe() : Promise.resolve()).then(function(){ return reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: b64uG(k)}); });
+      }); }); }).then(function(sub){ var j = sub.toJSON(); return SB.from('push_gestor').upsert({endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth}).then(function(r){ if (r.error) throw r.error; }); });
+    }
+    window.__fiqAvisosG = function(){
+      if (iosG && !standaloneG) return '<div class="card" style="border-color:var(--cobre)"><strong>Avisos de pedidos e mensagens</strong><div class="sub">No iPhone, instala primeiro a app no ecrã principal (Partilhar → Adicionar ao ecrã principal).</div></div>';
+      if (!podePushG || Notification.permission !== 'default') return '';
+      return '<div class="card between" style="border-color:var(--cobre);gap:12px"><span style="min-width:0"><strong style="display:block">Recebe avisos neste aparelho</strong><span class="sub">Quando um jogador pedir uma análise ou te mandar uma mensagem.</span></span><button class="btn cobre small" type="button" data-acao="avisos-g">Ligar</button></div>';
+    };
+    window.__fiqLigarAvisosG = function(){
+      if (!podePushG){ toast('Este navegador não recebe avisos.'); return; }
+      Notification.requestPermission().then(function(p){
+        if (p !== 'granted'){ toast('Avisos desligados neste aparelho.'); render(); return; }
+        return subG().then(function(){ toast('Avisos ligados neste aparelho.'); render(); });
+      }).catch(function(){ toast('Não foi possível ligar os avisos. Tenta outra vez.'); });
+    };
+    function sincronizarAvisosG(){ if (podePushG && Notification.permission === 'granted') subG().catch(function(){}); }
     window.__fiqAvisar = function(c, titulo, texto, abrir){
       return SB.functions.invoke('notificar', {body: {cliente_id: c.id, titulo: titulo, texto: texto, abrir: abrir}}).then(function(r){ if (r.error) throw r.error; return r.data; });
     };
@@ -910,6 +937,10 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       canal = SB.channel('fiq-gestao')
         .on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'mensagens'}, recarregarMsgs)
         .on('postgres_changes', {event: '*', schema: 'public', table: 'perfis'}, recarregarPerfis)
+        .on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'analises'}, function(p){
+          var r = p.new || {}; if (cli(r.cliente_id) && cli(r.cliente_id).analises.some(function(x){ return x.id === r.id; })) return;
+          carregarG().then(function(){ var c = cli(r.cliente_id); toast('Novo pedido de análise' + (c ? ' de ' + nomeDe(c) : '') + '.'); render(); });
+        })
         .on('postgres_changes', {event: 'UPDATE', schema: 'public', table: 'clientes'}, function(p){
           var r = p.new || {}, c = cli(r.id); if (!c) return;
           var antes = JSON.stringify([c.recPedido, c.recCodigo, c.ativa]);
@@ -922,7 +953,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     }
     document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible' && REAL){ recarregarMsgs(); recarregarPerfis(); } });
     function entrar(){
-      return carregarG().then(function(){ logado = true; ligarTempoReal(); if (!location.hash || location.hash === '#login') location.hash = 'painel'; render(); });
+      return carregarG().then(function(){ logado = true; ligarTempoReal(); sincronizarAvisosG(); if (!location.hash || location.hash === '#login') location.hash = 'painel'; render(); });
     }
     window.__fiqGLogin = function(em, pw){
       em = String(em || '').trim().toLowerCase();
