@@ -194,6 +194,14 @@ details.an > summary{list-style:none;cursor:pointer;padding:14px;min-height:48px
 details.an > summary::-webkit-details-marker{display:none}
 details.an[open] > summary{border-bottom:1px solid var(--line)}
 .an-corpo{display:flex;flex-direction:column;gap:10px;padding:14px}
+.atv-ic{display:inline-flex;gap:3px;align-items:center;margin-right:2px}.atv-ic .ai{display:grid;place-items:center;width:22px;height:22px;border-radius:6px;color:var(--dim,#8F897C);opacity:.55}.atv-ic .ai.on{color:#B8913F;background:rgba(201,164,83,.16);opacity:1}
+.atv-box{border:1px solid rgba(201,164,83,.35);border-radius:14px;padding:12px 14px;display:grid;gap:8px;background:rgba(201,164,83,.05)}
+.atv-hd{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline}.atv-hd b{font-size:14px}.atv-hd span{font-size:12px;color:var(--dim,#8F897C)}
+.atv-l{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.45}.atv-st{flex:0 0 22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:var(--dim,#8F897C);background:rgba(143,137,124,.15)}.atv-st.on{color:#B8913F;background:rgba(201,164,83,.2)}
+.atv-tx{min-width:0;flex:1}.atv-bar{display:block;height:5px;border-radius:9px;background:rgba(143,137,124,.25);margin-top:6px;overflow:hidden}.atv-bar i{display:block;height:100%;background:#C9A453;border-radius:9px}
+.atv-mo{display:flex;flex-direction:column;gap:2px;margin-top:4px;font-size:12.5px;color:var(--dim,#8F897C)}.atv-mo .on{color:inherit}.atv-mo span{color:var(--dim,#8F897C)}.atv-mo span.on{color:#B8913F}
+.atv-nota{margin:2px 0 0;font-size:11.5px;color:var(--dim,#8F897C)}
+@media (max-width:520px){.atv-ic .ai{width:20px;height:20px}.atv-ic{gap:2px}details.an>summary.between{flex-wrap:wrap;row-gap:8px}details.an>summary.between>.an-dir{width:100%;justify-content:flex-end}}
 .an-env{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;flex-shrink:0}.an-env.ok{background:rgba(143,137,124,.18);color:var(--dim,#8F897C)}.an-env.vi{background:rgba(201,164,83,.18);color:#B8913F}.an-env.no{background:rgba(192,80,63,.14);color:#C0503F}.an-dir{display:flex;align-items:center;gap:6px;flex-shrink:0}.an-lixo{display:grid;place-items:center;width:40px;height:40px;margin:-6px -6px -6px 0;border:0;border-radius:10px;background:transparent;color:var(--dim,#8F897C);cursor:pointer}.an-lixo:hover,.an-lixo:focus-visible{color:#C0503F;background:rgba(192,80,63,.12)}.del-conf{display:grid;gap:10px;border:1.5px solid #C0503F;border-radius:14px;padding:12px;font-size:13.5px;line-height:1.45}.btn.del-sim{background:#C0503F;border:1.5px solid #C0503F;color:#fff}.gd-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:8px}.gd-row .btn{width:100%;white-space:nowrap}@media (max-width:440px){.gd-row .gd-cli{display:none}}
 .pdf-it,.pdf-up{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line2,#CFC4B3);border-radius:12px;flex-wrap:wrap}
 .pdf-up{border-style:dashed;cursor:pointer}
@@ -514,6 +522,12 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     pr.forEach(function(v){ var c=cli(v.cli); h+='<a class="card cli" href="#conversa-'+conversas.indexOf(v)+'"><span class="dot"></span><span style="flex:1"><span class="nm">Responder a '+esc(nomeDe(c))+'</span><span class="ds" style="display:block">"'+esc(v.msgs[v.msgs.length-1].t)+'"</span></span></a>'; });
     curso.forEach(function(x){ var falt=[]; if(!x.a.yt) falt.push('vídeo (YouTube)'); if(!x.a.pdfNome&&!x.a.pdf) falt.push('relatório (PDF)');
       h+='<a class="card cli" href="#cliente-'+x.c.id+'">'+avHtml(x.c,'width:34px;height:34px;font-size:12px')+'<span style="flex:1"><span class="nm">'+esc(x.a.nome||x.a.jogo)+'</span><span class="ds" style="display:block">'+x.a.estado+(falt.length?' · falta pôr o link do '+falt.join(' e do '):'')+'</span></span></a>'; });
+    clientes.forEach(function(c){ c.analises.forEach(function(a){
+      if(a.estado!=='Concluída'||!a.avisado) return; var dias=Math.floor((Date.now()-new Date(a.avisado))/864e5), r=resumoAn(c,a), txt='';
+      if(!r.visitas&&dias>=2) txt=esc(nomeDe(c))+' ainda não viu a '+esc(a.nome||a.jogo||'análise')+'</span><span class="ds" style="display:block">Enviada há '+dias+' dias · manda-lhe uma mensagem';
+      else if(r.visitas&&a.yt&&dias>=3&&(!r.vid||(r.vid.pct!=null&&r.vid.pct<30))) txt=esc(nomeDe(c))+' viu só '+(r.vid&&r.vid.pct!=null?r.vid.pct:0)+'% do vídeo</span><span class="ds" style="display:block">'+esc(a.nome||a.jogo||'')+' · enviada há '+dias+' dias';
+      if(txt) h+='<a class="card cli" href="#cliente-'+c.id+'"><span class="pill p-warn">Por ver</span><span style="flex:1"><span class="nm">'+txt+'</span></span></a>';
+    }); });
     clientes.filter(function(c){return !lerPerfil(c);}).forEach(function(c){ h+='<a class="card cli" href="#cliente-'+c.id+'"><span class="pill p-warn">Perfil</span><span style="flex:1"><span class="nm">'+esc(nomeDe(c))+' ainda não completou o perfil</span><span class="ds" style="display:block">'+esc(c.acesso)+'</span></span></a>'; });
     emFalta.forEach(function(c){ h+='<a class="card cli" href="#cliente-'+c.id+'"><span class="pill '+estPag(c)[1]+'">'+falta(c)+' €</span><span style="flex:1"><span class="nm">Pagamento · '+esc(nomeDe(c))+'</span><span class="ds" style="display:block">'+c.pack+' · '+c.formato+'</span></span></a>'; });
     h+='</div><button class="btn ghost small btn-sair so-tm" type="button" data-acao="sair" style="align-self:flex-start"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4.56v16.16a1 1 0 0 1-1.24.97L5 20V5.56a2 2 0 0 1 1.52-1.94l4-1A2 2 0 0 1 13 4.56z"/></svg>Terminar sessão</button><div class="demo">Esboço: daqui a uns segundos chega uma notificação de exemplo, como aparece no telemóvel quando um cliente te escreve.</div>';
@@ -557,10 +571,10 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     var an='<details class="dica"><summary>Antes de colar o link do YouTube</summary><ol><li>Visibilidade: <strong>Não listado</strong>.</li><li>Em Mais opções: <strong>Permitir incorporação</strong> ligado.</li><li>Comentários desligados.</li><li>Canal com o nome da marca, nunca o teu.</li></ol></details>';
     c.analises.forEach(function(a,i){
       var pronto=a.yt&&(a.pdfNome||a.pdf);
-      an+='<details class="an" data-anid="'+esc(a.id)+'"'+((a.estado!=='Concluída'||ANABERTA[c.id+'|'+a.id])?' open':'')+'><summary class="between"><span style="min-width:0"><span style="font-weight:800;display:block">'+esc(a.nome||a.jogo||'Nova análise')+'</span><span class="sub" style="font-weight:600">'+esc([ePack(c)?'':(a.nivel||''),a.jogo,a.data].filter(Boolean).join(' · '))+(!ePack(c)&&a.preco>0&&!(a.pago>=a.preco)?' · <span style="color:var(--bad);font-weight:800">por pagar</span>':'')+'</span></span><span class="an-dir">'+selo(a)+'<span class="pill '+(a.estado==='Concluída'?'p-ok':(pronto?'p-soft':'p-warn'))+'">'+a.estado+'</span><button class="an-lixo" type="button" data-apagar="'+i+'" aria-label="Apagar '+esc(a.nome||'esta sessão')+'" title="Apagar sessão"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button></span></summary><div class="an-corpo">'+
+      an+='<details class="an" data-anid="'+esc(a.id)+'"'+((a.estado!=='Concluída'||ANABERTA[c.id+'|'+a.id])?' open':'')+'><summary class="between"><span style="min-width:0"><span style="font-weight:800;display:block">'+esc(a.nome||a.jogo||'Nova análise')+'</span><span class="sub" style="font-weight:600">'+esc([ePack(c)?'':(a.nivel||''),a.jogo,a.data].filter(Boolean).join(' · '))+(!ePack(c)&&a.preco>0&&!(a.pago>=a.preco)?' · <span style="color:var(--bad);font-weight:800">por pagar</span>':'')+'</span></span><span class="an-dir">'+atvIcons(c,a)+selo(a)+'<span class="pill '+(a.estado==='Concluída'?'p-ok':(pronto?'p-soft':'p-warn'))+'">'+a.estado+'</span><button class="an-lixo" type="button" data-apagar="'+i+'" aria-label="Apagar '+esc(a.nome||'esta sessão')+'" title="Apagar sessão"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button></span></summary><div class="an-corpo">'+
         (APAGAR===c.id+'|'+a.id
           ? '<div class="del-conf" role="alert"><span>Apagar <strong>'+esc(a.nome||'esta sessão')+'</strong>'+(a.jogo?' ('+esc(a.jogo)+')':'')+'? Sai a sessão toda: notas, links e PDF. Não dá para desfazer.</span><div class="gd-row"><button class="btn ghost small" type="button" data-apagar-nao="1">Cancelar</button><button class="btn small del-sim" type="button" data-apagar-sim="'+i+'">Apagar sessão</button></div></div>'
-          : '')+(a.pedido?'<div class="dica" style="background:var(--warn-bg);border-color:var(--warn)"><strong>Pedido do jogador</strong>'+(a.pedido.link?'<br>Vídeo do jogo: <a href="'+esc(a.pedido.link)+'" target="_blank" rel="noopener">'+esc(a.pedido.link)+'</a>':'')+(a.pedido.nota?'<br>Nota: '+esc(a.pedido.nota):'')+'</div>':'')+
+          : '')+atvBox(c,a)+(a.pedido?'<div class="dica" style="background:var(--warn-bg);border-color:var(--warn)"><strong>Pedido do jogador</strong>'+(a.pedido.link?'<br>Vídeo do jogo: <a href="'+esc(a.pedido.link)+'" target="_blank" rel="noopener">'+esc(a.pedido.link)+'</a>':'')+(a.pedido.nota?'<br>Nota: '+esc(a.pedido.nota):'')+'</div>':'')+
         '<div class="campo"><label class="l" for="nm-'+i+'">Nome da análise</label><input class="input" id="nm-'+i+'" value="'+esc(a.nome||'')+'" placeholder="Ex.: Sessão 4 · Diogo Costa"></div>'+
         '<div class="grid2"><div class="campo"><label class="l" for="jg-'+i+'">Jogo</label><input class="input" id="jg-'+i+'" value="'+esc(a.jogo||'')+'" placeholder="Ex.: vs. Atlético B"></div><div class="campo"><label class="l" for="dt-'+i+'">Data do jogo</label><input class="input" id="dt-'+i+'" value="'+esc(a.data||'')+'" placeholder="Ex.: 9 nov"></div></div>'+
         (ePack(c)
@@ -687,9 +701,56 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     var I1='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
     var I2='<svg viewBox="0 0 28 24" width="18" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12.5l4.5 4.5L16.5 7.5"/><path d="M11.5 16l1 1L22 7.5"/></svg>';
     var IX='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>';
-    if(a.vista){ var tv='Vista pelo jogador · '+dataCurta(a.vista); return '<span class="an-env vi" role="img" aria-label="'+tv+'" title="'+tv+'">'+I2+'</span>'; }
+    var vv=vistaDe(a); if(vv){ var tv='Vista pelo jogador · '+dataCurta(vv); return '<span class="an-env vi" role="img" aria-label="'+tv+'" title="'+tv+'">'+I2+'</span>'; }
     if(a.avisado){ var te='Enviada ao cliente · '+dataCurta(a.avisado)+' · ainda não vista'; return '<span class="an-env ok" role="img" aria-label="'+te+'" title="'+te+'">'+I1+'</span>'; }
     return '<span class="an-env no" role="img" aria-label="Ainda não enviada ao cliente" title="Ainda não enviada ao cliente">'+IX+'</span>';
+  }
+  // ===== atividade do jogador (20/11): o que viu e quando =====
+  var ATIV={};
+  window.__fiqAtivSet=function(l){ ATIV={}; (l||[]).forEach(function(e){ (ATIV[e.cliente_id]=ATIV[e.cliente_id]||[]).push(e); }); };
+  window.__fiqAtivAdd=function(e){ if(!e||!e.cliente_id) return; (ATIV[e.cliente_id]=ATIV[e.cliente_id]||[]).unshift(e);
+    var c=cli(e.cliente_id); if(!c) return; var a=e.analise_id&&c.analises.filter(function(x){ return x.id===e.analise_id; })[0]; if(!a) return;
+    atualizaSelo(a);
+    var ic=V.querySelector('.atv-ic[data-anid="'+a.id+'"]'); if(ic){ var t=document.createElement('span'); t.innerHTML=atvIcons(c,a); if(t.firstChild) ic.replaceWith(t.firstChild); }
+    var bx=V.querySelector('.atv-box[data-anid="'+a.id+'"]'); if(bx){ var t2=document.createElement('div'); t2.innerHTML=atvBox(c,a); if(t2.firstChild) bx.replaceWith(t2.firstChild); } };
+  function atvT(s){ s=Math.max(0,Math.floor(+s||0)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+  function resumoAn(c,a){
+    var l=(ATIV[c.id]||[]).filter(function(e){ return e.analise_id===a.id; }), r={visitas:0,ultima:'',primeira:'',vid:null,mom:{},pdf:'',dl:''};
+    l.forEach(function(e){ var d=e.detalhe||{};
+      if(e.tipo==='analise'){ r.visitas++; if(!r.ultima) r.ultima=e.criado_em; r.primeira=e.criado_em; }
+      else if(e.tipo==='video'){ if(!r.vid||(+d.seg||0)>(+r.vid.seg||0)) r.vid={seg:+d.seg||0,dur:+d.dur||0,pct:(d.pct==null?null:+d.pct)}; }
+      else if(e.tipo==='momento'){ if(d.v&&!r.mom[d.v]) r.mom[d.v]=e.criado_em; }
+      else if(e.tipo==='pdf'){ if(!r.pdf) r.pdf=e.criado_em; }
+      else if(e.tipo==='download'){ if(!r.dl) r.dl=e.criado_em; } });
+    if(!r.visitas&&a.vista){ r.visitas=1; r.ultima=r.primeira=a.vista; }
+    return r;
+  }
+  function vistaDe(a){ if(a.vista) return a.vista; var l=ATIV[a.cliente_id||'']||[], v=''; if(!l.length){ for(var k in ATIV){ l=l.concat(ATIV[k]); } } l.forEach(function(e){ if(e.tipo==='analise'&&e.analise_id===a.id) v=e.criado_em; }); return v; }
+  function ultimaApp(c){ var l=ATIV[c.id]||[]; return l.length?l[0].criado_em:''; }
+  var AI_PLAY='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>';
+  var AI_MOM='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>';
+  var AI_PDF='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>';
+  function aiHtml(on,t,svg){ return '<span class="ai'+(on?' on':'')+'" role="img" aria-label="'+esc(t)+'" title="'+esc(t)+'">'+svg+'</span>'; }
+  function atvIcons(c,a){
+    if(a.estado!=='Concluída') return '';
+    var r=resumoAn(c,a), nm=(a.momentos||[]).filter(function(m){ return m&&(m.v||m.a); }).length, nv=Object.keys(r.mom).length;
+    var tv=r.vid?('Vídeo visto até '+atvT(r.vid.seg)+(r.vid.pct!=null?' ('+r.vid.pct+'%)':'')):'Vídeo ainda não visto';
+    var tm='Momentos vistos: '+nv+' de '+nm, tp=r.pdf?'Relatório PDF aberto':'Relatório PDF ainda não aberto';
+    var hh=(a.yt?aiHtml(!!r.vid,tv,AI_PLAY):'')+(nm?aiHtml(nv>0,tm,AI_MOM):'')+((a.pdfNome||a.pdf)?aiHtml(!!r.pdf,tp,AI_PDF):''); return hh?'<span class="atv-ic" data-anid="'+esc(a.id)+'">'+hh+'</span>':'';
+  }
+  function atvBox(c,a){
+    if(a.estado!=='Concluída') return '';
+    var r=resumoAn(c,a), ua=ultimaApp(c), ms=(a.momentos||[]).filter(function(m){ return m&&(m.v||m.a); });
+    function linha(on,tit,txt,extra){ return '<div class="atv-l"><span class="atv-st'+(on?' on':'')+'" aria-hidden="true">'+(on?'✓':'—')+'</span><span class="atv-tx"><b>'+tit+'</b> '+txt+(extra||'')+'</span></div>'; }
+    var h='<div class="atv-box" data-anid="'+esc(a.id)+'"><div class="atv-hd"><b>O que o jogador viu</b><span>'+(ua?'Última vez na app · '+dataCurta(ua):'Ainda sem atividade na app')+'</span></div>';
+    h+=linha(r.visitas>0,'Análise',r.visitas?'aberta '+r.visitas+(r.visitas===1?' vez':' vezes')+' · última '+dataCurta(r.ultima):'ainda não foi aberta');
+    if(a.yt){ var bar=''; if(r.vid&&r.vid.pct!=null) bar='<span class="atv-bar"><i style="width:'+Math.max(3,r.vid.pct)+'%"></i></span>';
+      h+=linha(!!r.vid,'Vídeo',r.vid?'visto até '+atvT(r.vid.seg)+(r.vid.dur?' de '+atvT(r.vid.dur):'')+(r.vid.pct!=null?' ('+r.vid.pct+'%)':''):'ainda não carregou no play',bar); }
+    if(ms.length){ var nv=ms.filter(function(m){ return r.mom[tempoNorm(m.v)||m.v]; }).length;
+      h+=linha(nv>0,'Momentos',nv+' de '+ms.length+' vistos','<span class="atv-mo">'+ms.map(function(m){ var on=!!r.mom[tempoNorm(m.v)||m.v]; return '<span class="'+(on?'on':'')+'">'+(on?'✓ ':'— ')+esc(tempoNorm(m.v)||m.v||'')+' '+esc(m.a||'')+'</span>'; }).join('')+'</span>'); }
+    if(a.pdfNome||a.pdf) h+=linha(!!r.pdf,'Relatório PDF',r.pdf?'aberto · '+dataCurta(r.pdf):'ainda não foi aberto');
+    if(a.dl) h+=linha(!!r.dl,'Download do vídeo',r.dl?'abriu o link · '+dataCurta(r.dl):'ainda não abriu o link');
+    return h+'<p class="atv-nota">Conta a partir de 20 nov. O jogador é avisado na app de que vês esta informação.</p></div>';
   }
   window.__fiqSelo=function(a){ return selo(a); };
   function atualizaSelo(a){ var el=V.querySelector('details.an[data-anid="'+a.id+'"] .an-env'); if(!el) return; var t=document.createElement('span'); t.innerHTML=selo(a); el.replaceWith(t.firstChild); }
@@ -944,8 +1005,11 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
         SB.from('perfis').select('cliente_id,dados'),
         SB.from('analises').select('*').order('criado_em', {ascending: false}),
         SB.from('pagamentos').select('*').order('data', {ascending: true}),
-        SB.from('mensagens').select('*').order('criado_em', {ascending: true})
+        SB.from('mensagens').select('*').order('criado_em', {ascending: true}),
+        SB.from('atividade').select('cliente_id,analise_id,tipo,detalhe,criado_em').order('criado_em', {ascending: false}).limit(4000)
       ]).then(function(rs){
+        if (window.__fiqAtivSet) window.__fiqAtivSet(rs[5] && !rs[5].error ? (rs[5].data || []) : []);
+        rs = rs.slice(0, 5);
         rs.forEach(function(x){ if (x.error) throw x.error; });
         var cs = rs[0].data || [], pfs = rs[1].data || [], ans = rs[2].data || [], pgs = rs[3].data || [], ms = rs[4].data || [];
         var R = {'fiq-demo-links': '{}', 'fiq-demo-estado': '{}', 'fiq-demo-atr': '{}'}, dv = {}, ps = {};
@@ -1090,6 +1154,9 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
         .on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'analises'}, function(p){
           var r = p.new || {}; if (cli(r.cliente_id) && cli(r.cliente_id).analises.some(function(x){ return x.id === r.id; })) return;
           carregarG().then(function(){ var c = cli(r.cliente_id); toast('Novo pedido de análise' + (c ? ' de ' + nomeDe(c) : '') + '.'); render(); });
+        })
+        .on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'atividade'}, function(p){
+          if (window.__fiqAtivAdd) window.__fiqAtivAdd(p.new || {});
         })
         .on('postgres_changes', {event: 'UPDATE', schema: 'public', table: 'analises'}, function(p){
           var r = p.new || {}, c = cli(r.cliente_id); if (!c) return;

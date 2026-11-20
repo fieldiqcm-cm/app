@@ -1434,6 +1434,7 @@ nav.tabs a{position:relative}
       <div id="g-lista" style="margin-top:6px"></div>
     </div>
     <p class="note" id="dl-validade" style="margin:0">O relatório fica sempre aqui na app.</p>
+    <p class="note" style="margin:8px 0 0">O teu analista vê que partes da análise já abriste (vídeo, momentos e relatório), para te poder ajudar melhor.</p>
     <div class="card row" style="padding:12px 14px" hidden>
       <div style="width:40px;height:40px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;color:var(--gold2)">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 14h8M8 17h5"/></svg>
@@ -1966,6 +1967,7 @@ nav.tabs a{position:relative}
   q.opts.addEventListener('click', function(ev){
     var b = ev.target.closest('.opt'); if (!b || b.disabled) return;
     var certo = b.dataset.op === String(DES.certa);
+    if (window.__fiqEv) window.__fiqEv('desafio', null, {semana: DES.semana, certo: certo}, 'desafio|' + DES.semana);
     q.opts.querySelectorAll('.opt').forEach(function(x){
       x.disabled = true;
       if (x.dataset.op === String(DES.certa)) x.classList.add('certa');
@@ -2206,7 +2208,7 @@ nav.tabs a{position:relative}
     }
     window.__fiqTocar = tocar;
     // onde o jogador parou e lances guardados (só neste aparelho)
-    var CH_T = 'fiq-ver:' + ANALISE, CH_G = 'fiq-guardados:' + ANALISE, agora = -1, ultimoGuardado = 0;
+    var CH_T = 'fiq-ver:' + ANALISE, CH_G = 'fiq-guardados:' + ANALISE, agora = -1, ultimoGuardado = 0, ytDur = 0;
     function mmss(s){ s = Math.max(0, Math.floor(s)); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }
     function lerT(){ try { return +localStorage.getItem(CH_T) || 0; } catch(e){ return 0; } }
     function lerG(){ try { return JSON.parse(localStorage.getItem(CH_G) || '[]'); } catch(e){ return []; } }
@@ -2214,8 +2216,10 @@ nav.tabs a{position:relative}
     window.addEventListener('message', function(ev){
       if (!/youtube(-nocookie)?\.com$/.test((ev.origin || '').replace(/^https?:\/\//, ''))) return;
       var d; try { d = typeof ev.data === 'string' ? JSON.parse(ev.data) : ev.data; } catch(e){ return; }
+      if (d && d.info && typeof d.info.duration === 'number' && d.info.duration > 0) ytDur = d.info.duration;
       if (d && d.info && typeof d.info.currentTime === 'number'){
         agora = d.info.currentTime;
+        if (window.__fiqVideo) window.__fiqVideo(agora, ytDur);
         if (Math.abs(agora - ultimoGuardado) > 4){ ultimoGuardado = agora; try { localStorage.setItem(CH_T, String(Math.floor(agora))); } catch(e){} }
       }
     });
@@ -2283,7 +2287,7 @@ nav.tabs a{position:relative}
     var hoje = new Date(); hoje.setHours(0,0,0,0);
     var dlv = document.getElementById('dl-video');
     dlv.addEventListener('click', function(e){
-      var u = dados && dados.dl; if (u && https(u) && !exp) return;
+      var u = dados && dados.dl; if (u && https(u) && !exp){ if (window.__fiqEvA) window.__fiqEvA('download', {}); return; }
       e.preventDefault();
       if (exp){ location.hash = 'duvidas'; toast('Link expirado. Pede um novo ao analista.'); }
       else toast(dados ? 'O analista ainda não juntou o link para descarregar o vídeo.' : 'Aqui abre o link para descarregares o vídeo.');
@@ -2303,6 +2307,7 @@ nav.tabs a{position:relative}
       return pdfLer(ANALISE).then(function(b){ return b || demo(); }, demo);
     }
     function guardarPdf(){
+      if (window.__fiqEvA) window.__fiqEvA('pdf', {modo: 'guardar'}, 'guardar');
       obterPdf().then(function(b){
         var u = URL.createObjectURL(b), l = document.createElement('a');
         l.href = u; l.download = pdfNome; document.body.appendChild(l); l.click(); l.remove();
@@ -2324,6 +2329,7 @@ nav.tabs a{position:relative}
     var pv = document.getElementById('pdfv'), pags = document.getElementById('pdfv-pags');
     function fecharPdf(){ pv.hidden = true; pags.innerHTML = ''; }
     function verPdf(){
+      if (window.__fiqEvA) window.__fiqEvA('pdf', {modo: 'ver'}, 'ver');
       document.getElementById('pdfv-tit').textContent = (document.getElementById('an-nome').textContent || 'Relatório') + ' · Relatório';
       pags.innerHTML = '<p class="pdfv-msg">A abrir o relatório…</p>'; pv.hidden = false;
       Promise.all([obterPdf(), carregaPdfJs()]).then(function(r){
@@ -2694,7 +2700,10 @@ nav.tabs a{position:relative}
     sel.innerHTML = '<div class="ms-top"><span class="ms-min"></span><span class="pill ' + (x.t === 'bom' ? 'on' : 'off') + '">' + (x.t === 'bom' ? 'Fazes bem' : 'A melhorar') + '</span></div><b></b><p></p><button type="button">▶ Ver no vídeo</button>';
     sel.querySelector('.ms-min').textContent = momT(x.s); sel.querySelector('b').textContent = x.a; sel.querySelector('p').textContent = x.d;
     var bv = sel.querySelector('button');
-    bv.addEventListener('click', function(){ if (window.__fiqTocar) window.__fiqTocar(x.s); });
+    bv.addEventListener('click', function(){
+      if (window.__fiqEvA){ var ss = Math.max(0, Math.floor(x.s)); window.__fiqEvA('momento', {v: Math.floor(ss/60) + ':' + String(ss%60).padStart(2,'0'), a: String(x.a || '').slice(0, 80)}, String(ss)); }
+      if (window.__fiqTocar) window.__fiqTocar(x.s);
+    });
     sel.style.animation = 'none'; void sel.offsetWidth; sel.style.animation = '';
   }
   var momFiltro = 'todos';
@@ -3233,13 +3242,34 @@ nav.tabs a{position:relative}
       Promise.race([feito, new Promise(function(r){ setTimeout(r, 2500); })]).then(limpa, limpa);
     };
 
+    // ----- atividade (20/11): o analista vê o que o jogador abriu -----
+    var EVQ = {};
+    function anAtual(){ var k = window.__fiqAnKey; return (k && k.indexOf('r|') === 0 && location.hash === '#analise' && /^[0-9a-f-]{36}$/.test(k.slice(2))) ? k.slice(2) : null; }
+    function ev(tipo, anId, det, chave){
+      if (!REAL) return; var k = chave || (tipo + '|' + (anId || '')); if (EVQ[k]) return; EVQ[k] = 1;
+      SB.rpc('registar', {p_tipo: tipo, p_analise: anId || null, p_detalhe: det || {}}).then(function(r){ if (r && r.error) delete EVQ[k]; }, function(){ delete EVQ[k]; });
+    }
+    window.__fiqEv = ev;
+    window.__fiqEvA = function(tipo, det, chave){ var id = anAtual(); if (!id) return; ev(tipo, id, det, tipo + '|' + id + '|' + (chave || '')); };
+    window.__fiqVideo = function(seg, dur){
+      var id = anAtual(); if (!id || !(seg >= 0)) return;
+      var pct = dur > 0 ? Math.min(100, Math.round(seg / dur * 100)) : null, b = pct == null ? 'm' + Math.floor(seg / 60) : 'p' + Math.floor(pct / 10);
+      ev('video', id, {seg: Math.floor(seg), dur: dur ? Math.floor(dur) : null, pct: pct}, 'video|' + id + '|' + b);
+    };
+    (function(){ var n = 0, t = setInterval(function(){ n++; if (REAL){ clearInterval(t); ev('app', null, {}, 'app'); } else if (n > 40) clearInterval(t); }, 1500); })();
+    window.addEventListener('hashchange', function(){ if (location.hash === '#duvidas') ev('mensagens', null, {}, 'mensagens'); });
+    if ('IntersectionObserver' in window){
+      var vistoEl = function(id, tipo){ var el = document.getElementById(id); if (!el) return; new IntersectionObserver(function(es, ob){ es.forEach(function(x){ if (x.isIntersecting && REAL){ ev(tipo, null, {}, tipo); ob.disconnect(); } }); }, {threshold: .6}).observe(el); };
+      vistoEl('pcard', 'carta'); vistoEl('rs-wrap', 'pontos');
+    }
+
     // ----- análise vista: o analista vê ✓✓ na gestão quando o jogador abre a análise -----
     var vistasEnv = {};
     function marcarVista(){
       if (!REAL || location.hash !== '#analise') return;
       var k = window.__fiqAnKey; if (!k || k.indexOf('r|') !== 0) return;
       var id = k.slice(2); if (!/^[0-9a-f-]{36}$/.test(id) || vistasEnv[id]) return;
-      vistasEnv[id] = 1;
+      vistasEnv[id] = 1; ev('analise', id, {}, 'analise|' + id);
       SB.rpc('marcar_vista', {p_id: id}).then(function(r){ if (r && r.error) delete vistasEnv[id]; }, function(){ delete vistasEnv[id]; });
     }
     window.addEventListener('hashchange', function(){ if (location.hash === '#analise') setTimeout(marcarVista, 1200); });
