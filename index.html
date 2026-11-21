@@ -106,6 +106,7 @@ h1 em{font-style:italic;font-weight:600;color:var(--gold2)}
 
 /* loja (página própria dentro de um iframe, para não misturar estilos) */
 #s-loja{padding:0}
+nav.tabs a.nav-loja{display:none}@media (min-width:900px){nav.tabs a.nav-loja{display:flex}}
 body.sem-loja .pf-loja,body.sem-loja a[href="#loja"]{display:none!important}
 @media (max-width:599px){#s-loja{min-height:calc(100dvh - var(--tabs-h,58px))}}
 .loja-box{flex:1;min-height:0;position:relative}
@@ -1654,6 +1655,7 @@ nav.tabs a{position:relative}
   <a href="#pack" data-tab="pack"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>Plano</a>
   <a href="#duvidas" data-tab="duvidas"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.3 2.4c-.5.2-.8.6-.8 1.1v.5"/><circle cx="12" cy="16.5" r=".6" fill="currentColor"/></svg><span>Mensagens</span><b class="nav-n" id="nav-duv-n" hidden>1</b></a>
   <button class="nav-sair" type="button" id="nav-sair"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 4h3a2 2 0 0 1 2 2v14"/><path d="M2 20h3"/><path d="M13 20h9"/><path d="M10 12v.01"/><path d="M13 4.56v16.16a1 1 0 0 1-1.24.97L5 20V5.56a2 2 0 0 1 1.52-1.94l4-1A2 2 0 0 1 13 4.56z"/></svg>Terminar sessão</button>
+  <a href="#loja" data-tab="loja" class="nav-loja"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>Loja</a>
   <a href="#perfil" data-tab="perfil"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Perfil</a>
 </nav>
 
@@ -1679,7 +1681,7 @@ nav.tabs a{position:relative}
 (function(){
   var vemDaRecuperacao = false;
   var ecras = ['entrada','ativar','recuperar','completar','perfil','inicio','analises','analise','duvidas','estado','pack','loja'];
-  var tabDe = {inicio:'inicio',analises:'analises',analise:'analises',duvidas:'duvidas',estado:'inicio',pack:'pack',perfil:'perfil',loja:'perfil'};
+  var tabDe = {inicio:'inicio',analises:'analises',analise:'analises',duvidas:'duvidas',estado:'inicio',pack:'pack',perfil:'perfil',loja:'loja'};
   var intro = document.getElementById('intro');
 
   // capa: o que é a FieldIQ, em 5 stories
@@ -2226,6 +2228,13 @@ nav.tabs a{position:relative}
     var podeIncorporar = /github\.io$|fieldiqcm\.com$|pages\.dev$|workers\.dev$|^localhost$/.test(location.hostname);
     function driveId(u){ var m = String(u||'').match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:.*&)?id=)([A-Za-z0-9_-]{20,})/); return m ? m[1] : ''; }
     var VCACHE = {}, CAPA_LOCAL = {};
+    // imagem de jogo de um vídeo guardado na app (capa guardada no servidor ou, se não houver, tirada do vídeo aqui)
+    function capaR2(k){
+      if (CAPA_LOCAL[k]) return CAPA_LOCAL[k];
+      return (CAPA_LOCAL[k] = (VCACHE[k] && VCACHE[k].ate > Date.now() / 1000 + 300 ? Promise.resolve(VCACHE[k]) : window.__fiqVideoUrl(k).then(function(r){ VCACHE[k] = r; return r; })).then(function(r){
+        if (!r) return null; return r.capa || capaLocal(r.url);
+      }).catch(function(){ delete CAPA_LOCAL[k]; return null; }));
+    }
     function capaLocal(url){ return new Promise(function(ok){
       var v = document.createElement('video'), fim = false;
       function sai(u){ if (fim) return; fim = true; try { v.removeAttribute('src'); v.load(); } catch(e){} ok(u || null); }
@@ -2332,6 +2341,10 @@ nav.tabs a{position:relative}
         hi.onerror = function(){ if (/maxresdefault/.test(hi.src)) hi.src = 'https://i.ytimg.com/vi/' + hid + '/hqdefault.jpg'; else { hi.remove(); if (campo) campo.style.display = ''; } };
         hi.onload = function(){ if (hi.naturalWidth <= 120 && /maxresdefault/.test(hi.src)) hi.src = 'https://i.ytimg.com/vi/' + hid + '/hqdefault.jpg'; };
         hi.src = 'https://i.ytimg.com/vi/' + hid + '/maxresdefault.jpg'; hero.insertBefore(hi, hero.firstChild); if (campo) campo.style.display = 'none'; }
+      else if (p && p.vk && window.__fiqVideoUrl){ var kH = HERO_K;
+        capaR2(kH).then(function(u){ if (!u || HERO_K !== kH || hero.querySelector('.hero-capa')) return;
+          var hi2 = document.createElement('img'); hi2.className = 'hero-capa'; hi2.alt = ''; hi2.onerror = function(){ hi2.remove(); if (campo) campo.style.display = ''; };
+          hi2.src = u; hero.insertBefore(hi2, hero.firstChild); if (campo) campo.style.display = 'none'; }); }
       document.getElementById('hero-data').textContent = (p && p.data) || def.data;
       document.getElementById('hero-sep').hidden = !document.getElementById('hero-data').textContent;
     }
@@ -2430,14 +2443,7 @@ nav.tabs a{position:relative}
       // capa do vídeo FieldIQ: uma imagem do próprio jogo (criada quando o vídeo foi carregado)
       if (dados && dados.vk && window.__fiqVideoUrl){
         var anC = k, du0 = document.querySelector('#yt-btn .dur'); if (du0) du0.textContent = (dados.nome ? dados.nome.split('·')[0].trim() + ' · ' : '') + 'os teus lances';
-        (VCACHE[k] && VCACHE[k].ate > Date.now() / 1000 + 300 ? Promise.resolve(VCACHE[k]) : window.__fiqVideoUrl(k).then(function(r){ VCACHE[k] = r; return r; })).then(function(r){
-          if (ANALISE !== anC || !r) return;
-          if (!r.capa){ // sem capa guardada: tira uma imagem do próprio vídeo aqui no aparelho
-            if (CAPA_LOCAL[anC]) return CAPA_LOCAL[anC];
-            return (CAPA_LOCAL[anC] = capaLocal(r.url)).then(function(u){ if (u && ANALISE === anC) poeCapa(u); });
-          }
-          poeCapa(r.capa);
-        }).catch(function(){});
+        capaR2(k).then(function(u){ if (u && ANALISE === anC) poeCapa(u); });
         function poeCapa(src){
           var vb2 = document.getElementById('yt-btn'); if (!vb2 || vb2.querySelector('.yt-capa')) return;
           var bd2 = vb2.querySelector('.board'), im2 = document.createElement('img');
