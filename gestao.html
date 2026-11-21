@@ -83,6 +83,13 @@ h2{margin:0;font-size:12px;font-weight:800;letter-spacing:1.6px;color:var(--dim)
 .row{display:flex;align-items:center;gap:12px}
 .between{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pz-tab{display:grid;gap:6px;margin:12px 0}
+.pz-h,.pz-r{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center}
+.pz-h span{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--dim)}
+.pz-r>span{font-weight:700;font-size:13.5px}
+.pz-in{position:relative;display:block}.pz-in input{width:100%;height:42px;border-radius:10px;border:1.5px solid var(--line2);background:var(--card);color:var(--fg);font:800 15px var(--body,inherit);padding:0 26px 0 10px;text-align:right}
+.pz-in input::placeholder{color:var(--dim);opacity:.6;font-weight:600}.pz-in input:focus{outline:2px solid var(--gold);outline-offset:1px}
+.pz-in i{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-style:normal;color:var(--dim);font-size:13px}
 .ped-g{display:flex;flex-direction:column;gap:10px}
 .ped-g .pg-top{display:flex;gap:12px;align-items:flex-start}
 .ped-g .pg-ic{width:36px;height:36px;border-radius:10px;background:var(--gold);color:#111;display:grid;place-items:center;flex-shrink:0;font-size:14px}
@@ -431,6 +438,8 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function cli(id){ for (var i=0;i<clientes.length;i++) if (clientes[i].id===id) return clientes[i]; }
   var PRECO={Performance:45,Pro:70,Elite:110};
+  var PRECO_NORMAL={perf:[45,160],pro_c:[70,250],pro_s:[65,230],elite_c:[110,400],elite_s:[100,370]};
+  function temPrecos(c){ var p=c.precos; return !!p && Object.keys(p).some(function(k){ return (p[k]||[]).some(function(x){ return x!=null&&x!==''; }); }); }
   // ===== Loja: pedidos dos jogadores (no exemplo, dados fictícios) =====
   var PEDIDOS=[
     {id:'p-ex1',ref:'FQ-EX12',cliente_id:null,cliNome:'Jogador Exemplo',tipo:'video',produto:'Vídeo de melhores momentos · Época',valor:110,nota:'Jogos de março e abril',estado:'jp',criado_em:new Date(Date.now()-3600e3).toISOString()},
@@ -992,6 +1001,13 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(a==='reenviar'){ if(window.FIQ_CFG){ location.hash='convite-'+c.id; return; } toast('Email de ativação reenviado para '+c.email); }
     if(a==='suspender') toast('Esboço: aqui suspendes o acesso (pede confirmação).');
     if(a==='guardar-stats'){ document.querySelectorAll('[data-stat]').forEach(function(i){ c.stats[i.dataset.stat]=i.value; }); if(window.__fiqGravar) window.__fiqGravar(); toast('Estatísticas guardadas. O cliente já as vê.'); }
+    if(a==='precos-guardar'||a==='precos-limpar'){
+      var np={}; if(a==='precos-guardar') V.querySelectorAll('[data-pz]').forEach(function(inp){ var k=inp.dataset.pz, ix=+inp.dataset.pzi, val=String(inp.value).replace(',','.').trim(); if(!np[k]) np[k]=[null,null]; np[k][ix]=val===''?null:Math.max(0,+val); });
+      Object.keys(np).forEach(function(k){ if(np[k][0]==null&&np[k][1]==null) delete np[k]; });
+      var novo=Object.keys(np).length?np:null, antes=c.precos; c.precos=novo; secAtual='sec-loja'; render();
+      if(window.__fiqPrecos) window.__fiqPrecos(c,novo).then(function(){ toast(novo?'Preços guardados. Só '+nomeDe(c)+' os vê na loja.':'Voltou aos preços normais.'); },function(){ c.precos=antes; render(); toast('Não foi possível guardar. Confirma a rede e tenta outra vez.'); });
+      else toast('Preços guardados (exemplo).');
+      return; }
     if(a==='nova-analise'){ var nvN=nivelAtual(c); c.analises.unshift({id:window.__fiqUUID?window.__fiqUUID():'a'+Date.now().toString(36),nome:'Sessão '+(c.analises.length+1)+' · '+nomeCurto(c),jogo:'',data:'',estado:'Recebido',nivel:nvN,preco:ePack(c)?0:PRECO[nvN],pago:0,pagoInfo:'Por pagar',yt:'',dl:'',pdf:'',ate:''}); secAtual='sec-analises'; toast('Análise criada. Confirma o nome, o jogo e cola os links.'); render(); }
   });
   function selTexto(){ var el=document.getElementById('convite-txt'); if(!el) return; var r=document.createRange(); r.selectNodeContents(el); var sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(r); toast('Texto selecionado: copia com Ctrl+C'); }
@@ -1085,6 +1101,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     function carregarPedidos(){
       return SB.from('pedidos').select('*').order('criado_em', {ascending: false}).then(function(r){ if (!r.error && window.__fiqPedSet) window.__fiqPedSet(r.data || []); });
     }
+    window.__fiqPrecos = function(c, p){ return SB.from('clientes').update({precos: p}).eq('id', c.id).then(function(r){ if (r.error) throw r.error; }); };
     window.__fiqPedidoEstado = function(p, f, txt){
       return SB.from('pedidos').update({estado: f, atualizado_em: new Date().toISOString()}).eq('id', p.id).then(function(r){
         if (r.error) throw r.error;
@@ -1117,7 +1134,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
           clientes.push({id: r.id, nome: ex.nome || '', ini: '', pos: r.pos || '', menor: false, email: r.email, tel: r.telefone || '', pack: r.pack, formato: r.formato, feitas: r.feitas, total: r.total, preco: +r.preco || 0, codigo: r.codigo || '', atr: r.atr || null, ativa: !!r.user_id,
             pagamentos: pgs.filter(function(p){ return p.cliente_id === r.id; }).map(function(p){ return {d: dCurta(p.data), _data: p.data, v: +p.valor || 0, m: p.metodo || ''}; }),
             acesso: r.user_id ? 'Conta ativada' : 'Ainda não ativou a conta · código ' + (r.codigo || '—'),
-            recPedido: r.rec_pedido_em || null, recCodigo: r.rec_codigo || '', recAte: r.rec_ate || null,
+            precos: r.precos || null, recPedido: r.rec_pedido_em || null, recCodigo: r.rec_codigo || '', recAte: r.rec_ate || null,
             perfil: null, analises: ans.filter(function(a){ return a.cliente_id === r.id; }).map(anDe),
             manter: ex.manter || [], melhorar: ex.melhorar || [], comp: ex.comp || [], stats: ex.stats || {passes: '', duelos: '', rec: '', dec: ''}});
           if (r.prox_sessao) ps[r.email.toLowerCase()] = r.prox_sessao;
