@@ -471,6 +471,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(up) h+='<div class="vd-it"><span class="vd-ic">'+VD_SVG+'</span><span style="flex:1 1 140px;min-width:0"><strong class="vd-nm">'+esc(up.nome)+'</strong><span class="vd-bar"><i style="width:'+up.pct+'%"></i></span><span class="sub" style="margin:0">A carregar… '+up.pct+'% · podes continuar a trabalhar</span></span></div>';
     else if(a.vk) h+='<div class="vd-it"><span class="vd-ic">'+VD_SVG+'</span><span style="flex:1 1 140px;min-width:0"><strong class="vd-nm">'+esc(a.vnome||'Vídeo da análise')+'</strong><span class="sub" style="margin:0">'+tamTxt(a.vtam)+' · no leitor FieldIQ, com momentos</span></span><button class="btn ghost small" type="button" data-vdver="'+i+'">Ver</button><label class="btn ghost small" for="vf-'+i+'">Trocar</label><button class="btn ghost small" type="button" data-vdrm="'+i+'">Tirar</button></div>';
     else if(window.__fiqVideoUp) h+='<label class="pdf-up" for="vf-'+i+'"><span class="vd-ic">'+VD_SVG+'</span><span><strong>Carregar vídeo</strong><span class="sub" style="margin:0;display:block">MP4, de preferência 720p · o jogador vê-o na app, com os momentos</span></span></label>';
+    if(window.__fiqVideoUso&&!up) h+='<span class="sub vd-uso" style="margin:4px 0 0;display:block">'+window.__fiqVideoUso()+'</span>';
     else h+='<div class="it"><span>Carregar vídeos fica disponível na app real (no exemplo, usa um link).</span></div>';
     return h+'<input type="file" id="vf-'+i+'" accept="video/mp4,video/quicktime,video/webm,video/*" data-vdup="'+i+'" hidden></div>';
   }
@@ -958,7 +959,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       UPV[va.id]={pct:0,nome:vfile.name}; vdRefresca(c,va);
       window.__fiqVideoUp(c,va,vfile,function(p){ UPV[va.id].pct=p; var el=document.querySelector('#vdc-'+(FICHA&&FICHA.cli===c.id?FICHA.ids.indexOf(va.id):-1)+' .vd-bar i'); if(el){ el.style.width=p+'%'; el.parentNode.nextSibling.textContent='A carregar… '+p+'% · podes continuar a trabalhar'; } })
         .then(function(){ delete UPV[va.id]; vdRefresca(c,va); toast('Vídeo carregado. O jogador vê-o na app com os momentos.'); })
-        .catch(function(err){ delete UPV[va.id]; vdRefresca(c,va); toast('O vídeo não carregou'+(err&&err.message?' ('+err.message+')':'')+'. Tenta outra vez.'); });
+        .catch(function(err){ delete UPV[va.id]; vdRefresca(c,va); toast(err&&/espaço grátis cheio/.test(err.message)?'Espaço grátis dos vídeos cheio (10 GB). Tira vídeos antigos antes de carregar mais.':'O vídeo não carregou'+(err&&err.message?' ('+err.message+')':'')+'. Tenta outra vez.'); });
       return; }
     if(t.dataset.estado!==undefined && c){ var ea=anEcra(c,t.dataset.estado); ea.estado=t.value; if(window.__fiqGravar) window.__fiqGravar(); if(!avisarPronta(c,ea)) toast('Estado: '+t.value+'.'); }
 
@@ -1158,7 +1159,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     var PARTE = 32 * 1048576;
     window.__fiqVideoUp = function(c, a, file, prog){
       var antigo = a.vk, ini;
-      return apiV('up/start', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({analise_id: a.id, tipo: file.type || 'video/mp4', nome: file.name})}).then(function(r){
+      return apiV('up/start', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({analise_id: a.id, tipo: file.type || 'video/mp4', nome: file.name, tamanho: file.size, substitui: antigo || null})}).then(function(r){
         ini = r; var n = Math.max(1, Math.ceil(file.size / PARTE)), partes = [], k = 0;
         function proxima(){
           if (k >= n) return apiV('up/end', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({key: ini.key, uploadId: ini.uploadId, parts: partes})});
@@ -1173,7 +1174,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       }).then(function(fim){
         var dados = {video_key: fim.key, video_nome: file.name, video_tamanho: file.size};
         return SB.from('analises').update(dados).eq('id', a.id).then(function(r){ if (r.error) throw r.error;
-          a.vk = fim.key; a.vnome = file.name; a.vtam = file.size;
+          a.vk = fim.key; a.vnome = file.name; a.vtam = file.size; setTimeout(lerUso, 1500);
           if (antigo && antigo !== fim.key) apiV('del', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({key: antigo})}).catch(function(){});
         });
       }).catch(function(e){
@@ -1184,10 +1185,14 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     window.__fiqVideoRm = function(a){
       var k = a.vk; if (!k) return Promise.resolve();
       return SB.from('analises').update({video_key: null, video_nome: null, video_tamanho: null}).eq('id', a.id).then(function(r){ if (r.error) throw r.error;
-        a.vk = ''; a.vnome = ''; a.vtam = 0;
+        a.vk = ''; a.vnome = ''; a.vtam = 0; setTimeout(lerUso, 1500);
         return apiV('del', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({key: k})}).catch(function(){});
       });
     };
+    var USO = null;
+    function lerUso(){ return apiV('uso').then(function(u){ USO = u; document.querySelectorAll('.vd-uso').forEach(function(el){ el.textContent = window.__fiqVideoUso(); }); }).catch(function(){}); }
+    window.__fiqVideoUso = function(){ if (!USO) return 'Espaço dos vídeos: a verificar…'; var gb = function(b){ return (b / 1073741824).toFixed(1).replace('.', ','); }; return 'Espaço dos vídeos: ' + gb(USO.usado) + ' GB de ' + gb(USO.limite) + ' GB grátis'; };
+    setTimeout(lerUso, 2500);
     window.__fiqVideoUrl = function(a){ return apiV('token', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({analise_id: a.id})}).then(function(r){ return r.url; }); };
     window.__fiqApagarAn = function(c, a){
       if (a.pdfPath) SB.storage.from('relatorios').remove([a.pdfPath]).then(function(){});

@@ -12,6 +12,8 @@ const SUPA = "https://nafmkdnsncbmbgolyvvm.supabase.co";
 const ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hZm1rZG5zbmNibWJnb2x5dnZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUwNjI2ODgsImV4cCI6MjExMDYzODY4OH0.qsq4LTlnYiEUNNmBOUZzOQH_0BXWc28wa-4z8uio94w";
 const GESTOR = "fieldiqcm@gmail.com";
 const VALIDADE = 6 * 3600; // segundos
+// Para nunca pagar nada: o R2 é grátis até 10 GB. Não deixamos passar dos 9,5 GB.
+const LIMITE = 9.5 * 1024 * 1024 * 1024;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function json(o, s = 200) {
@@ -56,6 +58,15 @@ async function utilizador(req) {
   return u;
 }
 const eGestor = (u) => !!u && String(u.email || "").toLowerCase() === GESTOR;
+async function usado(env) {
+  let total = 0, cursor;
+  do {
+    const l = await env.VIDEOS.list({ prefix: "videos/", cursor });
+    l.objects.forEach((o) => (total += o.size));
+    cursor = l.truncated ? l.cursor : undefined;
+  } while (cursor);
+  return total;
+}
 
 async function api(req, env, url) {
   const p = url.pathname;
@@ -109,9 +120,13 @@ async function api(req, env, url) {
   // ----- daqui para baixo, só a conta de gestão -----
   if (!eGestor(u)) return json({ erro: "sem permissão" }, 403);
 
+  if (p === "/api/v/uso" && req.method === "GET") return json({ usado: await usado(env), limite: LIMITE });
   if (p === "/api/v/up/start" && req.method === "POST") {
-    const { analise_id, tipo, nome } = await req.json().catch(() => ({}));
+    const { analise_id, tipo, nome, tamanho, substitui } = await req.json().catch(() => ({}));
     if (!UUID.test(analise_id || "")) return json({ erro: "análise inválida" }, 400);
+    let livre = LIMITE - (await usado(env));
+    if (substitui && String(substitui).startsWith("videos/")) { const h = await env.VIDEOS.head(substitui); if (h) livre += h.size; }
+    if (+tamanho > livre) return json({ erro: "espaço grátis cheio", usado: LIMITE - livre, limite: LIMITE }, 413);
     const ext = /webm/.test(tipo || "") ? "webm" : /quicktime/.test(tipo || "") ? "mov" : "mp4";
     const key = `videos/${analise_id}/${crypto.randomUUID()}.${ext}`;
     const m = await env.VIDEOS.createMultipartUpload(key, {
