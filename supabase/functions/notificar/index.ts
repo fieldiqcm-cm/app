@@ -1,7 +1,7 @@
 // FieldIQ · avisos (notificações) para o telemóvel dos jogadores.
 // GET  -> devolve a chave pública (o par de chaves é criado aqui na 1.ª vez e fica só no servidor).
 // POST (gestão)  -> envia o aviso para os aparelhos do cliente.
-// POST (jogador) -> {tipo:'pedido'|'mensagem'}: avisa o analista (texto feito aqui, a partir dos dados do servidor).
+// POST (jogador) -> {tipo:'pedido'|'mensagem'|'loja'|'pago'}: avisa o analista (texto feito aqui, a partir dos dados do servidor).
 import webpush from "npm:web-push@3.6.7";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
@@ -58,6 +58,12 @@ Deno.serve(async (req) => {
         titulo = "Nova mensagem · " + nome;
         texto = String(m?.texto ?? "").slice(0, 120);
         abrir = "./gestao#duvidas";
+      } else if (corpo.tipo === "loja" || corpo.tipo === "pago") {
+        const { data: pd } = await admin.from("pedidos").select("ref,produto,valor,estado").eq("id", corpo.pedido_id ?? "").eq("cliente_id", c.id).maybeSingle();
+        if (!pd) return resposta({ erro: "pedido não encontrado" }, 404);
+        titulo = (corpo.tipo === "loja" ? "Novo pedido na loja · " : "Diz que já pagou · ") + nome;
+        texto = pd.produto + " · " + String(pd.valor).replace(".", ",") + " € · " + pd.ref;
+        abrir = "./gestao#loja";
       } else return resposta({ erro: "tipo desconhecido" }, 400);
       const { data: gs } = await admin.from("push_gestor").select("*");
       let n = 0;
