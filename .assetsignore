@@ -6,3 +6,4 @@ README.md
 *.sql
 node_modules
 supabase
+worker.js

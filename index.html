@@ -437,6 +437,8 @@ body.em-demo .screen .scroll{padding-top:56px}
 .video .play,.video .dur{z-index:1}
 .video.com-capa::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.45));pointer-events:none}
 .video-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video-wrap video.fiq-vid{position:absolute;inset:0;width:100%;height:100%;background:#000;object-fit:contain}
+.vid-load{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted,#B8B2A4);font-size:13px}
 .dls{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 .dl-acoes{display:flex;gap:6px;margin-left:auto;flex:none}
 .dl-b{height:38px;padding:0 14px;border-radius:99px;border:1px solid var(--line2);background:var(--card2);color:var(--fg);font:800 13px var(--body);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
@@ -2200,7 +2202,36 @@ nav.tabs a{position:relative}
     function ytId(u){ var m = String(u||'').match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{11})/); return m ? m[1] : ''; }
     function https(u){ try { return new URL(u).protocol === 'https:'; } catch(e){ return false; } }
     var podeIncorporar = /github\.io$|fieldiqcm\.com$|pages\.dev$|workers\.dev$|^localhost$/.test(location.hostname);
+    function driveId(u){ var m = String(u||'').match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:.*&)?id=)([A-Za-z0-9_-]{20,})/); return m ? m[1] : ''; }
+    var VCACHE = {};
+    function tocarR2(inicio){
+      var w = document.getElementById('yt-wrap'), v = document.getElementById('fiq-vid');
+      if (v){ if (inicio != null) v.currentTime = inicio; v.play().catch(function(){}); w.scrollIntoView({behavior:'smooth', block:'center'}); return; }
+      var an = ANALISE, c = VCACHE[an];
+      var p = c && c.ate > Date.now() / 1000 + 300 ? Promise.resolve(c.url) : window.__fiqVideoUrl(an).then(function(r){ VCACHE[an] = r; return r.url; });
+      w.innerHTML = '<div class="vid-load">A abrir o vídeo…</div>';
+      p.then(function(url){
+        if (ANALISE !== an) return;
+        w.innerHTML = '<video id="fiq-vid" class="fiq-vid" controls playsinline preload="metadata" controlslist="nodownload noplaybackrate" disablepictureinpicture></video>';
+        var vv = document.getElementById('fiq-vid'); vv.src = url;
+        vv.addEventListener('loadedmetadata', function(){ if (inicio) vv.currentTime = inicio; vv.play().catch(function(){}); }, {once: true});
+        vv.addEventListener('timeupdate', function(){ agora = vv.currentTime; if (window.__fiqVideo) window.__fiqVideo(agora, vv.duration || 0); if (Math.abs(agora - ultimoGuardado) > 4){ ultimoGuardado = agora; try { localStorage.setItem(CH_T, String(Math.floor(agora))); } catch(e){} } });
+        vv.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+        vv.addEventListener('error', function(){ toast('O vídeo não abriu. Confirma a rede e tenta outra vez.'); });
+      }).catch(function(){ w.innerHTML = YT_HTML; toast('Não foi possível abrir o vídeo. Confirma a rede e tenta outra vez.'); });
+      w.scrollIntoView({behavior:'smooth', block:'center'});
+    }
     function tocar(inicio){
+      if (dados && dados.vk && window.__fiqVideoUrl){ tocarR2(inicio); return; }
+      var drv = !id && dados ? driveId(dados.yt) : '';
+      if (drv){
+        if (!podeIncorporar){ toast('No protótipo o vídeo só toca na app publicada.'); return; }
+        if (!document.querySelector('#yt-wrap iframe')) document.getElementById('yt-wrap').innerHTML = '<iframe src="https://drive.google.com/file/d/' + drv + '/preview" title="Os teus lances" allow="autoplay; fullscreen" allowfullscreen></iframe>';
+        if (inicio) toast('Neste vídeo, avança até ' + Math.floor(inicio/60) + ':' + String(inicio%60).padStart(2,'0') + '.');
+        if (window.__fiqVideo) window.__fiqVideo(0, 0);
+        document.getElementById('yt-wrap').scrollIntoView({behavior:'smooth', block:'center'});
+        return;
+      }
       if (!id){ toast(inicio ? 'No vídeo, este momento começa em ' + Math.floor(inicio/60) + ':' + String(inicio%60).padStart(2,'0') + '.' : 'Aqui abre o vídeo dos teus lances (YouTube não listado).'); return; }
       if (!podeIncorporar){ toast('No protótipo o vídeo só toca na app publicada.'); return; }
       document.getElementById('yt-wrap').innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1&modestbranding=1' + (inicio ? '&start=' + inicio : '') + '" title="Os teus lances" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
@@ -2226,7 +2257,7 @@ nav.tabs a{position:relative}
     var tocarOrig = tocar;
     tocar = function(inicio){
       tocarOrig(inicio);
-      var f = document.querySelector('#yt-wrap iframe'); if (!f) return;
+      var f = document.querySelector('#yt-wrap iframe'); if (!f || !/youtube/.test(f.src) || /enablejsapi/.test(f.src)) return;
       f.src = f.src + '&enablejsapi=1&origin=' + encodeURIComponent(location.origin);
       f.addEventListener('load', function(){ try { f.contentWindow.postMessage(JSON.stringify({event:'listening', id:'fiq', channel:'widget'}), '*'); } catch(e){} });
     };
@@ -2869,7 +2900,7 @@ nav.tabs a{position:relative}
       var links = {}, chaves = [];
       ans.forEach(function(a){
         var k = 'r|' + a.id; chaves.push(k);
-        links[k] = {nome: a.nome || '', jogo: a.jogo || '', data: a.data_txt || '', estado: a.estado, yt: a.yt || '', dl: a.link_video || '', ate: a.links_ate || '', pdfNome: a.pdf_nome || '', pdfTam: a.pdf_tamanho || 0, pdfPath: a.pdf_path || '', notas: a.notas || [], momentos: a.momentos || [], nivel: a.nivel || cli.pack};
+        links[k] = {nome: a.nome || '', jogo: a.jogo || '', data: a.data_txt || '', estado: a.estado, yt: a.yt || '', dl: a.link_video || '', ate: a.links_ate || '', pdfNome: a.pdf_nome || '', pdfTam: a.pdf_tamanho || 0, pdfPath: a.pdf_path || '', vk: a.video_key ? 1 : 0, notas: a.notas || [], momentos: a.momentos || [], nivel: a.nivel || cli.pack};
       });
       links['r|vazio'] = {nome: 'A tua primeira análise', jogo: 'Está a caminho', data: '', estado: 'Recebido', notas: [], momentos: []};
       R['fiq-demo-links'] = JSON.stringify(links);
@@ -3063,6 +3094,14 @@ nav.tabs a{position:relative}
         });
       });
     })();
+    // vídeo da análise guardado no servidor FieldIQ (R2): pede um link que expira, só para as análises deste jogador
+    window.__fiqVideoUrl = function(k){
+      var id = String(k || '').replace(/^r\|/, '');
+      return SB.auth.getSession().then(function(r){
+        var tk = r && r.data && r.data.session && r.data.session.access_token; if (!tk) throw new Error('sem sessão');
+        return fetch('/api/v/token', {method: 'POST', headers: {'Content-Type': 'application/json', Authorization: 'Bearer ' + tk}, body: JSON.stringify({analise_id: id})});
+      }).then(function(x){ if (!x.ok) throw new Error('erro ' + x.status); return x.json(); });
+    };
     window.__fiqPdf = function(path){
       return SB.storage.from('relatorios').download(path).then(function(r){ if (r.error) throw r.error; return r.data; });
     };

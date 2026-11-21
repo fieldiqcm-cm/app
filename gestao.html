@@ -205,6 +205,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
 .an-env{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;flex-shrink:0}.an-env.ok{background:rgba(143,137,124,.18);color:var(--dim,#8F897C)}.an-env.vi{background:rgba(201,164,83,.18);color:#B8913F}.an-env.no{background:rgba(192,80,63,.14);color:#C0503F}.an-dir{display:flex;align-items:center;gap:6px;flex-shrink:0}.an-lixo{display:grid;place-items:center;width:40px;height:40px;margin:-6px -6px -6px 0;border:0;border-radius:10px;background:transparent;color:var(--dim,#8F897C);cursor:pointer}.an-lixo:hover,.an-lixo:focus-visible{color:#C0503F;background:rgba(192,80,63,.12)}.del-conf{display:grid;gap:10px;border:1.5px solid #C0503F;border-radius:14px;padding:12px;font-size:13.5px;line-height:1.45}.btn.del-sim{background:#C0503F;border:1.5px solid #C0503F;color:#fff}.gd-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:8px}.gd-row .btn{width:100%;white-space:nowrap}@media (max-width:440px){.gd-row .gd-cli{display:none}}
 .pdf-it,.pdf-up{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line2,#CFC4B3);border-radius:12px;flex-wrap:wrap}
 .pdf-up{border-style:dashed;cursor:pointer}
+.vd-it{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line2,#CFC4B3);border-radius:12px;flex-wrap:wrap}.vd-ic{width:38px;height:44px;border-radius:6px;background:#1B1815;color:#E2C27A;display:grid;place-items:center;flex:none}.vd-nm{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vd-bar{display:block;height:6px;border-radius:9px;background:rgba(143,137,124,.25);margin:6px 0 4px;overflow:hidden}.vd-bar i{display:block;height:100%;background:#C9A453;border-radius:9px;transition:width .3s}
 .pdf-up:hover{border-color:var(--cobre,#8A4F24)}
 .pdf-ic{width:38px;height:44px;border-radius:6px;background:#8A4F24;color:#fff;font:800 11px/44px Mulish,sans-serif;text-align:center;flex:none;letter-spacing:.5px}
 .nt-box{border:1px solid var(--line2,#CFC4B3);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
@@ -431,7 +432,8 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   function ytId(u){ var m=String(u||'').match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{11})/); return m?m[1]:''; }
   var HOSTS={'wetransfer.com':'WeTransfer','we.tl':'WeTransfer','transfer.it':'transfer.it','drive.google.com':'Google Drive','docs.google.com':'Google Drive','mega.nz':'MEGA','dropbox.com':'Dropbox'};
   function servico(u){ try{ var x=new URL(u); if(x.protocol!=='https:') return ''; var h=x.hostname.replace(/^www\./,''); for(var k in HOSTS){ if(h===k||h.slice(-k.length-1)==='.'+k) return HOSTS[k]; } }catch(e){} return ''; }
-  function validaLink(tipo,v){ v=v.trim(); if(!v) return ['','']; if(tipo==='yt') return ytId(v)?['ok','Vídeo do YouTube reconhecido']:['bad','Não parece um link do YouTube']; var sv=servico(v); return sv?['ok','Link '+sv+' reconhecido']:['bad','Usa um link https do transfer.it, WeTransfer ou Google Drive']; }
+  function driveId(u){ var m=String(u||'').match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:.*&)?id=)([A-Za-z0-9_-]{20,})/); return m?m[1]:''; }
+  function validaLink(tipo,v){ v=v.trim(); if(!v) return ['','']; if(tipo==='yt') return ytId(v)?['ok','Vídeo do YouTube reconhecido']:driveId(v)?['ok','Vídeo do Google Drive reconhecido · partilha como “Qualquer pessoa com o link”']:['bad','Usa um link do YouTube ou do Google Drive']; var sv=servico(v); return sv?['ok','Link '+sv+' reconhecido']:['bad','Usa um link https do transfer.it, WeTransfer ou Google Drive']; }
   function campoLink(tipo,i,val,rot,ph){ var r=validaLink(tipo,val||''); return '<div class="campo"><label class="l" for="'+tipo+'-'+i+'">'+rot+'</label><input class="input" id="'+tipo+'-'+i+'" data-lk="'+tipo+':'+i+'" value="'+esc(val||'')+'" inputmode="url" placeholder="'+ph+'"><span class="vl '+r[0]+'" data-vl="'+tipo+':'+i+'">'+r[1]+'</span></div>'; }
   // PDFs anexados: no protótipo ficam neste aparelho (IndexedDB); na versão real, no Supabase Storage
   function fiqIdb(){ return new Promise(function(res, rej){ var r = indexedDB.open('fiq-demo', 1); r.onupgradeneeded = function(){ r.result.createObjectStore('pdfs'); }; r.onsuccess = function(){ res(r.result); }; r.onerror = function(){ rej(r.error); }; }); }
@@ -461,6 +463,19 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       '<div class="nt-cols"><div><div class="nt-tit">Ofensivo</div>'+nomes.slice(0,4).map(function(n,k){return linha(n,k);}).join('')+'</div><div><div class="nt-tit">Defensivo</div>'+nomes.slice(4).map(function(n,k){return linha(n,k+4);}).join('')+'</div></div></div>';
   }
   function tamTxt(b){ b=+b||0; return b>=1048576 ? (b/1048576).toFixed(1).replace('.',',')+' MB' : Math.max(1,Math.round(b/1024))+' KB'; }
+  // ===== Vídeo da análise carregado para o servidor (Cloudflare R2) =====
+  var UPV={}; // análise id -> {pct, nome}
+  function temVideo(a){ return !!(a.vk||a.yt); }
+  function videoCampo(c,a,i){
+    var up=UPV[a.id], h='<div class="campo" id="vdc-'+i+'"><span class="l">Vídeo da análise</span>';
+    if(up) h+='<div class="vd-it"><span class="vd-ic">'+VD_SVG+'</span><span style="flex:1 1 140px;min-width:0"><strong class="vd-nm">'+esc(up.nome)+'</strong><span class="vd-bar"><i style="width:'+up.pct+'%"></i></span><span class="sub" style="margin:0">A carregar… '+up.pct+'% · podes continuar a trabalhar</span></span></div>';
+    else if(a.vk) h+='<div class="vd-it"><span class="vd-ic">'+VD_SVG+'</span><span style="flex:1 1 140px;min-width:0"><strong class="vd-nm">'+esc(a.vnome||'Vídeo da análise')+'</strong><span class="sub" style="margin:0">'+tamTxt(a.vtam)+' · no leitor FieldIQ, com momentos</span></span><button class="btn ghost small" type="button" data-vdver="'+i+'">Ver</button><label class="btn ghost small" for="vf-'+i+'">Trocar</label><button class="btn ghost small" type="button" data-vdrm="'+i+'">Tirar</button></div>';
+    else if(window.__fiqVideoUp) h+='<label class="pdf-up" for="vf-'+i+'"><span class="vd-ic">'+VD_SVG+'</span><span><strong>Carregar vídeo</strong><span class="sub" style="margin:0;display:block">MP4, de preferência 720p · o jogador vê-o na app, com os momentos</span></span></label>';
+    else h+='<div class="it"><span>Carregar vídeos fica disponível na app real (no exemplo, usa um link).</span></div>';
+    return h+'<input type="file" id="vf-'+i+'" accept="video/mp4,video/quicktime,video/webm,video/*" data-vdup="'+i+'" hidden></div>';
+  }
+  var VD_SVG='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M17 10l4-2.5v9L17 14z"/></svg>';
+  function vdRefresca(c,a){ var i=FICHA&&FICHA.cli===c.id?FICHA.ids.indexOf(a.id):-1; var el=i>=0&&document.getElementById('vdc-'+i); if(el) el.outerHTML=videoCampo(c,a,i); }
   function pdfCampo(c,a,i){
     return '<div class="campo" id="pdfc-'+i+'"><span class="l">Relatório PDF · ficheiro anexado</span>'+
       (a.pdfNome
@@ -520,12 +535,12 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       (window.__fiqAvisosG ? window.__fiqAvisosG() : '')+
       '<h2>A fazer</h2><div class="lista">';
     pr.forEach(function(v){ var c=cli(v.cli); h+='<a class="card cli" href="#conversa-'+conversas.indexOf(v)+'"><span class="dot"></span><span style="flex:1"><span class="nm">Responder a '+esc(nomeDe(c))+'</span><span class="ds" style="display:block">"'+esc(v.msgs[v.msgs.length-1].t)+'"</span></span></a>'; });
-    curso.forEach(function(x){ var falt=[]; if(!x.a.yt) falt.push('vídeo (YouTube)'); if(!x.a.pdfNome&&!x.a.pdf) falt.push('relatório (PDF)');
+    curso.forEach(function(x){ var falt=[]; if(!temVideo(x.a)) falt.push('vídeo'); if(!x.a.pdfNome&&!x.a.pdf) falt.push('relatório (PDF)');
       h+='<a class="card cli" href="#cliente-'+x.c.id+'">'+avHtml(x.c,'width:34px;height:34px;font-size:12px')+'<span style="flex:1"><span class="nm">'+esc(x.a.nome||x.a.jogo)+'</span><span class="ds" style="display:block">'+x.a.estado+(falt.length?' · falta pôr o link do '+falt.join(' e do '):'')+'</span></span></a>'; });
     clientes.forEach(function(c){ c.analises.forEach(function(a){
       if(a.estado!=='Concluída'||!a.avisado) return; var dias=Math.floor((Date.now()-new Date(a.avisado))/864e5), r=resumoAn(c,a), txt='';
       if(!r.visitas&&dias>=2) txt=esc(nomeDe(c))+' ainda não viu a '+esc(a.nome||a.jogo||'análise')+'</span><span class="ds" style="display:block">Enviada há '+dias+' dias · manda-lhe uma mensagem';
-      else if(r.visitas&&a.yt&&dias>=3&&(!r.vid||(r.vid.pct!=null&&r.vid.pct<30))) txt=esc(nomeDe(c))+' viu só '+(r.vid&&r.vid.pct!=null?r.vid.pct:0)+'% do vídeo</span><span class="ds" style="display:block">'+esc(a.nome||a.jogo||'')+' · enviada há '+dias+' dias';
+      else if(r.visitas&&temVideo(a)&&dias>=3&&(!r.vid||(r.vid.pct!=null&&r.vid.pct<30))) txt=esc(nomeDe(c))+' viu só '+(r.vid&&r.vid.pct!=null?r.vid.pct:0)+'% do vídeo</span><span class="ds" style="display:block">'+esc(a.nome||a.jogo||'')+' · enviada há '+dias+' dias';
       if(txt) h+='<a class="card cli" href="#cliente-'+c.id+'"><span class="pill p-warn">Por ver</span><span style="flex:1"><span class="nm">'+txt+'</span></span></a>';
     }); });
     clientes.filter(function(c){return !lerPerfil(c);}).forEach(function(c){ h+='<a class="card cli" href="#cliente-'+c.id+'"><span class="pill p-warn">Perfil</span><span style="flex:1"><span class="nm">'+esc(nomeDe(c))+' ainda não completou o perfil</span><span class="ds" style="display:block">'+esc(c.acesso)+'</span></span></a>'; });
@@ -570,7 +585,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     // análises (o que mais se usa)
     var an='<details class="dica"><summary>Antes de colar o link do YouTube</summary><ol><li>Visibilidade: <strong>Não listado</strong>.</li><li>Em Mais opções: <strong>Permitir incorporação</strong> ligado.</li><li>Comentários desligados.</li><li>Canal com o nome da marca, nunca o teu.</li></ol></details>';
     c.analises.forEach(function(a,i){
-      var pronto=a.yt&&(a.pdfNome||a.pdf);
+      var pronto=temVideo(a)&&(a.pdfNome||a.pdf);
       an+='<details class="an" data-anid="'+esc(a.id)+'"'+((a.estado!=='Concluída'||ANABERTA[c.id+'|'+a.id])?' open':'')+'><summary class="between"><span style="min-width:0"><span style="font-weight:800;display:block">'+esc(a.nome||a.jogo||'Nova análise')+'</span><span class="sub" style="font-weight:600">'+esc([ePack(c)?'':(a.nivel||''),a.jogo,a.data].filter(Boolean).join(' · '))+(!ePack(c)&&a.preco>0&&!(a.pago>=a.preco)?' · <span style="color:var(--bad);font-weight:800">por pagar</span>':'')+'</span></span><span class="an-dir">'+atvIcons(c,a)+selo(a)+'<span class="pill '+(a.estado==='Concluída'?'p-ok':(pronto?'p-soft':'p-warn'))+'">'+a.estado+'</span><button class="an-lixo" type="button" data-apagar="'+i+'" aria-label="Apagar '+esc(a.nome||'esta sessão')+'" title="Apagar sessão"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg></button></span></summary><div class="an-corpo">'+
         (APAGAR===c.id+'|'+a.id
           ? '<div class="del-conf" role="alert"><span>Apagar <strong>'+esc(a.nome||'esta sessão')+'</strong>'+(a.jogo?' ('+esc(a.jogo)+')':'')+'? Sai a sessão toda: notas, links e PDF. Não dá para desfazer.</span><div class="gd-row"><button class="btn ghost small" type="button" data-apagar-nao="1">Cancelar</button><button class="btn small del-sim" type="button" data-apagar-sim="'+i+'">Apagar sessão</button></div></div>'
@@ -583,7 +598,8 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
             '<div class="grid2"><div class="campo"><label class="l" for="pr-'+i+'">Valor (€)</label><input class="input" id="pr-'+i+'" type="number" min="0" value="'+(a.preco!=null?a.preco:'')+'"></div>'+
             '<div class="campo"><label class="l" for="pg-'+i+'">Pagamento</label><select class="input" id="pg-'+i+'">'+['Por pagar','Pago · MB WAY','Pago · Multibanco','Pago · Numerário','Pago · Transferência','Oferta'].map(function(o){return '<option'+((a.pagoInfo||'Por pagar')===o?' selected':'')+'>'+o+'</option>';}).join('')+'</select></div></div>')+
         '<label class="l" for="est-'+i+'">Estado</label><select class="input" id="est-'+i+'" data-estado="'+i+'">'+ESTADOS.map(function(s2){return '<option'+(s2===a.estado?' selected':'')+'>'+s2+'</option>';}).join('')+'</select>'+
-        campoLink('yt',i,a.yt,'Vídeo · link do YouTube (não listado)','https://youtu.be/…')+
+        videoCampo(c,a,i)+
+        campoLink('yt',i,a.yt,(a.vk?'Ou, em vez do vídeo carregado, um link':'Ou um link')+' · YouTube ou Google Drive','https://drive.google.com/… ou https://youtu.be/…')+
         campoLink('dl',i,a.dl,'Descarregar vídeo · link transfer.it, WeTransfer ou Drive','https://transfer.it/…')+
         pdfCampo(c,a,i)+
         '<div class="it nt-aviso"><span>Notas da carta desta sessão: separador <strong>Pontos a avaliar</strong>.</span><button class="btn ghost small" type="button" data-atrsel="'+i+'" style="flex:none">Pôr notas</button></div>'+
@@ -736,7 +752,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     var r=resumoAn(c,a), nm=(a.momentos||[]).filter(function(m){ return m&&(m.v||m.a); }).length, nv=Object.keys(r.mom).length;
     var tv=r.vid?('Vídeo visto até '+atvT(r.vid.seg)+(r.vid.pct!=null?' ('+r.vid.pct+'%)':'')):'Vídeo ainda não visto';
     var tm='Momentos vistos: '+nv+' de '+nm, tp=r.pdf?'Relatório PDF aberto':'Relatório PDF ainda não aberto';
-    var hh=(a.yt?aiHtml(!!r.vid,tv,AI_PLAY):'')+(nm?aiHtml(nv>0,tm,AI_MOM):'')+((a.pdfNome||a.pdf)?aiHtml(!!r.pdf,tp,AI_PDF):''); return hh?'<span class="atv-ic" data-anid="'+esc(a.id)+'">'+hh+'</span>':'';
+    var hh=(temVideo(a)?aiHtml(!!r.vid,tv,AI_PLAY):'')+(nm?aiHtml(nv>0,tm,AI_MOM):'')+((a.pdfNome||a.pdf)?aiHtml(!!r.pdf,tp,AI_PDF):''); return hh?'<span class="atv-ic" data-anid="'+esc(a.id)+'">'+hh+'</span>':'';
   }
   function atvBox(c,a){
     if(a.estado!=='Concluída') return '';
@@ -744,7 +760,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     function linha(on,tit,txt,extra){ return '<div class="atv-l"><span class="atv-st'+(on?' on':'')+'" aria-hidden="true">'+(on?'✓':'—')+'</span><span class="atv-tx"><b>'+tit+'</b> '+txt+(extra||'')+'</span></div>'; }
     var h='<div class="atv-box" data-anid="'+esc(a.id)+'"><div class="atv-hd"><b>O que o jogador viu</b><span>'+(ua?'Última vez na app · '+dataCurta(ua):'Ainda sem atividade na app')+'</span></div>';
     h+=linha(r.visitas>0,'Análise',r.visitas?'aberta '+r.visitas+(r.visitas===1?' vez':' vezes')+' · última '+dataCurta(r.ultima):'ainda não foi aberta');
-    if(a.yt){ var bar=''; if(r.vid&&r.vid.pct!=null) bar='<span class="atv-bar"><i style="width:'+Math.max(3,r.vid.pct)+'%"></i></span>';
+    if(temVideo(a)){ var bar=''; if(r.vid&&r.vid.pct!=null) bar='<span class="atv-bar"><i style="width:'+Math.max(3,r.vid.pct)+'%"></i></span>';
       h+=linha(!!r.vid,'Vídeo',r.vid?'visto até '+atvT(r.vid.seg)+(r.vid.dur?' de '+atvT(r.vid.dur):'')+(r.vid.pct!=null?' ('+r.vid.pct+'%)':''):'ainda não carregou no play',bar); }
     if(ms.length){ var nv=ms.filter(function(m){ return r.mom[tempoNorm(m.v)||m.v]; }).length;
       h+=linha(nv>0,'Momentos',nv+' de '+ms.length+' vistos','<span class="atv-mo">'+ms.map(function(m){ var on=!!r.mom[tempoNorm(m.v)||m.v]; return '<span class="'+(on?'on':'')+'">'+(on?'✓ ':'— ')+esc(tempoNorm(m.v)||m.v||'')+' '+esc(m.a||'')+'</span>'; }).join('')+'</span>'); }
@@ -873,6 +889,8 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     if(t.dataset.pdfrm!==undefined && c){ var ri=+t.dataset.pdfrm, ra=anEcra(c,ri); if(window.__fiqPdfRm) window.__fiqPdfRm(c,ra); else pdfApagar(c.id+'|'+ra.id).catch(function(){}); ra.pdfNome=''; ra.pdfTam=0; document.getElementById('pdfc-'+ri).outerHTML=pdfCampo(c,ra,ri); toast('PDF tirado. Carrega em Guardar para atualizar o cliente.'); return; }
     if(t.dataset.moadd!==undefined && c){ var mi=+t.dataset.moadd, man=anEcra(c,mi); ANABERTA[c.id+'|'+man.id]=1; stashCampos(mi,man); stashNotas(mi,man,c); man.momentos=lerMomentos(mi); man.momentos.push({v:'',t:'bom',a:'',d:''}); SEM_ESCRITO=true; render(); var rs=document.querySelectorAll('[data-mo="'+mi+'"] .mo-v'); if(rs.length) rs[rs.length-1].focus(); return; }
     if(t.dataset.morm && c){ var mr=t.dataset.morm.split(':'), man2=anEcra(c,mr[0]); ANABERTA[c.id+'|'+man2.id]=1; stashCampos(+mr[0],man2); stashNotas(+mr[0],man2,c); man2.momentos=lerMomentos(+mr[0]); man2.momentos.splice(+mr[1],1); SEM_ESCRITO=true; render(); return; }
+    if(t.dataset.vdver!==undefined && c){ var wa=anEcra(c,t.dataset.vdver); if(wa&&window.__fiqVideoUrl) window.__fiqVideoUrl(wa).then(function(u){ var w=window.open(u,'_blank'); if(!w) location.href=u; }).catch(function(){ toast('Não foi possível abrir o vídeo.'); }); return; }
+    if(t.dataset.vdrm!==undefined && c){ var ra2=anEcra(c,t.dataset.vdrm); if(!ra2) return; window.__fiqVideoRm(ra2).then(function(){ vdRefresca(c,ra2); toast('Vídeo retirado.'); }).catch(function(){ toast('Não foi possível tirar o vídeo. Tenta outra vez.'); }); return; }
     if(t.dataset.apagar!==undefined && c){ e.preventDefault(); var xa=anEcra(c,t.dataset.apagar); if(xa){ APAGAR=c.id+'|'+xa.id; ANABERTA[APAGAR]=1; render(); var cf=V.querySelector('.del-conf'); if(cf){ var dd=cf.closest('details'); if(dd) dd.open=true; cf.scrollIntoView({behavior:'smooth',block:'center'}); } } return; }
     if(t.dataset.apagarNao!==undefined){ APAGAR=''; render(); return; }
     if(t.dataset.apagarSim!==undefined && c){ var xi=+t.dataset.apagarSim, xb=anEcra(c,xi); APAGAR=''; if(!xb){ render(); return; } xi=c.analises.indexOf(xb);
@@ -932,6 +950,15 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       if(!(f.type==='application/pdf'||/\.pdf$/i.test(f.name))){ toast('Escolhe um ficheiro PDF.'); t.value=''; return; }
       if(f.size>10*1048576){ toast('O PDF tem mais de 10 MB. Exporta-o mais leve e volta a tentar.'); t.value=''; return; }
       (window.__fiqPdfUp ? window.__fiqPdfUp(c,ua,f) : pdfGravar(c.id+'|'+ua.id, f)).then(function(){ ua.pdfNome=f.name; ua.pdfTam=f.size; document.getElementById('pdfc-'+ui).outerHTML=pdfCampo(c,ua,ui); toast('PDF anexado. Carrega em Guardar para avisar o cliente.'); }).catch(function(){ toast('Não foi possível anexar neste browser.'); });
+      return; }
+    if(t.dataset.vdup!==undefined && c){ var vi=+t.dataset.vdup, va=anEcra(c,vi), vfile=t.files&&t.files[0]; t.value=''; if(!vfile||!va) return;
+      if(!/^video\//.test(vfile.type)&&!/\.(mp4|mov|m4v|webm)$/i.test(vfile.name)){ toast('Escolhe um ficheiro de vídeo (MP4).'); return; }
+      if(vfile.size>4*1073741824){ toast('O vídeo tem mais de 4 GB. Exporta-o em 720p e volta a tentar.'); return; }
+      if(UPV[va.id]){ toast('Este vídeo ainda está a carregar.'); return; }
+      UPV[va.id]={pct:0,nome:vfile.name}; vdRefresca(c,va);
+      window.__fiqVideoUp(c,va,vfile,function(p){ UPV[va.id].pct=p; var el=document.querySelector('#vdc-'+(FICHA&&FICHA.cli===c.id?FICHA.ids.indexOf(va.id):-1)+' .vd-bar i'); if(el){ el.style.width=p+'%'; el.parentNode.nextSibling.textContent='A carregar… '+p+'% · podes continuar a trabalhar'; } })
+        .then(function(){ delete UPV[va.id]; vdRefresca(c,va); toast('Vídeo carregado. O jogador vê-o na app com os momentos.'); })
+        .catch(function(err){ delete UPV[va.id]; vdRefresca(c,va); toast('O vídeo não carregou'+(err&&err.message?' ('+err.message+')':'')+'. Tenta outra vez.'); });
       return; }
     if(t.dataset.estado!==undefined && c){ var ea=anEcra(c,t.dataset.estado); ea.estado=t.value; if(window.__fiqGravar) window.__fiqGravar(); if(!avisarPronta(c,ea)) toast('Estado: '+t.value+'.'); }
 
@@ -993,7 +1020,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
     window.__fiqCodigo = function(){ var A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', s = '', b = new Uint32Array(6); crypto.getRandomValues(b); for (var i = 0; i < 6; i++) s += A[b[i] % A.length]; return s; };
 
     function msgDe(m){ return {id: m.id, de: m.autor === 'cliente' ? 'cli' : 'eu', sb: m.sobre || (m.autor === 'cliente' ? 'Geral' : 'Analista'), t: m.texto, q: quando(m.criado_em), ts: Date.parse(m.criado_em)}; }
-    function anDe(a){ return {id: a.id, nome: a.nome || '', jogo: a.jogo || '', data: a.data_txt || '', estado: a.estado, nivel: a.nivel || '', preco: +a.preco || 0, pago: +a.pago || 0, pagoInfo: a.pago_info || 'Por pagar', yt: a.yt || '', dl: a.link_video || '', ate: a.links_ate || '', pdf: '', pdfNome: a.pdf_nome || '', pdfTam: a.pdf_tamanho || 0, pdfPath: a.pdf_path || '', notas: a.notas || [], momentos: a.momentos || [], avisado: a.avisado_em || (a.conteudo || {}).avisado || '', vista: a.vista_em || '', pedido: (a.conteudo || {}).pedido || null}; }
+    function anDe(a){ return {id: a.id, nome: a.nome || '', jogo: a.jogo || '', data: a.data_txt || '', estado: a.estado, nivel: a.nivel || '', preco: +a.preco || 0, pago: +a.pago || 0, pagoInfo: a.pago_info || 'Por pagar', yt: a.yt || '', dl: a.link_video || '', ate: a.links_ate || '', pdf: '', pdfNome: a.pdf_nome || '', pdfTam: a.pdf_tamanho || 0, pdfPath: a.pdf_path || '', vk: a.video_key || '', vnome: a.video_nome || '', vtam: a.video_tamanho || 0, notas: a.notas || [], momentos: a.momentos || [], avisado: a.avisado_em || (a.conteudo || {}).avisado || '', vista: a.vista_em || '', pedido: (a.conteudo || {}).pedido || null}; }
     function linhaCli(c){ return {id: c.id, email: String(c.email).toLowerCase(), telefone: c.tel || null, formato: c.formato, pack: c.pack, total: +c.total || 1, feitas: +c.feitas || 0, preco: +c.preco || 0, codigo: c.codigo || null, atr: c.atr || null, prox_sessao: proxSessao(c) || null, pos: c.pos || null, extra: {nome: c.nome || '', manter: c.manter || [], melhorar: c.melhorar || [], comp: c.comp || [], stats: c.stats || {}}}; }
     function linhaAn(c, a){ return {id: a.id, cliente_id: c.id, nome: a.nome || 'Sessão', jogo: a.jogo || null, data_txt: a.data || null, estado: a.estado || 'Recebido', nivel: a.nivel || null, preco: +a.preco || 0, pago: +a.pago || 0, pago_info: a.pagoInfo || 'Por pagar', yt: a.yt || null, link_video: a.dl || null, links_ate: a.ate || null, pdf_path: a.pdfPath || null, pdf_nome: a.pdfNome || null, pdf_tamanho: a.pdfTam || null, momentos: a.momentos || [], notas: a.notas || [], conteudo: Object.assign({}, a.pedido ? {pedido: a.pedido} : {})}; }
     function linhasPag(c){ return (c.pagamentos || []).map(function(p){ if (!p._data) p._data = hojeISO(); return {cliente_id: c.id, data: p._data, valor: +p.v || 0, metodo: p.m || null}; }); }
@@ -1120,8 +1147,51 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
         if (r.error) throw r.error; c.recCodigo = cod; c.recAte = ate; c.recPedido = null;
       });
     };
+    // ----- vídeos no R2 (servidor da app em /api/v) -----
+    function apiV(caminho, opt){
+      return SB.auth.getSession().then(function(r){
+        var tk = r && r.data && r.data.session && r.data.session.access_token; if (!tk) throw new Error('sem sessão');
+        opt = opt || {}; opt.headers = Object.assign({Authorization: 'Bearer ' + tk}, opt.headers || {});
+        return fetch('/api/v/' + caminho, opt).then(function(x){ return x.json().catch(function(){ return {}; }).then(function(j){ if (!x.ok) throw new Error(j.erro || ('erro ' + x.status)); return j; }); });
+      });
+    }
+    var PARTE = 32 * 1048576;
+    window.__fiqVideoUp = function(c, a, file, prog){
+      var antigo = a.vk, ini;
+      return apiV('up/start', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({analise_id: a.id, tipo: file.type || 'video/mp4', nome: file.name})}).then(function(r){
+        ini = r; var n = Math.max(1, Math.ceil(file.size / PARTE)), partes = [], k = 0;
+        function proxima(){
+          if (k >= n) return apiV('up/end', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({key: ini.key, uploadId: ini.uploadId, parts: partes})});
+          var pedaco = file.slice(k * PARTE, Math.min(file.size, (k + 1) * PARTE)), num = k + 1, tentativas = 0;
+          function envia(){
+            return apiV('up/part?key=' + encodeURIComponent(ini.key) + '&uploadId=' + encodeURIComponent(ini.uploadId) + '&n=' + num, {method: 'PUT', body: pedaco})
+              .catch(function(e){ if (++tentativas < 3) return new Promise(function(ok){ setTimeout(ok, 1500 * tentativas); }).then(envia); throw e; });
+          }
+          return envia().then(function(p){ partes.push({partNumber: p.partNumber, etag: p.etag}); k++; prog(Math.round(k / n * 100)); return proxima(); });
+        }
+        prog(1); return proxima();
+      }).then(function(fim){
+        var dados = {video_key: fim.key, video_nome: file.name, video_tamanho: file.size};
+        return SB.from('analises').update(dados).eq('id', a.id).then(function(r){ if (r.error) throw r.error;
+          a.vk = fim.key; a.vnome = file.name; a.vtam = file.size;
+          if (antigo && antigo !== fim.key) apiV('del', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({key: antigo})}).catch(function(){});
+        });
+      }).catch(function(e){
+        if (ini) apiV('up/abort', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({key: ini.key, uploadId: ini.uploadId})}).catch(function(){});
+        throw e;
+      });
+    };
+    window.__fiqVideoRm = function(a){
+      var k = a.vk; if (!k) return Promise.resolve();
+      return SB.from('analises').update({video_key: null, video_nome: null, video_tamanho: null}).eq('id', a.id).then(function(r){ if (r.error) throw r.error;
+        a.vk = ''; a.vnome = ''; a.vtam = 0;
+        return apiV('del', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({key: k})}).catch(function(){});
+      });
+    };
+    window.__fiqVideoUrl = function(a){ return apiV('token', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({analise_id: a.id})}).then(function(r){ return r.url; }); };
     window.__fiqApagarAn = function(c, a){
       if (a.pdfPath) SB.storage.from('relatorios').remove([a.pdfPath]).then(function(){});
+      if (a.vk) apiV('del', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({key: a.vk})}).catch(function(){});
       var g = guardados[c.id]; if (g) delete g.an[a.id];
       return SB.from('analises').delete().eq('id', a.id).then(function(r){ if (r.error) throw r.error; });
     };
