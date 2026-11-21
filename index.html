@@ -1435,8 +1435,8 @@ nav.tabs a{position:relative}
       <div class="between"><span class="eyebrow" style="letter-spacing:1.6px">Os teus lances guardados</span><span class="sub" style="margin:0" id="g-n"></span></div>
       <div id="g-lista" style="margin-top:6px"></div>
     </div>
-    <p class="note" id="dl-validade" style="margin:0">O relatório fica sempre aqui na app.</p>
-    <p class="note" style="margin:8px 0 0">O teu analista vê que partes da análise já abriste (vídeo, momentos e relatório), para te poder ajudar melhor.</p>
+    <div class="notas-an"><p class="note" id="dl-validade" style="margin:0">O relatório fica sempre aqui na app.</p>
+    <p class="note" style="margin:6px 0 0">O teu analista vê que partes da análise já abriste (vídeo, momentos e relatório), para te poder ajudar melhor.</p></div>
     <div class="card row" style="padding:12px 14px" hidden>
       <div style="width:40px;height:40px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;color:var(--gold2)">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 14h8M8 17h5"/></svg>
@@ -2397,6 +2397,19 @@ nav.tabs a{position:relative}
       document.getElementById('an-data').textContent = (dados && dados.data) || def.data;
       id = dados ? ytId(dados.yt) : '';
       document.getElementById('yt-wrap').innerHTML = YT_HTML; agora = -1;
+      // capa do vídeo FieldIQ: uma imagem do próprio jogo (criada quando o vídeo foi carregado)
+      if (dados && dados.vk && window.__fiqVideoUrl){
+        var anC = k, du0 = document.querySelector('#yt-btn .dur'); if (du0) du0.textContent = (dados.nome ? dados.nome.split('·')[0].trim() + ' · ' : '') + 'os teus lances';
+        (VCACHE[k] && VCACHE[k].ate > Date.now() / 1000 + 300 ? Promise.resolve(VCACHE[k]) : window.__fiqVideoUrl(k).then(function(r){ VCACHE[k] = r; return r; })).then(function(r){
+          if (ANALISE !== anC || !r || !r.capa) return;
+          var vb2 = document.getElementById('yt-btn'); if (!vb2 || vb2.querySelector('.yt-capa')) return;
+          var bd2 = vb2.querySelector('.board'), im2 = document.createElement('img');
+          im2.className = 'yt-capa'; im2.alt = ''; im2.decoding = 'async';
+          im2.onload = function(){ if (bd2) bd2.style.display = 'none'; vb2.classList.add('com-capa'); };
+          im2.onerror = function(){ im2.remove(); };
+          im2.src = r.capa; vb2.insertBefore(im2, vb2.firstChild);
+        }).catch(function(){});
+      }
       // capa: a miniatura do próprio vídeo (a capa da sessão que puseste no YouTube)
       if (id){
         var vb = document.getElementById('yt-btn'), bd = vb.querySelector('.board'), im = document.createElement('img');

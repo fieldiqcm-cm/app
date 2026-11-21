@@ -469,7 +469,7 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
   function videoCampo(c,a,i){
     var up=UPV[a.id], h='<div class="campo" id="vdc-'+i+'"><span class="l">Vídeo da análise</span>';
     if(up) h+='<div class="vd-it"><span class="vd-ic">'+VD_SVG+'</span><span style="flex:1 1 140px;min-width:0"><strong class="vd-nm">'+esc(up.nome)+'</strong><span class="vd-bar"><i style="width:'+up.pct+'%"></i></span><span class="sub" style="margin:0">A carregar… '+up.pct+'% · podes continuar a trabalhar</span></span></div>';
-    else if(a.vk) h+='<div class="vd-it"><span class="vd-ic">'+VD_SVG+'</span><span style="flex:1 1 140px;min-width:0"><strong class="vd-nm">'+esc(a.vnome||'Vídeo da análise')+'</strong><span class="sub" style="margin:0">'+tamTxt(a.vtam)+' · no leitor FieldIQ, com momentos</span></span><button class="btn ghost small" type="button" data-vdver="'+i+'">Ver</button><label class="btn ghost small" for="vf-'+i+'">Trocar</label><button class="btn ghost small" type="button" data-vdrm="'+i+'">Tirar</button></div>';
+    else if(a.vk){ if(window.__fiqVideoCapa) setTimeout(function(){ window.__fiqVideoCapa(a); },800); h+='<div class="vd-it"><span class="vd-ic">'+VD_SVG+'</span><span style="flex:1 1 140px;min-width:0"><strong class="vd-nm">'+esc(a.vnome||'Vídeo da análise')+'</strong><span class="sub" style="margin:0">'+tamTxt(a.vtam)+' · no leitor FieldIQ, com momentos</span></span><button class="btn ghost small" type="button" data-vdver="'+i+'">Ver</button><label class="btn ghost small" for="vf-'+i+'">Trocar</label><button class="btn ghost small" type="button" data-vdrm="'+i+'">Tirar</button></div>'; }
     else if(window.__fiqVideoUp) h+='<label class="pdf-up" for="vf-'+i+'"><span class="vd-ic">'+VD_SVG+'</span><span><strong>Carregar vídeo</strong><span class="sub" style="margin:0;display:block">MP4, de preferência 720p · o jogador vê-o na app, com os momentos</span></span></label>';
     if(window.__fiqVideoUso&&!up) h+='<span class="sub vd-uso" style="margin:4px 0 0;display:block">'+window.__fiqVideoUso()+'</span>';
     else h+='<div class="it"><span>Carregar vídeos fica disponível na app real (no exemplo, usa um link).</span></div>';
@@ -1157,6 +1157,23 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       });
     }
     var PARTE = 32 * 1048576;
+    // capa do vídeo: uma imagem do próprio jogo (tirada a ~12% do vídeo), mostrada na app antes de carregar no play
+    function capaDoVideo(src){ return new Promise(function(ok){
+      var v = document.createElement('video'), fim = false, url = typeof src === 'string' ? src : URL.createObjectURL(src);
+      function sai(b){ if (fim) return; fim = true; try { if (typeof src !== 'string') URL.revokeObjectURL(url); v.removeAttribute('src'); v.load(); } catch(e){} ok(b || null); }
+      v.muted = true; v.playsInline = true; v.preload = 'auto'; v.crossOrigin = 'anonymous';
+      v.addEventListener('loadedmetadata', function(){ try { v.currentTime = Math.min(Math.max(1, (v.duration || 10) * 0.12), 25); } catch(e){ sai(null); } });
+      v.addEventListener('seeked', function(){ try { var w = Math.min(1280, v.videoWidth || 1280), h = Math.round(w * (v.videoHeight || 720) / (v.videoWidth || 1280)), cv = document.createElement('canvas'); cv.width = w; cv.height = h; cv.getContext('2d').drawImage(v, 0, 0, w, h); cv.toBlob(function(b){ sai(b); }, 'image/jpeg', 0.82); } catch(e){ sai(null); } });
+      v.addEventListener('error', function(){ sai(null); }); setTimeout(function(){ sai(null); }, 15000); v.src = url;
+    }); }
+    function enviaCapa(key, blob){ return blob ? apiV('capa?key=' + encodeURIComponent(key), {method: 'PUT', headers: {'Content-Type': 'image/jpeg'}, body: blob}).catch(function(){}) : Promise.resolve(); }
+    var CAPA_VISTA = {};
+    window.__fiqVideoCapa = function(a){
+      if (!a.vk || CAPA_VISTA[a.vk]) return; CAPA_VISTA[a.vk] = 1;
+      apiV('token', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({analise_id: a.id})}).then(function(r){
+        if (r.capa || !r.url) return; return capaDoVideo(r.url).then(function(b){ return enviaCapa(a.vk, b); });
+      }).catch(function(){});
+    };
     window.__fiqVideoUp = function(c, a, file, prog){
       var antigo = a.vk, ini;
       return apiV('up/start', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({analise_id: a.id, tipo: file.type || 'video/mp4', nome: file.name, tamanho: file.size, substitui: antigo || null})}).then(function(r){
@@ -1174,7 +1191,8 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       }).then(function(fim){
         var dados = {video_key: fim.key, video_nome: file.name, video_tamanho: file.size};
         return SB.from('analises').update(dados).eq('id', a.id).then(function(r){ if (r.error) throw r.error;
-          a.vk = fim.key; a.vnome = file.name; a.vtam = file.size; setTimeout(lerUso, 1500);
+          a.vk = fim.key; a.vnome = file.name; a.vtam = file.size; setTimeout(lerUso, 1500); CAPA_VISTA[fim.key] = 1;
+          capaDoVideo(file).then(function(b){ return enviaCapa(fim.key, b); });
           if (antigo && antigo !== fim.key) apiV('del', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({key: antigo})}).catch(function(){});
         });
       }).catch(function(e){

@@ -57,6 +57,7 @@ async function utilizador(req) {
   quem.set(auth, { u, ate: Date.now() + 120000 });
   return u;
 }
+const capaDe = (key) => String(key).replace(/\.[a-z0-9]+$/i, "") + ".jpg";
 const eGestor = (u) => !!u && String(u.email || "").toLowerCase() === GESTOR;
 async function usado(env) {
   let total = 0, cursor;
@@ -113,8 +114,9 @@ async function api(req, env, url) {
     const l = r.ok ? await r.json() : [];
     const key = l[0] && l[0].video_key;
     if (!key) return json({ erro: "sem vídeo" }, 404);
-    const exp = Math.floor(Date.now() / 1000) + VALIDADE;
-    return json({ url: `/api/v/s/${encodeURIComponent(key)}?e=${exp}&s=${await assinar(env, key, exp)}`, ate: exp });
+    const exp = Math.floor(Date.now() / 1000) + VALIDADE, ck = capaDe(key);
+    const capa = (await env.VIDEOS.head(ck)) ? `/api/v/s/${encodeURIComponent(ck)}?e=${exp}&s=${await assinar(env, ck, exp)}` : null;
+    return json({ url: `/api/v/s/${encodeURIComponent(key)}?e=${exp}&s=${await assinar(env, key, exp)}`, capa, ate: exp });
   }
 
   // ----- daqui para baixo, só a conta de gestão -----
@@ -152,10 +154,18 @@ async function api(req, env, url) {
     if (String(key || "").startsWith("videos/") && uploadId) await env.VIDEOS.resumeMultipartUpload(key, uploadId).abort().catch(() => {});
     return json({ ok: true });
   }
+  if (p === "/api/v/capa" && req.method === "PUT") {
+    const key = url.searchParams.get("key") || "";
+    if (!key.startsWith("videos/") || key.endsWith(".jpg")) return json({ erro: "pedido inválido" }, 400);
+    const buf = await req.arrayBuffer();
+    if (!buf.byteLength || buf.byteLength > 3 * 1024 * 1024) return json({ erro: "imagem inválida" }, 400);
+    await env.VIDEOS.put(capaDe(key), buf, { httpMetadata: { contentType: "image/jpeg" } });
+    return json({ ok: true });
+  }
   if (p === "/api/v/del" && req.method === "POST") {
     const { key } = await req.json().catch(() => ({}));
     if (!String(key || "").startsWith("videos/")) return json({ erro: "pedido inválido" }, 400);
-    await env.VIDEOS.delete(key);
+    await env.VIDEOS.delete([key, capaDe(key)]);
     return json({ ok: true });
   }
   return json({ erro: "não encontrado" }, 404);
