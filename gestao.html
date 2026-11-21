@@ -1164,15 +1164,15 @@ details.an[open] > summary{border-bottom:1px solid var(--line)}
       v.muted = true; v.playsInline = true; v.preload = 'auto'; v.crossOrigin = 'anonymous';
       v.addEventListener('loadedmetadata', function(){ try { v.currentTime = Math.min(Math.max(1, (v.duration || 10) * 0.12), 25); } catch(e){ sai(null); } });
       v.addEventListener('seeked', function(){ try { var w = Math.min(1280, v.videoWidth || 1280), h = Math.round(w * (v.videoHeight || 720) / (v.videoWidth || 1280)), cv = document.createElement('canvas'); cv.width = w; cv.height = h; cv.getContext('2d').drawImage(v, 0, 0, w, h); cv.toBlob(function(b){ sai(b); }, 'image/jpeg', 0.82); } catch(e){ sai(null); } });
-      v.addEventListener('error', function(){ sai(null); }); setTimeout(function(){ sai(null); }, 15000); v.src = url;
+      v.addEventListener('error', function(){ sai(null); }); setTimeout(function(){ sai(null); }, 45000); v.src = url;
     }); }
     function enviaCapa(key, blob){ return blob ? apiV('capa?key=' + encodeURIComponent(key), {method: 'PUT', headers: {'Content-Type': 'image/jpeg'}, body: blob}).catch(function(){}) : Promise.resolve(); }
     var CAPA_VISTA = {};
     window.__fiqVideoCapa = function(a){
       if (!a.vk || CAPA_VISTA[a.vk]) return; CAPA_VISTA[a.vk] = 1;
       apiV('token', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({analise_id: a.id})}).then(function(r){
-        if (r.capa || !r.url) return; return capaDoVideo(r.url).then(function(b){ return enviaCapa(a.vk, b); });
-      }).catch(function(){});
+        if (r.capa || !r.url) return; return capaDoVideo(r.url).then(function(b){ if (!b){ delete CAPA_VISTA[a.vk]; return; } return enviaCapa(a.vk, b); });
+      }).catch(function(){ delete CAPA_VISTA[a.vk]; });
     };
     window.__fiqVideoUp = function(c, a, file, prog){
       var antigo = a.vk, ini;

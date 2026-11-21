@@ -2203,7 +2203,15 @@ nav.tabs a{position:relative}
     function https(u){ try { return new URL(u).protocol === 'https:'; } catch(e){ return false; } }
     var podeIncorporar = /github\.io$|fieldiqcm\.com$|pages\.dev$|workers\.dev$|^localhost$/.test(location.hostname);
     function driveId(u){ var m = String(u||'').match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:.*&)?id=)([A-Za-z0-9_-]{20,})/); return m ? m[1] : ''; }
-    var VCACHE = {};
+    var VCACHE = {}, CAPA_LOCAL = {};
+    function capaLocal(url){ return new Promise(function(ok){
+      var v = document.createElement('video'), fim = false;
+      function sai(u){ if (fim) return; fim = true; try { v.removeAttribute('src'); v.load(); } catch(e){} ok(u || null); }
+      v.muted = true; v.playsInline = true; v.preload = 'auto'; v.crossOrigin = 'anonymous';
+      v.addEventListener('loadedmetadata', function(){ try { v.currentTime = Math.min(Math.max(1, (v.duration || 10) * 0.12), 25); } catch(e){ sai(null); } });
+      v.addEventListener('seeked', function(){ try { var w = Math.min(1280, v.videoWidth || 1280), h = Math.round(w * (v.videoHeight || 720) / (v.videoWidth || 1280)), cv = document.createElement('canvas'); cv.width = w; cv.height = h; cv.getContext('2d').drawImage(v, 0, 0, w, h); cv.toBlob(function(b){ sai(b ? URL.createObjectURL(b) : null); }, 'image/jpeg', 0.82); } catch(e){ sai(null); } });
+      v.addEventListener('error', function(){ sai(null); }); setTimeout(function(){ sai(null); }, 20000); v.src = url;
+    }); }
     function tocarR2(inicio){
       var w = document.getElementById('yt-wrap'), v = document.getElementById('fiq-vid');
       if (v){ if (inicio != null) v.currentTime = inicio; v.play().catch(function(){}); w.scrollIntoView({behavior:'smooth', block:'center'}); return; }
@@ -2401,14 +2409,21 @@ nav.tabs a{position:relative}
       if (dados && dados.vk && window.__fiqVideoUrl){
         var anC = k, du0 = document.querySelector('#yt-btn .dur'); if (du0) du0.textContent = (dados.nome ? dados.nome.split('·')[0].trim() + ' · ' : '') + 'os teus lances';
         (VCACHE[k] && VCACHE[k].ate > Date.now() / 1000 + 300 ? Promise.resolve(VCACHE[k]) : window.__fiqVideoUrl(k).then(function(r){ VCACHE[k] = r; return r; })).then(function(r){
-          if (ANALISE !== anC || !r || !r.capa) return;
+          if (ANALISE !== anC || !r) return;
+          if (!r.capa){ // sem capa guardada: tira uma imagem do próprio vídeo aqui no aparelho
+            if (CAPA_LOCAL[anC]) return CAPA_LOCAL[anC];
+            return (CAPA_LOCAL[anC] = capaLocal(r.url)).then(function(u){ if (u && ANALISE === anC) poeCapa(u); });
+          }
+          poeCapa(r.capa);
+        }).catch(function(){});
+        function poeCapa(src){
           var vb2 = document.getElementById('yt-btn'); if (!vb2 || vb2.querySelector('.yt-capa')) return;
           var bd2 = vb2.querySelector('.board'), im2 = document.createElement('img');
           im2.className = 'yt-capa'; im2.alt = ''; im2.decoding = 'async';
           im2.onload = function(){ if (bd2) bd2.style.display = 'none'; vb2.classList.add('com-capa'); };
           im2.onerror = function(){ im2.remove(); };
-          im2.src = r.capa; vb2.insertBefore(im2, vb2.firstChild);
-        }).catch(function(){});
+          im2.src = src; vb2.insertBefore(im2, vb2.firstChild);
+        }
       }
       // capa: a miniatura do próprio vídeo (a capa da sessão que puseste no YouTube)
       if (id){
